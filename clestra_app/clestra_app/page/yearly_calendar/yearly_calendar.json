@@ -1,0 +1,27 @@
+{
+ "content": null,
+ "creation": "2024-12-27 14:20:48.160987",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2025-06-17 08:55:46.445853",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "yearly-calendar",
+ "owner": "Administrator",
+ "page_name": "yearly-calendar",
+ "roles": [
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Yearly Calendar"
+}

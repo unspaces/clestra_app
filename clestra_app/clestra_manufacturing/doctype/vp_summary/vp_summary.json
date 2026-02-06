@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-02 12:05:41.610330",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cost_type",
+  "description",
+  "item_code",
+  "item_name",
+  "width",
+  "height",
+  "mt_cost",
+  "labor_cost",
+  "mfg_cost",
+  "oh_cost",
+  "vp"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "cost_type",
+   "fieldtype": "Select",
+   "label": "Cost Type",
+   "options": "\nMaterial Cost\nLabor Cost\nSub Total"
+  },
+  {
+   "columns": 1,
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Desc."
+  },
+  {
+   "columns": 2,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Width"
+  },
+  {
+   "columns": 1,
+   "fieldname": "height",
+   "fieldtype": "Int",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Height"
+  },
+  {
+   "fieldname": "mfg_cost",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "MFG",
+   "precision": "2"
+  },
+  {
+   "fieldname": "oh_cost",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "OH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "vp",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "VP"
+  },
+  {
+   "fieldname": "mt_cost",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "MT",
+   "precision": "2"
+  },
+  {
+   "fieldname": "labor_cost",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Labor",
+   "precision": "2"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-21 16:26:28.506517",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "VP Summary",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

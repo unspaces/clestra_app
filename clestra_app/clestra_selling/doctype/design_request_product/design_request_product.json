@@ -1,0 +1,930 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-13 10:15:40.932025",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_mfhk",
+  "prod_type",
+  "section_break_aoqf",
+  "column_break_lalh",
+  "button_size",
+  "column_break_fwpj",
+  "button_panel",
+  "column_break_ccdr",
+  "button_door",
+  "column_break_bqzp",
+  "button_color",
+  "column_break_drlz",
+  "button_hw",
+  "size_section",
+  "ch",
+  "ph",
+  "column_break_evde",
+  "ceiling_visible",
+  "base_visible_h",
+  "column_break_ihug",
+  "panel_crh",
+  "panel_trh",
+  "column_break_urfz",
+  "panel_module_size",
+  "custom_module_size",
+  "panel_section",
+  "panel_type",
+  "column_break_ckos",
+  "section_break_uzgh",
+  "clch_type",
+  "base_type",
+  "column_break_ysql",
+  "panel_module_cr",
+  "detailed_module_cr",
+  "column_break_jokb",
+  "panel_module_tr",
+  "detailed_module_tr",
+  "glass_section",
+  "glass_spec_type",
+  "layer",
+  "grooving",
+  "column_break_yfdz",
+  "glass_thickness",
+  "glass_type",
+  "sealing",
+  "section_break_dbby",
+  "include_power_column",
+  "section_pc",
+  "pc_cutout",
+  "pipe_box",
+  "column_break_ennk",
+  "booking_system",
+  "panel_glazing_style_section",
+  "s_panel",
+  "hg_panel",
+  "column_break_bbbt",
+  "fgd_panel",
+  "tg_panel",
+  "column_break_pejp",
+  "fgs_panel",
+  "etc_panel",
+  "etc",
+  "door_section",
+  "door_item_code",
+  "door_item_name",
+  "is_pair_door",
+  "column_break_mtqm",
+  "leaf_section",
+  "leaf_item_code",
+  "leaf_item_name",
+  "leaf_thk",
+  "leaf_glass_section",
+  "leaf_glass_type",
+  "leaf_glass_thk_section",
+  "leaf_glass_a",
+  "leaf_glass_b",
+  "column_break_doek",
+  "leaf_b_glass_a",
+  "leaf_b_glass_b",
+  "section_break_oipi",
+  "door_hw_spec",
+  "door_open_type",
+  "door_set_type",
+  "handle_section",
+  "mortise",
+  "handle",
+  "handle_painting_req",
+  "handle_paint_color",
+  "lockset_h",
+  "lockset_h_custom",
+  "key_cylinder",
+  "key_cylinder_painting_req",
+  "key_cylinder_paint_color",
+  "mk",
+  "hinge_side_section",
+  "hinge_type",
+  "custom_hinge",
+  "hinge_painting_req",
+  "hinge_paint_color",
+  "door_closer_section",
+  "door_closer",
+  "auto_drop_seal_section",
+  "auto_drop_seal",
+  "other_auto_drop_seal",
+  "fgd_section",
+  "fgd_type",
+  "column_break_ytlj",
+  "3m_tape_and_form_seal_color",
+  "tape_seal_color_gray",
+  "tape_seal_color_white",
+  "tape_seal_color_black",
+  "fixing_screw_cap_color",
+  "fix_screw_gray",
+  "fix_screw_white",
+  "fix_screw_black",
+  "back_painted_border_heading",
+  "back_painted_border",
+  "blind_section",
+  "blind",
+  "section_break_jrja",
+  "main_color",
+  "color",
+  "column_break_xbrp",
+  "door_colors",
+  "color_frame",
+  "color_transom",
+  "leaf_colors",
+  "color_leaf",
+  "color_lipseal",
+  "column_break_okev",
+  "panel_color",
+  "color_panel",
+  "sub_colors",
+  "color_clch",
+  "color_base",
+  "color_junction"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "prod_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Prod. Type",
+   "options": "\nAlign (P95)\nALTO\nBaya Slim (91)\nBTJ6\nBTJ6 CR\nCLESLINE50 CR\nCP86 CR\nDO1\nFizz Box - Crystal\nFizz Box - London\nFizz Box - Modern\nLignage\nLoft (M82)\nM1 (P94)\nMerchendising\nMplus (P94+)\nOperable Wall\nP61A\nP85 Synops\nP85A\nP86A\nP89L (Clean Room)\npleinAir (P81)\nSYSTEMAGE\nWall Cladding",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "label": "CH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ph",
+   "fieldtype": "Int",
+   "label": "PH"
+  },
+  {
+   "fieldname": "ceiling_visible",
+   "fieldtype": "Int",
+   "label": "Ceiling Visible Height"
+  },
+  {
+   "fieldname": "base_visible_h",
+   "fieldtype": "Int",
+   "label": "Base Visible Height"
+  },
+  {
+   "fieldname": "color_clch",
+   "fieldtype": "Link",
+   "label": "CL/CH",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_base",
+   "fieldtype": "Link",
+   "label": "Base",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_panel",
+   "fieldtype": "Link",
+   "label": "Panel Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_junction",
+   "fieldtype": "Link",
+   "label": "Junction",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "section_break_aoqf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_drlz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jrja",
+   "fieldtype": "Section Break",
+   "label": "Color"
+  },
+  {
+   "fieldname": "column_break_xbrp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "main_color",
+   "fieldtype": "Heading",
+   "label": "Main Color"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Link",
+   "label": "Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "door_colors",
+   "fieldtype": "Heading",
+   "label": "Door Colors"
+  },
+  {
+   "fieldname": "leaf_colors",
+   "fieldtype": "Heading",
+   "label": "Leaf Colors"
+  },
+  {
+   "fieldname": "column_break_okev",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sub_colors",
+   "fieldtype": "Heading",
+   "label": "Sub Colors"
+  },
+  {
+   "fieldname": "color_frame",
+   "fieldtype": "Link",
+   "label": "Frame Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_transom",
+   "fieldtype": "Link",
+   "label": "Transom Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_leaf",
+   "fieldtype": "Link",
+   "label": "Leaf Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_lipseal",
+   "fieldtype": "Link",
+   "label": "Lip Seal Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "panel_color",
+   "fieldtype": "Heading",
+   "label": "Panel Color"
+  },
+  {
+   "fieldname": "section_break_uzgh",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Panel Spec"
+  },
+  {
+   "fieldname": "clch_type",
+   "fieldtype": "Link",
+   "label": "CL/CH Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"CL CH Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "column_break_ysql",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_type",
+   "fieldtype": "Link",
+   "label": "Base Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Base Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "glass_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Panel Glass"
+  },
+  {
+   "fieldname": "layer",
+   "fieldtype": "Select",
+   "label": "Layer",
+   "options": "\nSingle\nDouble"
+  },
+  {
+   "fieldname": "grooving",
+   "fieldtype": "Select",
+   "label": "Grooving",
+   "options": "\nGrooving\nNon-Grooving"
+  },
+  {
+   "fieldname": "glass_type",
+   "fieldtype": "Link",
+   "label": "Glass Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Glass Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "sealing",
+   "fieldtype": "Select",
+   "label": "Sealing",
+   "options": "\n3M Tape\nGrooving Seal\nCaulking Tape"
+  },
+  {
+   "fieldname": "column_break_yfdz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.include_power_column == \"1\"",
+   "fieldname": "section_pc",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Panel Power Column (P/C)"
+  },
+  {
+   "fieldname": "pipe_box",
+   "fieldtype": "Select",
+   "label": "Pipe Box",
+   "options": "No\nYes"
+  },
+  {
+   "fieldname": "column_break_ennk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "booking_system",
+   "fieldtype": "Select",
+   "label": "Booking System",
+   "options": "No\nYes"
+  },
+  {
+   "depends_on": "eval:doc.main_module_size == \"Customize\"",
+   "fieldname": "custom_module_size",
+   "fieldtype": "Int",
+   "label": "Custom Module Size"
+  },
+  {
+   "fieldname": "panel_glazing_style_section",
+   "fieldtype": "Section Break",
+   "label": "Panel Glazing Style"
+  },
+  {
+   "default": "0",
+   "fieldname": "s_panel",
+   "fieldtype": "Check",
+   "label": "Solid"
+  },
+  {
+   "default": "0",
+   "fieldname": "hg_panel",
+   "fieldtype": "Check",
+   "label": "Half Glazed"
+  },
+  {
+   "fieldname": "column_break_bbbt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "fgd_panel",
+   "fieldtype": "Check",
+   "label": "Full Glazed (Double)"
+  },
+  {
+   "default": "0",
+   "fieldname": "tg_panel",
+   "fieldtype": "Check",
+   "label": "Transom Glazed"
+  },
+  {
+   "fieldname": "column_break_pejp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "fgs_panel",
+   "fieldtype": "Check",
+   "label": "Full Glazed (Single)"
+  },
+  {
+   "default": "0",
+   "fieldname": "etc_panel",
+   "fieldtype": "Check",
+   "label": "Etc.,"
+  },
+  {
+   "depends_on": "eval:doc.etc_panel == 1",
+   "fieldname": "etc",
+   "fieldtype": "Data",
+   "label": "ETC"
+  },
+  {
+   "fieldname": "column_break_jokb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "panel_module_cr",
+   "fieldtype": "Select",
+   "label": "Panel Module (CR)",
+   "options": "\nW/B\nTrackboard\nFGHG\nHGD\nEtc"
+  },
+  {
+   "depends_on": "eval:doc.panel_module_cr == \"etc\"",
+   "fieldname": "detailed_module_cr",
+   "fieldtype": "Data",
+   "label": "Detailed Module (CR)"
+  },
+  {
+   "fieldname": "panel_module_tr",
+   "fieldtype": "Select",
+   "label": "Panel Module (TR)",
+   "options": "\nW/B\nTrackboard\nTransom Panel\nEtc"
+  },
+  {
+   "depends_on": "eval:doc.panel_module_tr == \"etc\"",
+   "fieldname": "detailed_module_tr",
+   "fieldtype": "Data",
+   "label": "Detailed Module (TR)"
+  },
+  {
+   "fieldname": "pc_cutout",
+   "fieldtype": "Select",
+   "label": "P/C Cutout",
+   "options": "No\nYes"
+  },
+  {
+   "columns": 1,
+   "fieldname": "door_hw_spec",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "HW",
+   "options": "Door Hardware Spec"
+  },
+  {
+   "columns": 1,
+   "fieldname": "button_color",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Color"
+  },
+  {
+   "columns": 1,
+   "fieldname": "button_panel",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Panel"
+  },
+  {
+   "fieldname": "column_break_bqzp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lalh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_oipi",
+   "fieldtype": "Section Break",
+   "label": "Door Hardware Spec"
+  },
+  {
+   "fieldname": "panel_crh",
+   "fieldtype": "Int",
+   "label": "CRH"
+  },
+  {
+   "fieldname": "panel_trh",
+   "fieldtype": "Int",
+   "label": "TRH"
+  },
+  {
+   "fieldname": "column_break_ccdr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "button_door",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Door"
+  },
+  {
+   "fieldname": "column_break_fwpj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "door_section",
+   "fieldtype": "Section Break",
+   "label": "Door"
+  },
+  {
+   "columns": 2,
+   "fetch_from": "item_code.item_name",
+   "fieldname": "door_item_name",
+   "fieldtype": "Data",
+   "label": "Door Item Name"
+  },
+  {
+   "fieldname": "column_break_mtqm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "door_item_code",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Door Item Code",
+   "link_filters": "[[\"Item\",\"product_section\",\"=\",\"Door\"],[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "section_break_dbby",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "include_power_column",
+   "fieldtype": "Check",
+   "label": "Include Power Column (P/C)"
+  },
+  {
+   "fieldname": "panel_section",
+   "fieldtype": "Section Break",
+   "label": "Panel"
+  },
+  {
+   "fieldname": "panel_type",
+   "fieldtype": "Select",
+   "label": "Panel Type",
+   "options": "\nSVo\nSVc\nKDV"
+  },
+  {
+   "fieldname": "column_break_ckos",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "glass_spec_type",
+   "fieldtype": "Select",
+   "label": "Spec Type",
+   "options": "\nStandard\nCustomize"
+  },
+  {
+   "fieldname": "glass_thickness",
+   "fieldtype": "Select",
+   "label": "Thickness",
+   "options": "\n5\n6\n7\n8\n10\n10.76\n12\n12.76\n16.76"
+  },
+  {
+   "fieldname": "section_break_mfhk",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "button_size",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Size"
+  },
+  {
+   "columns": 2,
+   "fetch_from": "leaf_item_code.item_name",
+   "fieldname": "leaf_item_name",
+   "fieldtype": "Data",
+   "label": "Leaf Item Name"
+  },
+  {
+   "fieldname": "leaf_item_code",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Leaf Item Code",
+   "link_filters": "[[\"Item\",\"product_section\",\"=\",\"Leaf\"],[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "size_section",
+   "fieldtype": "Section Break",
+   "label": "Size"
+  },
+  {
+   "fieldname": "column_break_evde",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ihug",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_urfz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "panel_module_size",
+   "fieldtype": "Select",
+   "label": "Panel Module Size",
+   "options": "\n1000\nEqual\nCustomize"
+  },
+  {
+   "fieldname": "leaf_section",
+   "fieldtype": "Section Break",
+   "label": "Leaf"
+  },
+  {
+   "fieldname": "leaf_glass_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Leaf Glass"
+  },
+  {
+   "fieldname": "leaf_glass_type",
+   "fieldtype": "Link",
+   "label": "Glass Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Glass Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "leaf_glass_thk_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "leaf_glass_a",
+   "fieldtype": "Link",
+   "label": "Leaf Glass A (Outer)",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "leaf_glass_b",
+   "fieldtype": "Link",
+   "label": "Leaf Glass B (Inner)",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "column_break_doek",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pair_door",
+   "fieldtype": "Check",
+   "label": "Is Pair Door"
+  },
+  {
+   "depends_on": "eval:doc.is_pair_door == 1",
+   "fieldname": "leaf_b_glass_a",
+   "fieldtype": "Link",
+   "label": "Leaf B Glass A (Outer)",
+   "options": "Product Thickness"
+  },
+  {
+   "depends_on": "eval:doc.is_pair_door == 1",
+   "fieldname": "leaf_b_glass_b",
+   "fieldtype": "Link",
+   "label": "Leaf B Glass B (Inner)",
+   "options": "Product Thickness"
+  },
+  {
+   "fetch_from": "leaf_item_code.leaf_thk",
+   "fieldname": "leaf_thk",
+   "fieldtype": "Data",
+   "label": "Leaf Thickness"
+  },
+  {
+   "columns": 1,
+   "fieldname": "button_hw",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "HW"
+  },
+  {
+   "fieldname": "door_open_type",
+   "fieldtype": "Select",
+   "label": "Door Open Type",
+   "options": "\nSwing\nSliding"
+  },
+  {
+   "fieldname": "door_set_type",
+   "fieldtype": "Select",
+   "label": "Door Set Type",
+   "options": "\nSingle\nPair"
+  },
+  {
+   "fieldname": "handle_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Handle"
+  },
+  {
+   "fieldname": "mortise",
+   "fieldtype": "Data",
+   "label": "Mortise (Lockset)"
+  },
+  {
+   "fieldname": "handle",
+   "fieldtype": "Data",
+   "label": "Handle"
+  },
+  {
+   "fieldname": "lockset_h",
+   "fieldtype": "Select",
+   "label": "Lockset H",
+   "options": "\n900\n950\n1000\n1050\n1100\nCustom"
+  },
+  {
+   "depends_on": "eval:doc.lockset_h == 'Custom'",
+   "fieldname": "lockset_h_custom",
+   "fieldtype": "Int",
+   "label": "Lockset H Custom"
+  },
+  {
+   "fieldname": "key_cylinder",
+   "fieldtype": "Data",
+   "label": "Key Cylinder"
+  },
+  {
+   "fieldname": "auto_drop_seal_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Auto Drop Seal"
+  },
+  {
+   "fieldname": "auto_drop_seal",
+   "fieldtype": "Select",
+   "label": "Auto Drop Seal",
+   "options": "\nCDCM\nAthmer M1B\nOther"
+  },
+  {
+   "depends_on": "eval:doc.auto_drop_seal == 'Other'",
+   "fieldname": "other_auto_drop_seal",
+   "fieldtype": "Data",
+   "label": "Other Auto Drop Seal"
+  },
+  {
+   "fieldname": "hinge_side_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Hinge Side"
+  },
+  {
+   "fieldname": "hinge_type",
+   "fieldtype": "Select",
+   "label": "Hinge Type",
+   "options": "\nButt - Standard\nButt - Standard (Black Color)\nButt - Concealed Hinge (OPW)\nPivot - CL-200\nPivot - CL-300 (Standard)\nPivot - CL-300 (Std., Black Color)\nPivot - CL-300 (Frame Fix)\nPivot - CL-300 (Frame Fix, Black Color)\nPivot - CL-300AS\nPivot - CL-300AS_BC (Black Color)\nPivot - CL-400 Floor Type\nPivot - CL-400 Floor (Black Color)\nPivot - CL-400 Groove Type\nPivot - CL-400 Groove Type (Black Color)\nPivot - M195\nFloor Hinge\nStremler\nCustom"
+  },
+  {
+   "depends_on": "eval:doc.hinge_type == 'Custom'",
+   "fieldname": "custom_hinge",
+   "fieldtype": "Data",
+   "label": "Custom Hinge Details"
+  },
+  {
+   "depends_on": "eval:doc.special_painting_req == 1",
+   "fieldname": "hinge_paint_color",
+   "fieldtype": "Link",
+   "label": "Hinge Painting Color",
+   "options": "Product Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "hinge_painting_req",
+   "fieldtype": "Check",
+   "label": "Hinge Painting Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "handle_painting_req",
+   "fieldtype": "Check",
+   "label": "Handle Painting Required"
+  },
+  {
+   "depends_on": "eval:doc.key_cylinder_painting_req == 1",
+   "fieldname": "handle_paint_color",
+   "fieldtype": "Link",
+   "label": "Handle Painting Color",
+   "options": "Product Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "key_cylinder_painting_req",
+   "fieldtype": "Check",
+   "label": "Key Cylinder Painting Required"
+  },
+  {
+   "depends_on": "eval:doc.key_cylinder_painting_req == 1",
+   "fieldname": "key_cylinder_paint_color",
+   "fieldtype": "Link",
+   "label": "Key Cylinder Painting Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "door_closer_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Door Closer"
+  },
+  {
+   "fieldname": "door_closer",
+   "fieldtype": "Select",
+   "label": "Door Closer",
+   "options": "N\nY"
+  },
+  {
+   "fieldname": "fgd_section",
+   "fieldtype": "Section Break",
+   "label": "FGD"
+  },
+  {
+   "fieldname": "column_break_ytlj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "3m_tape_and_form_seal_color",
+   "fieldtype": "Heading",
+   "label": "3M Tape and Form Seal Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "fixing_screw_cap_color",
+   "fieldtype": "Heading",
+   "label": "Fixing Screw Cap Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "back_painted_border",
+   "fieldtype": "Select",
+   "label": "Back Painted Border",
+   "options": "N\nY"
+  },
+  {
+   "fieldname": "blind_section",
+   "fieldtype": "Section Break",
+   "label": "Blind"
+  },
+  {
+   "fieldname": "blind",
+   "fieldtype": "Data",
+   "label": "Blind"
+  },
+  {
+   "fieldname": "mk",
+   "fieldtype": "Data",
+   "label": "MK"
+  },
+  {
+   "fieldname": "fgd_type",
+   "fieldtype": "Select",
+   "label": "FGD Type",
+   "options": "\n3M Tape + Screw (Std.)\n3M Tape + 3M Tape"
+  },
+  {
+   "fieldname": "back_painted_border_heading",
+   "fieldtype": "Heading",
+   "label": "Back Painted Border"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-13 10:58:00.525576",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Design Request Product",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

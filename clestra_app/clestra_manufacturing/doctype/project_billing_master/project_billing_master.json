@@ -1,0 +1,588 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "PBM-.company_abbr.-.YY.-.###",
+ "creation": "2024-10-14 13:52:04.534167",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project",
+  "custom_project_title",
+  "project_group_name",
+  "project_name",
+  "column_break_wnxn",
+  "company",
+  "company_abbr",
+  "date",
+  "created_by",
+  "created_by_name",
+  "section_break_tczc",
+  "sales_order",
+  "get_items_from",
+  "so_prepared_by",
+  "pm",
+  "column_break_fjir",
+  "contract_no_section",
+  "mpr",
+  "column_break_qype",
+  "job_id",
+  "column_break_awng",
+  "contract_no",
+  "column_break_pibc",
+  "sub_no",
+  "column_break_hpft",
+  "serial_no",
+  "column_break_dfil",
+  "revision",
+  "section_break_kytz",
+  "column_break_xoru",
+  "shipping_method",
+  "incoterms",
+  "ex_work_date",
+  "on_site_date",
+  "column_break_ktyj",
+  "city",
+  "country",
+  "other_site_location",
+  "street_address",
+  "items_to_manufacture_section",
+  "manufacturing_items",
+  "notes",
+  "po_items",
+  "get_items",
+  "combine_items",
+  "section_break_gkkb",
+  "combine_sub_items",
+  "sub_assembly_warehouse",
+  "column_break_jxgk",
+  "skip_available_sub_assembly_item",
+  "column_break_awin",
+  "get_sub_assembly_items",
+  "detail_bom_item_section",
+  "bom_items",
+  "detail_bom_items",
+  "section_break_bjai",
+  "column_break_kmph",
+  "column_break_qqmo",
+  "column_break_oksr",
+  "generate_billing",
+  "section_break_ohhb",
+  "billing",
+  "summary_section",
+  "prod_summary",
+  "panel_cover_page_section",
+  "panel_cover",
+  "door_master_page_section",
+  "door_cover",
+  "sub_item_section",
+  "sub_items",
+  "panel_section",
+  "panel_items",
+  "etc_section",
+  "etc_items"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xoru",
+   "fieldtype": "Column Break",
+   "label": "Shipping Infomation"
+  },
+  {
+   "fieldname": "get_items_from",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Get Items From",
+   "options": "\nSales Order"
+  },
+  {
+   "fieldname": "panel_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Panel Sub Items"
+  },
+  {
+   "fieldname": "panel_items",
+   "fieldtype": "Table",
+   "label": "Panel Items",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fieldname": "etc_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Etc."
+  },
+  {
+   "fieldname": "etc_items",
+   "fieldtype": "Table",
+   "label": "Etc Items",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fieldname": "items_to_manufacture_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "po_items",
+   "fieldtype": "Table",
+   "options": "Project Billing Master Item"
+  },
+  {
+   "depends_on": "eval:doc.get_items_from && doc.docstatus == 0",
+   "fieldname": "get_items",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Get Finished Goods for Manufacture"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.get_items_from == 'Sales Order'",
+   "fieldname": "combine_items",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Consolidate Sales Order Items"
+  },
+  {
+   "fieldname": "section_break_gkkb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "combine_sub_items",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Consolidate Sub Assembly Items"
+  },
+  {
+   "fieldname": "column_break_jxgk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_awin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_sub_assembly_items",
+   "fieldtype": "Button",
+   "label": "\u2776 Get BOM Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "skip_available_sub_assembly_item",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Skip Available Sub Assembly Items"
+  },
+  {
+   "fieldname": "sub_assembly_warehouse",
+   "fieldtype": "Link",
+   "label": "Sub Assembly Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "columns": 2,
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "project.contract_no",
+   "fieldname": "contract_no",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Contract"
+  },
+  {
+   "default": "__user",
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Created By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shipping_method",
+   "fieldtype": "Select",
+   "label": "Shipping Method",
+   "options": "\nSea\nAir\nTruck\nCourier"
+  },
+  {
+   "fieldname": "contract_no_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Contract No."
+  },
+  {
+   "fieldname": "column_break_qype",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_awng",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pibc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hpft",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kytz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "project.mpr",
+   "fieldname": "mpr",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "MPR"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "project.job_id",
+   "fieldname": "job_id",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Job ID",
+   "options": "Job ID"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Clestra Sales Order"
+  },
+  {
+   "columns": 1,
+   "fieldname": "sub_no",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Sub",
+   "length": 3
+  },
+  {
+   "fieldname": "column_break_ktyj",
+   "fieldtype": "Column Break",
+   "label": "Site Information"
+  },
+  {
+   "fieldname": "column_break_wnxn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Serial",
+   "length": 5
+  },
+  {
+   "depends_on": "eval:doc.site_location == 'Other'",
+   "fieldname": "other_site_location",
+   "fieldtype": "Data",
+   "label": "Other Site Location"
+  },
+  {
+   "fieldname": "door_master_page_section",
+   "fieldtype": "Section Break",
+   "label": "Door Cover"
+  },
+  {
+   "fieldname": "panel_cover_page_section",
+   "fieldtype": "Section Break",
+   "label": "Panel Cover"
+  },
+  {
+   "fieldname": "panel_cover",
+   "fieldtype": "Table",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fetch_from": "project.project_name_region",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "created_by.full_name_region",
+   "fieldname": "created_by_name",
+   "fieldtype": "Data",
+   "label": "Created By (Name)"
+  },
+  {
+   "fieldname": "door_cover",
+   "fieldtype": "Table",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fieldname": "detail_bom_item_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "detail_bom_items",
+   "fieldtype": "Table",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fieldname": "sub_item_section",
+   "fieldtype": "Section Break",
+   "label": "Sub Items"
+  },
+  {
+   "fieldname": "sub_items",
+   "fieldtype": "Table",
+   "options": "Project Billing Master Sub Item"
+  },
+  {
+   "fieldname": "section_break_bjai",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_kmph",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qqmo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_oksr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "generate_billing",
+   "fieldtype": "Button",
+   "label": "\u2777 Generate Billing"
+  },
+  {
+   "fieldname": "section_break_ohhb",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "billing",
+   "fieldtype": "Heading",
+   "label": "Billing"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "prod_summary",
+   "fieldtype": "Table",
+   "options": "Product Cover"
+  },
+  {
+   "default": "Today",
+   "fieldname": "ex_work_date",
+   "fieldtype": "Date",
+   "label": "Ex-Work Date"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "label": "City",
+   "options": "City"
+  },
+  {
+   "default": "Today",
+   "fieldname": "on_site_date",
+   "fieldtype": "Date",
+   "label": "On-Site Date"
+  },
+  {
+   "fieldname": "so_prepared_by",
+   "fieldtype": "Link",
+   "label": "SO Prepared By",
+   "options": "User"
+  },
+  {
+   "fieldname": "pm",
+   "fieldtype": "Link",
+   "label": "Project Manager",
+   "options": "User"
+  },
+  {
+   "default": "CIF(Cost, Insurance and Freight)",
+   "fieldname": "incoterms",
+   "fieldtype": "Select",
+   "label": "Incoterms",
+   "options": "\nDDP(Delivered Duty Paid)\nDomestic\nFOB(Free On Board)\nCFR(Cost and Freight)\nCIF(Cost, Insurance and Freight)\nEXW(Ex Works)\nCPT(Carriage Paid To)\nCIP(Carriage and Insurance Paid to)\nDAT(Delivered At Terminal)\nDAP(Delivered At Place)"
+  },
+  {
+   "fieldname": "column_break_dfil",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "revision",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rev.",
+   "length": 2
+  },
+  {
+   "fetch_from": "project.project_group_name",
+   "fieldname": "project_group_name",
+   "fieldtype": "Data",
+   "label": "Project Group Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "company_abbr",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Abbr"
+  },
+  {
+   "fieldname": "manufacturing_items",
+   "fieldtype": "Heading",
+   "label": "Manufacturing Items"
+  },
+  {
+   "fieldname": "bom_items",
+   "fieldtype": "Heading",
+   "label": "BOM Items"
+  },
+  {
+   "fieldname": "section_break_tczc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_fjir",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Displays as the project title. If empty, the Project Group Name will be used.",
+   "fieldname": "custom_project_title",
+   "fieldtype": "Data",
+   "label": "Custom Project Title"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Sales Order Notes"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Site Location",
+   "link_filters": "[]",
+   "options": "Country"
+  },
+  {
+   "fieldname": "street_address",
+   "fieldtype": "Data",
+   "label": "Street Address"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-26 11:50:11.648022",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Project Billing Master",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

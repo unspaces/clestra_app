@@ -1,0 +1,77 @@
+<!-- HW Spec Summary Section in Print Format -->
+<!-- <div style="page-break-before: always;"></div> -->
+<!-- 첫 번째 줄 -->
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div style="flex-basis: 33.33%; text-align: left;"><h4 style="margin: 0; padding: 0;">Hardware Specifications</h4></div>
+    <div style="flex-basis: 66.66%; text-align: right;"></div>
+</div>
+<table class="table table-bordered table-condensed" style="margin:0px 0px 10px !important; border: 1px solid black;">
+    <tbody>
+        <tr>
+            <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 10pt; padding: 2px 4px !important;" colspan="2">Project Name</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">MPR</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Job ID</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Contract No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Sub No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Serial No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Revision</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;" colspan="2">{%- if doc.project -%}
+                {%- set project_doc = frappe.get_doc("Project", doc.project).project_name -%}
+                {{ project_doc }}
+                {%- endif -%}
+            </td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.mpr }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.job_id }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.contract_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.sub_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.serial_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;"></td>
+        </tr>
+    </tbody>
+</table>
+<!-- 1. 새로운 프린트 전용 함수 호출 -->
+{% set hw_summary = doc.get_print_hw_spec_summary() %}
+
+{% if hw_summary and hw_summary.chunks %}
+    <!-- 2. Jinja 루프로 HTML 생성 -->
+    {% for chunk in hw_summary.chunks %}
+        {% set num_specs = chunk | length %}
+        {% if num_specs > 0 %}
+            {% set property_col_width_percent = 20 %}
+			{% set spec_col_width_percent = 20 * num_specs %}
+			{% set total_width_percent = property_col_width_percent + spec_col_width_percent %}
+            {% set labels_in_order = chunk[0].keys() | reject('in', ['name', 'hw_spec_code']) | list %}
+            {% set property_min_width = 180 %}
+            {% set spec_min_width = 150 %}
+            {% set total_min_width = property_min_width + (num_specs * spec_min_width) %}
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" style="width: {{total_width_percent}}%; table-layout: fixed; margin-bottom: 25px;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="min-width: {{ property_min_width }}px;">Property</th>
+                            {% for spec in chunk %}
+                                <th style="min-width: {{ spec_min_width }}px;"><a href="/app/door-hardware-spec/{{ spec.name }}">{{ spec.hw_spec_code }}</a></th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label in labels_in_order %}
+                        <tr>
+                            <td style="font-weight: 500;">{{ label }}</td>
+                            {% for spec in chunk %}
+                                <td>{{ spec[label] or '-' }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <p class="text-muted">{{ _('No Hardware Specs found for this project.') }}</p>
+{% endif %}
+<div style="page-break-after: always;"></div>

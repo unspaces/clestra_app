@@ -1,0 +1,229 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "{inspection_type}-{proj_name}-{##}",
+ "creation": "2024-10-07 13:49:30.391430",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_ofzl",
+  "amended_from",
+  "proj",
+  "proj_name",
+  "inspector",
+  "inspector_name",
+  "inspection_type",
+  "column_break_fngy",
+  "company",
+  "issued_date",
+  "construction_team",
+  "section_break_espf",
+  "product_type",
+  "section_break_skac",
+  "items"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Inspection",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_ofzl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "proj",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "proj.project_name",
+   "fieldname": "proj_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Project Name"
+  },
+  {
+   "default": "__user",
+   "fieldname": "inspector",
+   "fieldtype": "Link",
+   "label": "Inspector",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspection_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Inspection Type",
+   "options": "Inspection List Builder",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fngy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "issued_date",
+   "fieldtype": "Date",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Issued Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "construction_team",
+   "fieldtype": "Select",
+   "label": "Construction Team",
+   "options": "\n\uc218\uc5f0\n\ud55c\uc194\n\ub3d9\ud638\n\ud0d1\n\ub3d9\uc740\n\uae30\ud0c0"
+  },
+  {
+   "fieldname": "section_break_espf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Table",
+   "label": "Product Type",
+   "options": "Product Type Checklist"
+  },
+  {
+   "fieldname": "section_break_skac",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Inspection Items"
+  },
+  {
+   "default": "__user",
+   "fetch_from": "inspector.full_name_region",
+   "fieldname": "inspector_name",
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "label": "Inspector Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "make_attachments_public": 1,
+ "modified": "2025-12-02 08:40:15.483289",
+ "modified_by": "Administrator",
+ "module": "Site Operations",
+ "name": "Inspection",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "proj"
+}

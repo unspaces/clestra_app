@@ -1,0 +1,24 @@
+{
+ "content": null,
+ "creation": "2025-04-18 09:57:40.671781",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2025-04-18 09:57:40.671781",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "email_signature",
+ "owner": "Administrator",
+ "page_name": "email_signature",
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Email Signature"
+}

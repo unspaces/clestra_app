@@ -1,0 +1,28 @@
+#calendar-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#calendar-container table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+}
+
+#calendar-container th {
+    background-color: #97c7BF;
+    color: white;
+    padding: 10px;
+}
+
+#calendar-container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    vertical-align: top;
+    text-align: left;
+}
+
+#calendar-container td:hover {
+    background-color: #f0f8ff;
+    cursor: pointer;
+}

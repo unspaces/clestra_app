@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-19 08:49:58.021162",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "height_from",
+  "height_to",
+  "width_from",
+  "width_to",
+  "panel_type",
+  "vp",
+  "unit",
+  "include_in_lm_sum",
+  "dimension_rule"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "height_from",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Height From"
+  },
+  {
+   "columns": 1,
+   "fieldname": "height_to",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Height To"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width_from",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width From"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width_to",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width To"
+  },
+  {
+   "columns": 1,
+   "fieldname": "panel_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Panel Type",
+   "options": "ACCY_EA\nACCY_LM\nACCY_MH\nDOOR\nLEAF\nGLASS PANEL\nSOLID PANEL"
+  },
+  {
+   "columns": 1,
+   "fieldname": "vp",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "VP"
+  },
+  {
+   "columns": 1,
+   "fieldname": "unit",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "EA\nLM\nMH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "include_in_lm_sum",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Include in LM Sum",
+   "options": "\nY\nN"
+  },
+  {
+   "columns": 1,
+   "fieldname": "dimension_rule",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Dimension Rule",
+   "options": "HEIGHT\nWIDTH\nALL\nNONE"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-19 09:33:12.751937",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "VP Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

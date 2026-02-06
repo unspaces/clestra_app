@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "creation": "2024-08-28 15:41:58.026430",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "parent_item",
+  "sub_item_code",
+  "quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "parent_item",
+   "fieldtype": "Link",
+   "label": "Parent Item",
+   "options": "Sales Order Item"
+  },
+  {
+   "fieldname": "sub_item_code",
+   "fieldtype": "Data",
+   "label": "Sub Item Code"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  }
+ ],
+ "links": [],
+ "modified": "2024-10-14 13:47:46.628329",
+ "modified_by": "Administrator",
+ "module": "Items",
+ "name": "Sub Item",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

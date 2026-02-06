@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clestra Email Signature Generator</title>
+    
+</head>
+<body>
+    <div class="container">
+        <h2>Clestra Email Signature Generator</h2>
+
+        <!-- Division -->
+        <div class="form-group single-column">
+            <label for="division">Division / Office</label>
+            <select id="division" onchange="handleDivisionChange()">
+                <option value="KR">Seoul, South Korea</option>
+                <option value="Gumi">Gumi, South Korea</option>
+                <option value="CN_SH">Shanghai, China</option>
+                <option value="CN_TC">Taicang, China</option>
+                <option value="JP">Tokyo, Japan</option>
+                <option value="HK">Hong Kong</option>
+                <option value="SG">Singapore</option>
+                <option value="MUM">Mumbai, India</option>
+                <option value="PUN">Pune, India</option>
+            </select>
+        </div>
+
+        <!-- Name Fields -->
+        <div class="form-group">
+            <div class="column">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" placeholder="Enter first name">
+            </div>
+            <div class="column">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" placeholder="Enter last name">
+            </div>
+        </div>
+
+        <!-- Position & Team -->
+        <div class="form-group">
+            <div class="column">
+                <label for="position">Position</label>
+                <input type="text" id="position" placeholder="Enter position">
+            </div>
+            <div class="column">
+                <label for="team">Team</label>
+                <input type="text" id="team" placeholder="Enter team (optional)">
+            </div>
+        </div>
+
+        <!-- Contact Numbers -->
+        <div class="form-group">
+            <div class="column">
+                <label for="phone_number">Phone Number (Direct/Office)</label>
+                <input type="text" id="phone_number" placeholder="e.g., +82 2 1234 5678">
+            </div>
+            <div class="column">
+                <label for="mobile_number">Mobile Number (Optional)</label>
+                <input type="text" id="mobile_number" placeholder="e.g., +82 10 1234 5678">
+            </div>
+        </div>
+
+        <!-- Regional Fields Toggle -->
+        <div class="toggle-container">
+            <label class="toggle-switch">
+            <input type="checkbox" id="regional-details-toggle" onchange="handleRegionalToggle()"/>
+            <span class="slider"></span>
+            </label>
+            <label for="regional-details-toggle" class="toggle-label">Show Regional Details (Optional)</label>
+        </div>
+
+        <!-- Regional Fields (Hidden by Default, controlled by toggle) -->
+        <div id="regional-fields" style="display: none;">
+            <!-- <p style="font-weight: 600; margin-bottom: var(--spacing-unit); font-size: 1rem;">Regional Details (Optional)</p> No longer needed, title in toggle label -->
+            <div class="form-group">
+                <div class="column">
+                    <label for="first_name_regional">First Name (Regional)</label>
+                    <input type="text" id="first_name_regional" placeholder="e.g., 太郎 or María">
+                </div>
+                <div class="column">
+                    <label for="last_name_regional">Last Name (Regional)</label>
+                    <input type="text" id="last_name_regional" placeholder="e.g., 山田 or García">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="column">
+                    <label for="position_regional">Position (Regional)</label>
+                    <input type="text" id="position_regional" placeholder="e.g., マネージャー or Gerente">
+                </div>
+                <div class="column">
+                    <label for="team_regional">Team (Regional)</label>
+                    <input type="text" id="team_regional" placeholder="e.g., 営業部 or Ventas">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="column">
+                    <label for="address_regional">Address (Regional)</label>
+                    <textarea id="address_regional" rows="3" style="width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 0.9rem; background-color: var(--input-bg-color); font-family: var(--font-family); resize: vertical;" placeholder="Enter regional address if applicable (e.g., Japanese format)"></textarea>
+                </div>
+                <div class="column">
+                    <label for="company_name_regional">Company Name (Regional)</label>
+                    <input type="text" id="company_name_regional" placeholder="e.g., クレストラ株式会社">
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Toggle -->
+        <!-- Added unique ID to container for easier CSS targeting -->
+        <div class="toggle-container" id="version-toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="version-toggle" onchange="toggleVersion()"/>
+                <span class="slider"></span>
+            </label>
+            <label for="version-toggle" class="toggle-label">Include New Year Greetings Banner</label>
+        </div>
+        
+        <!-- Disclaimer Toggle (New) -->
+        <div class="toggle-container" id="disclaimer-toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="disclaimer-toggle" onchange="if(document.getElementById('signature-output').innerHTML.includes('Clestra')) generateSignature()"/>
+                <span class="slider"></span>
+            </label>
+            <label for="disclaimer-toggle" class="toggle-label">Include Email Disclaimer (Recommended for JP)</label>
+        </div>
+
+        <!-- Generate Signature Button -->
+        <div class="form-group single-column">
+            <button class="primary" onclick="generateSignature()">Generate Signature</button>
+        </div>
+
+        <!-- Signature Output -->
+        <p style="font-weight: 600; margin-bottom: calc(var(--spacing-unit)/2); font-size: 1rem;">Preview:</p>
+        <div class="output" id="signature-output">
+            <!-- Generated signature will appear here -->
+            <p style="color: #777; text-align: center; padding-top: 20px;">Signature preview will appear here after generation.</p>
+        </div>
+
+        <!-- Copy Button and Message -->
+        <div class="form-group single-column" style="align-items: center;">
+            <button class="secondary" onclick="copySignature()">Copy Signature to Clipboard</button>
+            <span id="copy-message" class="copy-message">✅ Signature copied to clipboard!</span>
+        </div>
+
+    </div>
+</body>
+</html>

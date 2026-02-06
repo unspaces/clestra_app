@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2026-01-06 15:13:47.874043",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "category",
+  "level_1",
+  "level_2",
+  "level_3",
+  "level_4",
+  "level_5",
+  "item_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Door"
+  },
+  {
+   "fieldname": "level_1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level 1"
+  },
+  {
+   "fieldname": "level_2",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level 2"
+  },
+  {
+   "fieldname": "level_3",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level 3"
+  },
+  {
+   "fieldname": "level_4",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level 4"
+  },
+  {
+   "fieldname": "level_5",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level 5"
+  },
+  {
+   "columns": 2,
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-06 15:31:24.834553",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Option Master",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

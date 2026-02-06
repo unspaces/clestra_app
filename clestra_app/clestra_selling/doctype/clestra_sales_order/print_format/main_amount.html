@@ -1,0 +1,105 @@
+<!-- ================= 1. 데이터 가져오기 ================= -->
+{% set summary = doc.get_print_computation_data() %}
+
+<!-- ================= 2. 필요한 값들을 변수로 추출 (코드를 깔끔하게 만들기 위함) ================= -->
+{% set aa10_summary = (summary.groups | selectattr('title', 'equalto', 'A') | first).rows | selectattr('code', 'equalto', 'AA10') | first if summary else None %}
+{% set aa11_summary = (summary.groups | selectattr('title', 'equalto', 'A') | first).rows | selectattr('code', 'equalto', 'AA11') | first if summary else None %}
+{% set ab10_summary = (summary.groups | selectattr('title', 'equalto', 'B') | first).rows | selectattr('code', 'equalto', 'AB10') | first if summary else None %}
+{% set group_d_total = (summary.groups | selectattr('title', 'equalto', 'D') | first).total if summary else None %}
+
+<!-- ================= 3. Jinja 변수로 계산 수행 ================= -->
+{% set aa10_cost = aa10_summary.summary.cost if aa10_summary else 0 %}
+{% set aa10_discount = aa10_summary.summary.discount if aa10_summary else 0 %}
+{% set aa11_cost = aa11_summary.summary.cost if aa11_summary else 0 %}
+{% set ab10_cost = ab10_summary.summary.cost if ab10_summary else 0 %}
+{% set group_d_cost = group_d_total.cost if group_d_total else 0 %}
+
+<!-- G-Total Cost 계산: 1(AA10) - 2(Discount) + 3(AA11) + 4(AB10) + 5(Group D) -->
+{% set g_total_cost = aa10_cost - aa10_discount + aa11_cost + ab10_cost + group_d_cost %}
+
+<table style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <td style="vertical-align: top; left; padding-left: 0 !important; padding-bottom: 0 !important; font-size: 10pt">
+            <div>
+                <h4>
+                    Amount
+                </h4>
+            </div>
+        </td>
+        <td style="font-size: 10pt">
+        {% if doc.factory_currency != doc.local_currency %}
+            <div style="text-align: right;">{{ frappe.utils.fmt_money(g_total_cost, 0, doc.factory_currency) }}</div>
+            <div style="text-align: right;">1 {{ doc.factory_currency }} = {{ doc.exchange_rate or 'N/A' }} {{ doc.local_currency }}</div>
+        {% endif %}
+        </td>
+    </tr>
+</table>
+<table class="table table-bordered table-condensed" style="margin:0px 0px 10px !important; border: 1px solid black;">
+    <tbody>
+        <tr>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">VP</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt;" colspan="2">Currency</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">Ex.<br>Rate</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">1. Fabricatiton<br>Cost(AA10)</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">2. Discount<br>Cost</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">3. Plus Values<br>Cost(AA11)</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">4. Transport<br>Cost(AB10)</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">5. Sub Cost<br>(Group D)</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important;" rowspan="2">G-Total Cost<br>(1-2+3+4+5)</th>
+        </tr>
+        <tr>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt;">FAC</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 9pt;">DIV</th>
+        </tr>
+        <tr>
+            <!-- VP -->
+            <td style="border: 1px solid black; text-align: center; font-size: 9pt;">
+                {% if not doc.agent_dealer %}
+                    {{ doc.standard_vp }}
+                {% endif %}
+            </td>
+            <!-- Factory Currency -->
+            <td style="border: 1px solid black; text-align: center; font-size: 9pt;">{{ doc.factory_currency }}</td>
+            <!-- Local Currency -->
+            <td style="border: 1px solid black; text-align: center; font-size: 9pt;">{{ doc.local_currency }}</td>
+            <!-- Exchange Rate -->
+            <td style="border: 1px solid black; text-align: center; font-size: 9pt;">{{ doc.exchange_rate }}</td>
+            <!-- 1. Fabrication Cost(AA10) -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(aa10_cost, 0, doc.currency) }}
+                {% endif %}
+            </td>
+            <!-- 2. Discount Cost -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(aa10_discount, 0, doc.currency) }}
+                {% endif %}
+            </td>
+            <!-- 3. Plus Values Cost(AA11) -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(aa11_cost, 0, doc.currency) }}
+                {% endif %}
+            </td>
+            <!-- 4. Transport Cost(AB10) -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(ab10_cost, 0, doc.currency) }}
+                {% endif %}
+            </td>
+            <!-- 5. Sub Cost (Group D) -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(group_d_cost, 0, doc.currency) }}
+                {% endif %}
+            </td>
+            <!-- G-Total Cost (2-3+4+5 -> 1-2+3+4+5 오타 수정) -->
+            <td style="border: 1px solid black; text-align: right; font-size: 9pt; padding-right: 5px; font-weight: bold;">
+                {% if not doc.agent_dealer %}
+                    {{ frappe.utils.fmt_money(g_total_cost, 0, doc.currency) }}
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>

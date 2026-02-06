@@ -1,0 +1,62 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"7IaArqMFyr\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"caret-color: rgb(23, 23, 23); letter-spacing: 0.18px;\\\"><b>Site Operation</b></span>\",\"col\":12}},{\"id\":\"QrRfEX2_Hq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Site Check\",\"col\":3}},{\"id\":\"cZif08FtVJ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inspection\",\"col\":3}},{\"id\":\"m4dLvIdipK\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"eCjPyKdcJq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inspection List Builder\",\"col\":3}},{\"id\":\"Szu48VtEsW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Finish Material List\",\"col\":3}}]",
+ "creation": "2024-09-03 08:20:56.989294",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "getting-started",
+ "idx": 5,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "Site Operation",
+ "links": [],
+ "modified": "2025-11-05 12:04:29.203329",
+ "modified_by": "Administrator",
+ "module": "Site Operations",
+ "name": "Site Operation",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 8.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Site Check",
+   "link_to": "Site Check",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Inspection",
+   "link_to": "Inspection",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Finish Material List",
+   "link_to": "Finish Material List Builder",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Inspection List Builder",
+   "link_to": "Inspection List Builder",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Site Operation"
+}

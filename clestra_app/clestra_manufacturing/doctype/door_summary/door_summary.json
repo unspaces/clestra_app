@@ -1,0 +1,564 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-03-17 14:30:21.101028",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_section",
+  "ref_name",
+  "item_code",
+  "door_set_type",
+  "door_hw_spec_code",
+  "color",
+  "section_break_tcrm",
+  "mortise",
+  "handle",
+  "lockset_h",
+  "lockset_h_custom",
+  "lockset_h_second",
+  "lockset_h_second_custom",
+  "dummy",
+  "dummy_for_pair",
+  "column_break_mpux",
+  "security_access_control",
+  "wiring",
+  "key_cylinder",
+  "master_key",
+  "master_key_number",
+  "column_break_awwf",
+  "door_closer",
+  "door_closer_name",
+  "inactive_leaf",
+  "al_strip",
+  "auto_drop_seal",
+  "other_auto_drop_seal",
+  "ads_cover_painted",
+  "section_break_wsam",
+  "aluminum_case_column",
+  "for_lockset",
+  "for_door_closer",
+  "column_break_bgod",
+  "hinge_type",
+  "butt",
+  "custom_butt",
+  "pivot",
+  "custom_pivot",
+  "hinge_other",
+  "custom_hinge",
+  "column_break_grqu",
+  "flush_bolt",
+  "flush_bolt_type",
+  "custom_flush_bolt",
+  "section_break_tsrh",
+  "blind",
+  "fgd_type",
+  "column_break_twsp",
+  "3m_tape_and_foam_seal_color",
+  "tape_seal_color_gray",
+  "tape_seal_color_white",
+  "tape_seal_color_black",
+  "fixing_screw_cap_color",
+  "fix_screw_gray",
+  "fix_screw_white",
+  "fix_screw_black",
+  "back_painted_border",
+  "back_painted_no",
+  "back_painted_yes",
+  "keywords_section",
+  "product_type",
+  "product_keyword",
+  "door_set_type_keyword",
+  "leaf_keyword",
+  "size_section",
+  "width",
+  "ch",
+  "ph",
+  "column_break_czyv",
+  "leaf_width",
+  "leaf_height",
+  "item_details_section",
+  "rh_qty",
+  "lh_qty",
+  "under_cut",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "length": 1,
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item_code.door_set_type",
+   "fieldname": "door_set_type",
+   "fieldtype": "Data",
+   "label": "Set Type"
+  },
+  {
+   "fieldname": "item_section",
+   "fieldtype": "Section Break",
+   "label": "Item"
+  },
+  {
+   "fieldname": "keywords_section",
+   "fieldtype": "Section Break",
+   "label": "Keywords"
+  },
+  {
+   "columns": 1,
+   "fieldname": "door_set_type_keyword",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Set Type",
+   "options": "\nS\nP"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "item_code.product_keyword",
+   "fieldname": "product_keyword",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Door"
+  },
+  {
+   "fieldname": "size_section",
+   "fieldtype": "Section Break",
+   "label": "Size"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "U.W.",
+   "length": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ph",
+   "fieldtype": "Int",
+   "label": "PH"
+  },
+  {
+   "fieldname": "item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Item Details"
+  },
+  {
+   "fetch_from": "item_code.product_type",
+   "fieldname": "product_type",
+   "fieldtype": "Data",
+   "label": "Product Type"
+  },
+  {
+   "columns": 1,
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Remark"
+  },
+  {
+   "columns": 1,
+   "fieldname": "rh_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "RH Qty"
+  },
+  {
+   "columns": 1,
+   "fieldname": "lh_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "LH Qty"
+  },
+  {
+   "fieldname": "door_hw_spec_code",
+   "fieldtype": "Link",
+   "label": "Door HW Spec",
+   "options": "Door Hardware Spec"
+  },
+  {
+   "fieldname": "under_cut",
+   "fieldtype": "Int",
+   "label": "U.C"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "item_code.feature_keyword",
+   "fieldname": "leaf_keyword",
+   "fieldtype": "Data",
+   "label": "Leaf"
+  },
+  {
+   "fieldname": "column_break_czyv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "leaf_width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Lf W."
+  },
+  {
+   "columns": 1,
+   "fieldname": "leaf_height",
+   "fieldtype": "Int",
+   "label": "Lf H.",
+   "length": 1
+  },
+  {
+   "fieldname": "ref_name",
+   "fieldtype": "Data",
+   "label": "Reference Name"
+  },
+  {
+   "fieldname": "section_break_tcrm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.mortise",
+   "fieldname": "mortise",
+   "fieldtype": "Data",
+   "label": "Mortise (Lockset)"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.handle",
+   "fieldname": "handle",
+   "fieldtype": "Data",
+   "label": "Handle"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.lockset_h",
+   "fieldname": "lockset_h",
+   "fieldtype": "Data",
+   "label": "Lockset H"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.lockset_h_custom",
+   "fieldname": "lockset_h_custom",
+   "fieldtype": "Data",
+   "label": "Lockset H Custom"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.dummy",
+   "fieldname": "dummy",
+   "fieldtype": "Data",
+   "label": "Dummy"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.dummy_for_pair",
+   "fieldname": "dummy_for_pair",
+   "fieldtype": "Data",
+   "label": "Dummy Type for Pair"
+  },
+  {
+   "fieldname": "column_break_mpux",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.security_access_control",
+   "fieldname": "security_access_control",
+   "fieldtype": "Data",
+   "label": "Security & Access Control"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.wiring",
+   "fieldname": "wiring",
+   "fieldtype": "Data",
+   "label": "Wiring"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.key_cylinder",
+   "fieldname": "key_cylinder",
+   "fieldtype": "Data",
+   "label": "Key Cylinder"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.master_key",
+   "fieldname": "master_key",
+   "fieldtype": "Check",
+   "label": "Master Key"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.master_key_number",
+   "fieldname": "master_key_number",
+   "fieldtype": "Data",
+   "label": "Master Key Number"
+  },
+  {
+   "fieldname": "column_break_awwf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.door_closer",
+   "fieldname": "door_closer",
+   "fieldtype": "Data",
+   "label": "Door Closer"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.door_closer_name",
+   "fieldname": "door_closer_name",
+   "fieldtype": "Data",
+   "label": "Door Closer Name"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.inactive_leaf",
+   "fieldname": "inactive_leaf",
+   "fieldtype": "Check",
+   "label": "Inactive Leaf"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.al_strip",
+   "fieldname": "al_strip",
+   "fieldtype": "Data",
+   "label": "Al. Strip"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.auto_drop_seal",
+   "fieldname": "auto_drop_seal",
+   "fieldtype": "Data",
+   "label": "Auto Drop Seal"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.other_auto_drop_seal",
+   "fieldname": "other_auto_drop_seal",
+   "fieldtype": "Data",
+   "label": "Other Auto Drop Seal"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.ads_cover_painted",
+   "fieldname": "ads_cover_painted",
+   "fieldtype": "Check",
+   "label": "Cover Painted"
+  },
+  {
+   "fieldname": "section_break_wsam",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "aluminum_case_column",
+   "fieldtype": "Column Break",
+   "label": "Aluminum Case"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.for_lockset",
+   "fieldname": "for_lockset",
+   "fieldtype": "Check",
+   "label": "for Lockset"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.for_door_closer",
+   "fieldname": "for_door_closer",
+   "fieldtype": "Check",
+   "label": "for Door Closer"
+  },
+  {
+   "fieldname": "column_break_bgod",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.hinge_type",
+   "fieldname": "hinge_type",
+   "fieldtype": "Data",
+   "label": "Hinge Type"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.butt",
+   "fieldname": "butt",
+   "fieldtype": "Data",
+   "label": " Butt Hinge"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_butt",
+   "fieldname": "custom_butt",
+   "fieldtype": "Data",
+   "label": "Custom Butt Details"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.pivot",
+   "fieldname": "pivot",
+   "fieldtype": "Data",
+   "label": "Pivot"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.hinge_other",
+   "fieldname": "hinge_other",
+   "fieldtype": "Data",
+   "label": "Other"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_hinge",
+   "fieldname": "custom_hinge",
+   "fieldtype": "Data",
+   "label": "Other Hinge Details"
+  },
+  {
+   "fieldname": "column_break_grqu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.flush_bolt",
+   "fieldname": "flush_bolt",
+   "fieldtype": "Data",
+   "label": "Flush Bolt"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.flush_bolt_type",
+   "fieldname": "flush_bolt_type",
+   "fieldtype": "Data",
+   "label": "Flush Bolt Type"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_flush_bolt",
+   "fieldname": "custom_flush_bolt",
+   "fieldtype": "Data",
+   "label": "Custom Flush Bolt Details"
+  },
+  {
+   "fieldname": "section_break_tsrh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.blind",
+   "fieldname": "blind",
+   "fieldtype": "Data",
+   "label": "Blind"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.fgd_type",
+   "fieldname": "fgd_type",
+   "fieldtype": "Data",
+   "label": "FGD Type"
+  },
+  {
+   "fieldname": "column_break_twsp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "3m_tape_and_foam_seal_color",
+   "fieldtype": "Heading",
+   "label": "3M Tape and Foam Seal Color"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.tape_seal_color_gray",
+   "fieldname": "tape_seal_color_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.tape_seal_color_white",
+   "fieldname": "tape_seal_color_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.tape_seal_color_black",
+   "fieldname": "tape_seal_color_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "fixing_screw_cap_color",
+   "fieldtype": "Heading",
+   "label": "Fixing Screw Cap Color"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.fix_screw_white",
+   "fieldname": "fix_screw_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.fix_screw_black",
+   "fieldname": "fix_screw_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "back_painted_border",
+   "fieldtype": "Heading",
+   "label": "Back Painted Border"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.back_painted_no",
+   "fieldname": "back_painted_no",
+   "fieldtype": "Check",
+   "label": "No"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.back_painted_yes",
+   "fieldname": "back_painted_yes",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "default": "0",
+   "fetch_from": "door_hw_spec_code.fix_screw_gray",
+   "fieldname": "fix_screw_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Link",
+   "label": "Color",
+   "options": "Product Color"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.lockset_h_2nd",
+   "fieldname": "lockset_h_second",
+   "fieldtype": "Data",
+   "label": "2nd Lockset H"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.lockset_h_2nd_custom",
+   "fieldname": "lockset_h_second_custom",
+   "fieldtype": "Data",
+   "label": "2nd Lockset H Custom"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_pivot",
+   "fieldname": "custom_pivot",
+   "fieldtype": "Data",
+   "label": "Custom Pivot Details"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-03-27 11:59:57.803968",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Door Summary",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

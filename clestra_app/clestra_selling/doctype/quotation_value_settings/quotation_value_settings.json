@@ -1,0 +1,122 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "QVS-.door_set_type..door_open_type..category.-.YY.-.##",
+ "creation": "2026-01-14 10:02:24.254203",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "door_set_type",
+  "door_open_type",
+  "category",
+  "value",
+  "valid_from",
+  "valid_up_to",
+  "is_active",
+  "is_default",
+  "note",
+  "column_break_wada",
+  "company"
+ ],
+ "fields": [
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "\nMaterial Margin\nMaterial Rate\nGlass Rate\nInstallation Rate\nOther Rate\nBuffer Rate\nWidth\nCH\nLH\nPC UW\nCRH\nTRH\nUW\nLH\nLW\nUPAS H"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Value"
+  },
+  {
+   "default": "Today",
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Valid From"
+  },
+  {
+   "fieldname": "valid_up_to",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Valid Up To"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "column_break_wada",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "door_open_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Door Open Type",
+   "options": "\nSwing-\nSliding-\nTelescopic-"
+  },
+  {
+   "fieldname": "door_set_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Door Set Type",
+   "options": "\nSingle-\nPair-"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-15 11:20:10.749575",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Quotation Value Settings",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

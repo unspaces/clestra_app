@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{type}-{rate}-{start_date}",
+ "creation": "2025-03-25 13:13:01.787669",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "factory",
+  "type",
+  "rate",
+  "column_break_xhcj",
+  "start_date",
+  "end_date",
+  "status",
+  "section_break_afuq",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "factory",
+   "fieldtype": "Select",
+   "label": "Factory",
+   "options": "Gumi\nTaichang"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nVP\nMFG\nOverhead"
+  },
+  {
+   "fieldname": "column_break_xhcj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "section_break_afuq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Rate",
+   "precision": "3"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nActive\nInactive\nExpired\nScheduled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-03-25 13:25:32.107162",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Costing Rate",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

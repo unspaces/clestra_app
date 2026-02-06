@@ -1,0 +1,73 @@
+/* =========================================================== */
+/* Project Billing Master Horizontal Scroll Styles */
+/* =========================================================== */
+
+/* Apply only within Project Billing Master form using data-route */
+body[data-route^="Form/Project Billing Master"] {
+
+    /* --- Target the specific grid wrappers --- */
+    /* Common styles for all horizontally scrollable grids */
+    .frappe-control[data-fieldname="panel_cover"] .form-grid-container,
+    .frappe-control[data-fieldname="door_cover"] .form-grid-container,
+    .frappe-control[data-fieldname="sub_items"] .form-grid-container {
+        overflow-x: auto !important;  /* Enable horizontal scroll */
+        padding-bottom: 30px;         /* Space for scrollbar */
+    }
+
+    /* Ensure the inner grid table can expand */
+    .frappe-control[data-fieldname="panel_cover"] .form-grid-container .form-grid,
+    .frappe-control[data-fieldname="door_cover"] .form-grid-container .form-grid,
+    .frappe-control[data-fieldname="sub_items"] .form-grid-container .form-grid {
+        min-width: 100%;         /* 최소한 컨테이너 너비만큼은 채움 */
+    }
+}
+
+/* 선택된 행이 첫 번째 자식일 때 (상단 radius 적용) */
+/* .grid-heading-row .grid-row.selected-parent-row {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+} */
+
+/* 선택된 부모 행을 강조하는 스타일 */
+.grid-body .grid-row.selected-parent-row {
+    background-color: #e3f2fd !important; /* Material Design Blue 50 */
+    border-left: 3px solid #2196f3 !important; /* Material Design Blue 500 */
+}
+
+/* 동적 헤더 스타일 */
+.sub-assembly-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #424242;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* 1. 드롭다운 항목 컨테이너 수정 (li 대신 div 사용) */
+.awesomplete ul > div[role="option"],
+.awesomplete ul > li {
+    white-space: normal !important;
+    height: auto !important;
+    min-height: 40px !important;
+    display: block !important;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid var(--border-color); /* 항목 간 구분선 (선택) */
+}
+
+/* 2. 내부 p 태그와 텍스트 레이아웃 수정 */
+.awesomplete ul > div[role="option"] p {
+    margin: 0 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+/* 3. 가장 중요한 부분: 말줄임표(...)를 만드는 span 속성 해제 */
+.awesomplete ul > div[role="option"] span.small {
+    display: block !important;
+    white-space: normal !important; /* nowrap 해제 */
+    overflow: visible !important;   /* hidden 해제 */
+    text-overflow: unset !important; /* ellipsis 해제 */
+    line-height: 1.4 !important;
+    margin-top: 4px !important;
+}

@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:EST-INST-{item_code}-{YY}-{MM}",
+ "creation": "2026-01-16 14:06:36.961781",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "metro_new_inst",
+  "metro_dismantle",
+  "metro_reinst",
+  "reg_new_inst",
+  "reg_dismantle",
+  "reg_reinst",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Item Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Remark"
+  },
+  {
+   "fieldname": "metro_new_inst",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Metro New Inst."
+  },
+  {
+   "fieldname": "metro_dismantle",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Metro Dismantle"
+  },
+  {
+   "fieldname": "metro_reinst",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Metro Reinstall"
+  },
+  {
+   "fieldname": "reg_new_inst",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Regional New Inst."
+  },
+  {
+   "fieldname": "reg_dismantle",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Regional Dismantle"
+  },
+  {
+   "fieldname": "reg_reinst",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Regional Reinstall"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-19 09:37:28.115734",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Estimate Installation Cost",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

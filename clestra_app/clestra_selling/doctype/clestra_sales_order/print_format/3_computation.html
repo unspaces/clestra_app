@@ -1,0 +1,83 @@
+{% if doc.print_computation and not doc.agent_dealer %}
+    {% set project = frappe.get_doc("Project", doc.project) if doc.project else None %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10p; border: 0;">
+                        <h4 style="margin: 0; padding: 0;">COMPUTATION</h4>
+                </td>
+                <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                    <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                    <div>Project: {{ project.project_name if project else '' }}</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Custom HTML 블록 또는 프린트 포맷 빌더의 커스텀 섹션에 추가 -->
+    {% set computation_data = doc.get_print_computation_data() %}
+    
+    {% if computation_data %}
+    <div style="margin-bottom: 15px; font-size: 1.1em;">
+        {% if not doc.agent_dealer %}
+            <strong>VP: {{ computation_data.vp_multiplier }}</strong>
+        {% endif %}
+    </div>
+    
+    {% for group in computation_data.groups %}
+    <table class="table table-bordered table-condensed" style="margin-top: 10px !important;">
+        <thead>
+            <tr style="background-color: #e9ecef; font-weight: bold;">
+                <th style="width: 10%; text-align: center; padding: 1px 4px !important;">{{ group.title }}</th>
+                <th style="width: 30%; padding: 1px 4px !important;"></th>
+                <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Cost</th>
+                <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Sales</th>
+                <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Manufacturer D/C</th>
+                <!-- <th style="width: 5%; text-align: center;">%</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in group.rows %}
+            <tr>
+                <td style="text-align: center; padding: 1px 4px !important;">{{ row.code }}</td>
+                <td style="padding: 1px 4px !important;">{{ row.label }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.cost, 0, doc.currency) }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.sales, 0, doc.currency) }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.discount, 0, doc.currency) }}</td>
+                <!-- <td></td> -->
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot style="font-weight: bold;">
+            <tr style="background-color: #f8f9fa;">
+                <td colspan="2" style="text-align: center; padding: 1px 4px !important;">TOTAL {{ group.title }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.cost, 0, doc.currency) }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.sales, 0, doc.currency) }}</td>
+                <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.discount, 0, doc.currency) }}</td>
+                <!-- <td></td> -->
+            </tr>
+        </tfoot>
+    </table>
+    {% endfor %}
+    
+    <!-- Grand Total Table -->
+    <table class="table table-bordered table-sm">
+        <tfoot style="font-weight: bold;">
+            <tr style="background-color: #343a40; color: white;">
+                <td style="width: 40%; padding: 1px 4px !important;" colspan="2">GRAND TOTAL</td>
+                <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(computation_data.grand_total.cost, 0, doc.currency) }}</td>
+                <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(computation_data.grand_total.sales, 0, doc.currency) }}</td>
+                <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(computation_data.grand_total.discount, 0, doc.currency) }}</td>
+                <!-- <td style="width: 5%;"></td> -->
+            </tr>
+        </tfoot>
+    </table>
+    {% endif %}
+    {% if doc.print_items or doc.print_codes_sum %}
+        <div style="page-break-after: always;"></div>
+    {% endif %}
+{% endif %}

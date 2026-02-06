@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-03 09:53:50.082013",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "person",
+  "lose_date",
+  "result"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "lose_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "\ud328\ud55c \ub0a0"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "person",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "\uc774\ub984",
+   "options": "\n\uc1a1\uc6d0\uc131\n\uc774\uc218\uc9c4\n\uc624\uc815\ubbfc\n\uae40\uc21c\uadfc\n\uc5c4\uc138\uc6a9\n\uc774\uc2b9\uc9c4"
+  },
+  {
+   "default": "Lose",
+   "fieldname": "result",
+   "fieldtype": "Data",
+   "label": "\uacb0\uacfc"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-03 15:49:21.483566",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "RPS",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,315 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-05 09:47:42.905426",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "reference",
+  "customer",
+  "project_type",
+  "banner",
+  "tags",
+  "flash",
+  "joker",
+  "products",
+  "volume_lm",
+  "volume_m2",
+  "volume_pcs",
+  "column_break_ykxx",
+  "company",
+  "sales_rep",
+  "status",
+  "amount",
+  "budget_comment",
+  "margin",
+  "currency",
+  "success",
+  "job_number",
+  "opportunity_creation",
+  "bid_date",
+  "project_intake",
+  "fabrication_start_date",
+  "fabrication_end_date_mad",
+  "construction_start_date",
+  "construction_completion_date",
+  "column_break_uyof",
+  "competitors",
+  "lost_against",
+  "lost_reason",
+  "competitor_analysis",
+  "consol_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "project_type",
+   "fieldtype": "Select",
+   "label": "Project Type",
+   "options": "\nAfter-sales Service\nConstruction\nCore Business\nCore Business +\nExtension\nRenovation\nRe-Use\nTransformation\nTurnkey"
+  },
+  {
+   "fieldname": "banner",
+   "fieldtype": "Data",
+   "label": "Banner"
+  },
+  {
+   "fieldname": "tags",
+   "fieldtype": "Data",
+   "label": "Tags"
+  },
+  {
+   "default": "0",
+   "fieldname": "flash",
+   "fieldtype": "Check",
+   "label": "Flash"
+  },
+  {
+   "default": "0",
+   "fieldname": "joker",
+   "fieldtype": "Check",
+   "label": "Joker"
+  },
+  {
+   "fieldname": "products",
+   "fieldtype": "Select",
+   "label": "Products",
+   "options": "\nAlign (P95)\nALTO\nBaya Slim (91)\nBTJ6\nBTJ6 CR\nCLESLINE50 CR\nCP86 CR\nDO1\nFizz Box - Crystal\nFizz Box - London\nFizz Box - Modern\nLignage\nLoft (M82)\nM1 (P94)\nMerchendising\nMplus (P94+)\nOperable Wall\nP61A\nP85 Synops\nP85A\nP86A\nP89L (Clean Room)\npleinAir (P81)\nSYSTEMAGE\nWall Cladding"
+  },
+  {
+   "fieldname": "volume_lm",
+   "fieldtype": "Int",
+   "label": "Volume (LM)"
+  },
+  {
+   "fieldname": "volume_m2",
+   "fieldtype": "Int",
+   "label": "Volume (M\u00b2)"
+  },
+  {
+   "fieldname": "volume_pcs",
+   "fieldtype": "Int",
+   "label": "Volume (pcs)"
+  },
+  {
+   "fieldname": "column_break_ykxx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_uyof",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_rep",
+   "fieldtype": "Link",
+   "label": "Sales Rep.",
+   "options": "User"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\n1-Contact\n2-Meeting\n3-Specification\n4-Offer Based on Specification\n5-Offer Without Specification\n6-Verbal Approval\n7-Won\n8-Lost\n9-Postponed\n10-Canceled\n(OLD)\n3-Prescription\n4-Offer on Prescription\n5-Offer on without Prescription\n6-Oral Validation"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "budget_comment",
+   "fieldtype": "Small Text",
+   "label": "Budget Comment"
+  },
+  {
+   "fieldname": "margin",
+   "fieldtype": "Percent",
+   "label": "Margin"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "success",
+   "fieldtype": "Percent",
+   "label": "Success"
+  },
+  {
+   "fieldname": "job_number",
+   "fieldtype": "Int",
+   "label": "Job Number"
+  },
+  {
+   "fieldname": "opportunity_creation",
+   "fieldtype": "Datetime",
+   "label": "Opportunity Creation"
+  },
+  {
+   "fieldname": "bid_date",
+   "fieldtype": "Date",
+   "label": "Bid Date"
+  },
+  {
+   "fieldname": "project_intake",
+   "fieldtype": "Date",
+   "label": "Project Intake"
+  },
+  {
+   "fieldname": "fabrication_start_date",
+   "fieldtype": "Date",
+   "label": "Fabrication Start Date"
+  },
+  {
+   "fieldname": "fabrication_end_date_mad",
+   "fieldtype": "Date",
+   "label": "Fabrication End Date (MAD)"
+  },
+  {
+   "fieldname": "construction_start_date",
+   "fieldtype": "Date",
+   "label": "Construction Start Date"
+  },
+  {
+   "fieldname": "construction_completion_date",
+   "fieldtype": "Date",
+   "label": "Construction Completion Date"
+  },
+  {
+   "fieldname": "competitors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Competitors",
+   "options": "Company Multiselect"
+  },
+  {
+   "fieldname": "lost_against",
+   "fieldtype": "Link",
+   "label": "Lost Against",
+   "options": "Company"
+  },
+  {
+   "fieldname": "lost_reason",
+   "fieldtype": "Select",
+   "label": "Lost Reason",
+   "options": "\nProject Canceled\nPostponed\nHigh Price\nUnfavorable Terms & Cond.\nLack of References\nFailed to Meet Specification\nLack of Relationship\n(OLD)\nAbandoned Projet\nCompany profile\nFunctionality\nLack of references\nNetwork\nPas dans les specifications\npostponed project\nPrice"
+  },
+  {
+   "fieldname": "competitor_analysis",
+   "fieldtype": "Small Text",
+   "label": "Competitor Analysis"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "consol_amount",
+   "fieldtype": "Currency",
+   "label": "Consol. Amount"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-10 14:27:42.997996",
+ "modified_by": "Administrator",
+ "module": "Clestra CRM",
+ "name": "Opportunities",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Master Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Local Admin (HK)",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

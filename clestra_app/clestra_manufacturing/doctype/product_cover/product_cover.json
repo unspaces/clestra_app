@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-04 14:21:18.253150",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "zone",
+  "product",
+  "general_section",
+  "lm",
+  "cl_h",
+  "ceiling_type",
+  "cl_vh",
+  "cl_vh_door",
+  "base_type",
+  "base_vh",
+  "color",
+  "section_break_xxnc",
+  "unit_height",
+  "column_break_dkrh",
+  "installation_type",
+  "standard",
+  "free_standing",
+  "gap_15",
+  "bi_block",
+  "size_section",
+  "top",
+  "base",
+  "conti_base",
+  "column_break_wymv",
+  "old",
+  "image_qrvt",
+  "column_break_xvhg",
+  "new",
+  "image_xtah"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product",
+   "options": "Product Name"
+  },
+  {
+   "columns": 1,
+   "fieldname": "lm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "LM",
+   "precision": "1"
+  },
+  {
+   "columns": 1,
+   "fieldname": "unit_height",
+   "fieldtype": "Float",
+   "label": "Unit Height",
+   "precision": "0"
+  },
+  {
+   "fieldname": "column_break_dkrh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "standard",
+   "fieldtype": "Check",
+   "label": "Standard"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "free_standing",
+   "fieldtype": "Check",
+   "label": "Free Standing"
+  },
+  {
+   "default": "0",
+   "fieldname": "gap_15",
+   "fieldtype": "Check",
+   "label": "GAP 15"
+  },
+  {
+   "default": "0",
+   "fieldname": "bi_block",
+   "fieldtype": "Check",
+   "label": "Bi-Block"
+  },
+  {
+   "columns": 1,
+   "fieldname": "top",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Top",
+   "precision": "0"
+  },
+  {
+   "columns": 1,
+   "fieldname": "base",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Base",
+   "precision": "0"
+  },
+  {
+   "fieldname": "conti_base",
+   "fieldtype": "Float",
+   "label": "Conti Base",
+   "precision": "0"
+  },
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "size_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "old",
+   "fieldtype": "Check",
+   "label": "Old"
+  },
+  {
+   "fieldname": "image_qrvt",
+   "fieldtype": "Image"
+  },
+  {
+   "fieldname": "column_break_xvhg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "new",
+   "fieldtype": "Check",
+   "label": "New"
+  },
+  {
+   "fieldname": "image_xtah",
+   "fieldtype": "Image"
+  },
+  {
+   "fieldname": "installation_type",
+   "fieldtype": "Heading",
+   "label": "Installation Type"
+  },
+  {
+   "fieldname": "column_break_wymv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Zone"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ceiling_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CL Type"
+  },
+  {
+   "columns": 1,
+   "fieldname": "cl_vh",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Panel CL VH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "base_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Base Type"
+  },
+  {
+   "columns": 1,
+   "fieldname": "base_vh",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Base VH"
+  },
+  {
+   "columns": 2,
+   "fieldname": "cl_h",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CL H",
+   "precision": "0"
+  },
+  {
+   "columns": 1,
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Color"
+  },
+  {
+   "fieldname": "section_break_xxnc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "cl_vh_door",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Door CL VH"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-14 11:54:24.866470",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Product Cover",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

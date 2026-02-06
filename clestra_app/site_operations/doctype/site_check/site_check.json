@@ -1,0 +1,581 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Site Check-.proj_name.-.##",
+ "creation": "2024-09-19 16:13:14.232605",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "site_info_tab",
+  "proj",
+  "proj_name",
+  "addr",
+  "estimated_construction_start",
+  "estimated_construction_end",
+  "column_break_sygh",
+  "amended_from",
+  "company",
+  "issued_date",
+  "inspector",
+  "section_break_jnhz",
+  "product_type",
+  "product_features",
+  "door_type",
+  "section_break_emke",
+  "ceiling_height",
+  "column_break_fetl",
+  "handle_information",
+  "section_break_rkle",
+  "issue",
+  "section_break_opwn",
+  "go_to_details",
+  "details_tab",
+  "ceiling_finish_section",
+  "finish_list_name",
+  "finish_material",
+  "section_break_lvjt",
+  "go_to_others",
+  "column_break_lnye",
+  "others_tab",
+  "end_cap_section",
+  "ceiling",
+  "base",
+  "hole",
+  "glass_section",
+  "grooved",
+  "thk",
+  "laminated",
+  "low_iron",
+  "corrugated",
+  "switchable",
+  "other_glass",
+  "hardware_section",
+  "master_key",
+  "stopper",
+  "security",
+  "drop_seal",
+  "closer",
+  "accessory_section",
+  "white_board",
+  "manual_blind",
+  "auto_blind",
+  "installation_condition_section",
+  "day_install",
+  "night_install",
+  "weekday",
+  "weekend",
+  "others",
+  "lifting_condition_section",
+  "stairs",
+  "elevator",
+  "equipment",
+  "day_lift",
+  "night_lift",
+  "elevator_condition_section",
+  "door_width",
+  "door_height",
+  "column_break_ufrg",
+  "section_break_rznd",
+  "floor_width",
+  "floor_depth",
+  "floor_height",
+  "diagonal",
+  "protection_condition",
+  "column_break_hitt",
+  "html_genr"
+ ],
+ "fields": [
+  {
+   "fieldname": "site_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Site Info"
+  },
+  {
+   "fieldname": "proj",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "proj.project_name",
+   "fieldname": "proj_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "addr",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "fieldname": "estimated_construction_start",
+   "fieldtype": "Date",
+   "label": "Estimated Construction Start"
+  },
+  {
+   "fieldname": "estimated_construction_end",
+   "fieldtype": "Date",
+   "label": "Estimated Construction End"
+  },
+  {
+   "fieldname": "column_break_sygh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Site Check",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "issued_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Issued Date",
+   "read_only": 1
+  },
+  {
+   "default": "__user",
+   "fieldname": "inspector",
+   "fieldtype": "Link",
+   "label": "Inspector",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jnhz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Table",
+   "label": "Product Type",
+   "options": "Product Type Checklist"
+  },
+  {
+   "fieldname": "product_features",
+   "fieldtype": "Table",
+   "label": "Product Features",
+   "options": "Product Features"
+  },
+  {
+   "fieldname": "door_type",
+   "fieldtype": "Table",
+   "label": "Door Type",
+   "options": "Door Type"
+  },
+  {
+   "fieldname": "section_break_emke",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ceiling_height",
+   "fieldtype": "Data",
+   "label": "Ceiling Height"
+  },
+  {
+   "fieldname": "column_break_fetl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "handle_information",
+   "fieldtype": "Data",
+   "label": "Handle Information"
+  },
+  {
+   "fieldname": "section_break_rkle",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "issue",
+   "fieldtype": "Long Text",
+   "label": "Issue"
+  },
+  {
+   "fieldname": "section_break_opwn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "go_to_details",
+   "fieldtype": "Button",
+   "label": "Next"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "ceiling_finish_section",
+   "fieldtype": "Section Break",
+   "label": "Ceiling Finish"
+  },
+  {
+   "default": "240920",
+   "fieldname": "finish_list_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Finish List Name"
+  },
+  {
+   "fieldname": "finish_material",
+   "fieldtype": "Table",
+   "label": "Finish Material",
+   "options": "Finish Material Details"
+  },
+  {
+   "fieldname": "section_break_lvjt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "go_to_others",
+   "fieldtype": "Button",
+   "label": "Next"
+  },
+  {
+   "fieldname": "column_break_lnye",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "others_tab",
+   "fieldtype": "Tab Break",
+   "label": "Others"
+  },
+  {
+   "fieldname": "end_cap_section",
+   "fieldtype": "Section Break",
+   "label": "End Cap (\ub9c8\uac10\ucea1)"
+  },
+  {
+   "default": "0",
+   "fieldname": "ceiling",
+   "fieldtype": "Check",
+   "label": "Ceiling"
+  },
+  {
+   "default": "0",
+   "fieldname": "base",
+   "fieldtype": "Check",
+   "label": "Base"
+  },
+  {
+   "default": "0",
+   "fieldname": "hole",
+   "fieldtype": "Check",
+   "label": "Hole (\ud0c0\uacf5)"
+  },
+  {
+   "fieldname": "glass_section",
+   "fieldtype": "Section Break",
+   "label": "Glass"
+  },
+  {
+   "default": "0",
+   "fieldname": "grooved",
+   "fieldtype": "Check",
+   "label": "Grooved"
+  },
+  {
+   "default": "0",
+   "fieldname": "thk",
+   "fieldtype": "Check",
+   "label": "Tempered (\uc77c\ubc18\uac15\ud654)"
+  },
+  {
+   "default": "0",
+   "fieldname": "laminated",
+   "fieldtype": "Check",
+   "label": "Laminated (\uc811\ud569)"
+  },
+  {
+   "default": "0",
+   "fieldname": "low_iron",
+   "fieldtype": "Check",
+   "label": "Low Iron (\uc800\ucca0\ubd84)"
+  },
+  {
+   "default": "0",
+   "fieldname": "corrugated",
+   "fieldtype": "Check",
+   "label": "Corrugated (\ubaa8\ub8e8)"
+  },
+  {
+   "default": "0",
+   "fieldname": "switchable",
+   "fieldtype": "Check",
+   "label": "Switchable"
+  },
+  {
+   "fieldname": "other_glass",
+   "fieldtype": "Small Text",
+   "label": "Others (\uae30\ud0c0)"
+  },
+  {
+   "fieldname": "hardware_section",
+   "fieldtype": "Section Break",
+   "label": "Hardware"
+  },
+  {
+   "default": "0",
+   "fieldname": "master_key",
+   "fieldtype": "Check",
+   "label": "Master Key"
+  },
+  {
+   "default": "0",
+   "fieldname": "stopper",
+   "fieldtype": "Check",
+   "label": "Stopper"
+  },
+  {
+   "default": "0",
+   "fieldname": "security",
+   "fieldtype": "Check",
+   "label": "Security (\ucd9c\uc785\ud1b5\uc81c)"
+  },
+  {
+   "default": "0",
+   "fieldname": "drop_seal",
+   "fieldtype": "Check",
+   "label": "Drop Seal"
+  },
+  {
+   "default": "0",
+   "fieldname": "closer",
+   "fieldtype": "Check",
+   "label": "Closer"
+  },
+  {
+   "fieldname": "accessory_section",
+   "fieldtype": "Section Break",
+   "label": "Accessory"
+  },
+  {
+   "default": "0",
+   "fieldname": "white_board",
+   "fieldtype": "Check",
+   "label": "White Board"
+  },
+  {
+   "default": "0",
+   "fieldname": "manual_blind",
+   "fieldtype": "Check",
+   "label": "Manual Blind (\uc218\ub3d9 \ube14\ub77c\uc778\ub4dc)"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_blind",
+   "fieldtype": "Check",
+   "label": "Auto Blind (\uc790\ub3d9 \ube14\ub77c\uc778\ub4dc)"
+  },
+  {
+   "fieldname": "installation_condition_section",
+   "fieldtype": "Section Break",
+   "label": "Installation Condition (\uc2dc\uacf5\uc5ec\uac74)"
+  },
+  {
+   "default": "0",
+   "fieldname": "day_install",
+   "fieldtype": "Check",
+   "label": "Day (\uc8fc\uac04)"
+  },
+  {
+   "default": "0",
+   "fieldname": "night_install",
+   "fieldtype": "Check",
+   "label": "Night (\uc57c\uac04)"
+  },
+  {
+   "default": "0",
+   "fieldname": "weekday",
+   "fieldtype": "Check",
+   "label": "Weekday (\uc8fc\uc911)"
+  },
+  {
+   "default": "0",
+   "fieldname": "weekend",
+   "fieldtype": "Check",
+   "label": "Weekend (\uc8fc\ub9d0)"
+  },
+  {
+   "fieldname": "others",
+   "fieldtype": "Small Text",
+   "label": "Others (\uae30\ud0c0)"
+  },
+  {
+   "fieldname": "lifting_condition_section",
+   "fieldtype": "Section Break",
+   "label": "Lifting Condition (\uc591\uc911\uc5ec\uac74)"
+  },
+  {
+   "default": "0",
+   "fieldname": "stairs",
+   "fieldtype": "Check",
+   "label": "Stairs (\uacc4\ub2e8)"
+  },
+  {
+   "default": "0",
+   "fieldname": "elevator",
+   "fieldtype": "Check",
+   "label": "Elevator"
+  },
+  {
+   "default": "0",
+   "fieldname": "equipment",
+   "fieldtype": "Check",
+   "label": "Equipment (\uc7a5\ube44 \uc0ac\uc6a9)"
+  },
+  {
+   "default": "0",
+   "fieldname": "day_lift",
+   "fieldtype": "Check",
+   "label": "Day (\uc8fc\uac04)"
+  },
+  {
+   "default": "0",
+   "fieldname": "night_lift",
+   "fieldtype": "Check",
+   "label": "Night (\uc57c\uac04)"
+  },
+  {
+   "fieldname": "elevator_condition_section",
+   "fieldtype": "Section Break",
+   "label": "Elevator Condition"
+  },
+  {
+   "fieldname": "door_width",
+   "fieldtype": "Int",
+   "label": "Door Width (\uc785\uad6c \uac00\ub85c)"
+  },
+  {
+   "fieldname": "door_height",
+   "fieldtype": "Int",
+   "label": "Door Height (\uc785\uad6c \uc138\ub85c)"
+  },
+  {
+   "fieldname": "column_break_ufrg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_rznd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "floor_width",
+   "fieldtype": "Int",
+   "label": "Floor Width (\ubc14\ub2e5 \uac00\ub85c) \u278a"
+  },
+  {
+   "fieldname": "floor_depth",
+   "fieldtype": "Int",
+   "label": "Floor Depth (\ubc14\ub2e5 \uc138\ub85c) \u278b"
+  },
+  {
+   "fieldname": "floor_height",
+   "fieldtype": "Int",
+   "label": "Floor Height (\ubc14\ub2e5 \ub192\uc774) \u278c"
+  },
+  {
+   "fieldname": "diagonal",
+   "fieldtype": "Int",
+   "label": "Diagonal (\ub300\uac01\uae38\uc774) \u278d"
+  },
+  {
+   "fieldname": "protection_condition",
+   "fieldtype": "Select",
+   "label": "Protection Condition (\ubcf4\uc591\uc5ec\ubd80)",
+   "options": "\n\ud544\uc694\n\ubd88\ud544\uc694"
+  },
+  {
+   "fieldname": "column_break_hitt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "html_genr",
+   "fieldtype": "HTML",
+   "options": "<div style=\"height: 350px;\">\n    <img src=\"/files/elevator2.png\" style=\"height: 70%;\">\n</div>"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-11-07 10:57:54.162155",
+ "modified_by": "Administrator",
+ "module": "Site Operations",
+ "name": "Site Check",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "proj"
+}

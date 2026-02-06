@@ -1,0 +1,97 @@
+<table style="width: 100%; border-collapse: collapse;">
+    <!-- <colgroup>
+        <col style="width: 40%;">
+        <col style="width: 20%;">
+        <col style="width: 40%;">
+    </colgroup> -->
+    <tbody>
+        <tr>
+            <!-- 왼쪽: 제목 섹션 -->
+            <td style="vertical-align: top; text-align: left; padding-left: 0 !important; padding-top: 0 !important; padding-right: 0 !important">
+                <div class="print-heading" style="padding-top: 17px !important; padding-bottom: 5px !important; margin-bottom: 5px !important;">
+                    <h2>
+                        <div>Sales Order</div>
+                    </h2>
+                    <h3 style="margin-bottom: 1px;">
+                        <div>{{ doc.name }}</div>
+                    </h3>
+                    <div>{{ doc.date }}</div>
+                </div>
+            </td>
+            
+            <!-- 가운데: 공장 결재 섹션 -->
+            <td style="vertical-align: top; text-align: right; padding-left: 0 !important; padding-top: 0 !important; padding-right: 0 !important">
+                <table style="border-collapse: collapse; border: 1px solid black; width: 161px; text-align: center; font-size: 9px; table-layout: fixed; margin-top: 20px; margin-left: auto; margin-right: 0;">
+                    <colgroup>
+                        <col style="width: 10%;">
+                        <col style="width: 45%;">
+                        <col style="width: 45%;">
+                    </colgroup>
+                        
+                    <tr>
+                        <th rowspan="2" style="border: 1px solid black; text-align: center; vertical-align: middle !important; writing-mode: vertical-rl; transform: rotate(180deg);">Factory</th>
+                        <th style="border: 1px solid black; padding: 5px; text-align: center; padding: 2px;">Done By</th>
+                        <th style="border: 1px solid black; padding: 5px; text-align: center; padding: 2px;">Approved By</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; height: 67px; word-wrap: break-word; word-break: break-all; font-size: 12px; "></td>
+                        <td style="border: 1px solid black;"></td>
+                    </tr>
+                </table>
+            </td>
+
+            <!-- 오른쪽: 디자인팀 결재 섹션 -->
+            <td style="vertical-align: top; text-align: right; padding-left: 0 !important; padding-top: 0 !important; padding-right: 0 !important">
+                <table style="border-collapse: collapse; border: 1px solid black; width: 230px; text-align: center; font-size: 9px; table-layout: fixed; margin-top: 20px; margin-left: auto; margin-right: 0;">
+                    <colgroup>
+                        <col style="width: 25%;">
+                        <col style="width: 25%;">
+                        <col style="width: 25%;">
+                    </colgroup>
+                    <tr>
+                        <th style="border: 1px solid black; padding: 5px; text-align: center; padding: 2px;">Done By</th>
+                        <th style="border: 1px solid black; padding: 5px; text-align: center; padding: 2px;">Reviewed By</th>
+                        <th style="border: 1px solid black; padding: 5px; text-align: center; padding: 2px;">Approved By</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; height: 67px; word-wrap: break-word; word-break: break-all; font-size: 12px; ">
+                            {% if doc.created_by %}
+                                {% set user = frappe.get_doc("User", doc.created_by) %}
+                                {% if user and user.signature %}
+                                    <img src="{{ user.signature }}" alt="Signature" style="max-height: 60px; max-width: 100%; object-fit: contain;"/>
+                                    
+                                    <div style="font-size: 10px; color: #666; margin-top: 2px;">
+                                        {{ frappe.utils.formatdate(doc.creation, "yyyy-mm-dd") }}
+                                    </div>
+
+                                {% else %}
+                                    <!-- 서명이 없는 경우, 작성자 이름만 표시 -->
+                                    {{ doc.created_by_name or doc.created_by }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td style="border: 1px solid black;"></td>
+                        <td style="border: 1px solid black;"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<style>
+    @media print {
+        @page {
+            margin-top: 15mm;
+            margin-bottom: 25mm; /* 하단 여백을 늘려 페이지 번호 공간 확보 */
+            margin-left: 15mm;
+            margin-right: 15mm;
+
+            @bottom-right {
+                content: "Page " counter(page);
+                font-family: Arial, sans-serif;
+                font-size: 9pt;
+                color: #888888;
+            }
+        }
+    }
+</style>

@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-12 11:25:57.894807",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "section_break_syzn",
+  "disclosure",
+  "division",
+  "industry",
+  "product_type",
+  "door",
+  "color",
+  "option",
+  "remark",
+  "link"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Name"
+  },
+  {
+   "fieldname": "section_break_syzn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "disclosure",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Disclosure",
+   "options": "Visible / Hidden"
+  },
+  {
+   "columns": 1,
+   "fieldname": "division",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Division",
+   "options": "KR\nCN\nJP\nHK\nSG"
+  },
+  {
+   "columns": 1,
+   "fieldname": "industry",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Industry",
+   "options": "Technology\nHealthcare\nFinance\nEducation\nManufacturing\nRetail\nTelecommunications\nEnergy\nTransportation\nReal Estate\nAgriculture\nHospitality\nMedia & Entertainment\nAutomotive\nConstruction\nAerospace & Defense\nFood & Beverage\nPharmaceuticals\nInsurance\nLegal Services\nConsulting\nGovernment\nNonprofit\nLogistics & Supply Chain\nChemicals"
+  },
+  {
+   "columns": 1,
+   "fieldname": "product_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Product Type"
+  },
+  {
+   "columns": 1,
+   "fieldname": "door",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Door"
+  },
+  {
+   "columns": 1,
+   "fieldname": "color",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Color"
+  },
+  {
+   "columns": 1,
+   "fieldname": "option",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Option"
+  },
+  {
+   "columns": 1,
+   "fieldname": "remark",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Remark"
+  },
+  {
+   "fieldname": "link",
+   "fieldtype": "HTML",
+   "in_preview": 1,
+   "label": "Link"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-09-12 11:54:03.273101",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Project Summary Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

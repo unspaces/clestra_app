@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-28 09:27:08.490459",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "condition",
+  "result_formula",
+  "else_condition",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "condition",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Condition"
+  },
+  {
+   "fieldname": "result_formula",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Result Formula"
+  },
+  {
+   "default": "0",
+   "fieldname": "else_condition",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Else Condition"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-11-28 09:50:03.154378",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Condition Formula Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

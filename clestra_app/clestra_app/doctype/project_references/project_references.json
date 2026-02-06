@@ -1,0 +1,254 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:proj_name",
+ "creation": "2024-09-12 11:57:37.997937",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_snek",
+  "proj_name",
+  "disclosure",
+  "division",
+  "industry",
+  "product_type",
+  "door",
+  "panel_type",
+  "color",
+  "add_feat",
+  "remark",
+  "link",
+  "open_link",
+  "column_break_qgdw",
+  "company",
+  "year",
+  "product_type_filter",
+  "door_filter",
+  "panel_type_filter",
+  "color_filter",
+  "additional_features_filter"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_snek",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 8,
+   "fieldname": "proj_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "disclosure",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Disclosure",
+   "options": "\nVisible\nHidden"
+  },
+  {
+   "columns": 1,
+   "fieldname": "division",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Div",
+   "options": "\nKR\nCN\nJP\nHK\nSG\nEU"
+  },
+  {
+   "fieldname": "industry",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Industry",
+   "options": "\nAerospace & Defense\nAgriculture\nAutomotive\nApparel\nChemicals\nConstruction\nConsulting\nEducation\nEnergy\nFinance\nFood & Beverage\nHealthcare\nHospitality\nInsurance\nIT\nLegal Services\nLogistics & Supply Chain\nManufacturing\nMedia & Entertainment\nNonprofit\nPublic Organizations\nPharmaceuticals\nReal Estate\nRetail\nTelecommunications\nTransportation"
+  },
+  {
+   "fieldname": "door",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Door",
+   "options": "Door Combi Multiselect"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Color",
+   "options": "Color Multiselect"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Long Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "panel_type",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Panel Type",
+   "options": "Panel Type Multiselect"
+  },
+  {
+   "fieldname": "add_feat",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Additional Features",
+   "options": "Additional Features Multiselect"
+  },
+  {
+   "fieldname": "link",
+   "fieldtype": "Data",
+   "label": "SharePoint Link",
+   "length": 500
+  },
+  {
+   "fieldname": "open_link",
+   "fieldtype": "Button",
+   "label": "Open Link"
+  },
+  {
+   "default": "Product Type",
+   "fieldname": "product_type",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Product Type",
+   "options": "Product Type Multiselect"
+  },
+  {
+   "fieldname": "column_break_qgdw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "product_type_filter",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Product Type"
+  },
+  {
+   "fieldname": "door_filter",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Door"
+  },
+  {
+   "fieldname": "panel_type_filter",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Panel Type"
+  },
+  {
+   "fieldname": "color_filter",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Color"
+  },
+  {
+   "fieldname": "additional_features_filter",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Additional Features"
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "label": "Year"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-02 13:49:39.125302",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Project References",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "proj_name"
+}

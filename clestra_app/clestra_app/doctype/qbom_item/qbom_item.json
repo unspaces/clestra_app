@@ -1,0 +1,244 @@
+{
+ "actions": [],
+ "creation": "2024-07-11 08:44:04.239969",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "column_break_puql",
+  "do_not_explode",
+  "qbom_no",
+  "source_warehouse",
+  "allow_alternative_item",
+  "description_section",
+  "description",
+  "column_break_unal",
+  "image",
+  "image_view",
+  "quantity_and_rate",
+  "qty",
+  "uom",
+  "column_break_dvgh",
+  "stock_qty",
+  "stock_uom",
+  "conversion_factor",
+  "rate_amount_section",
+  "rate",
+  "base_rate",
+  "column_break_esci",
+  "amount",
+  "base_amount",
+  "section_break_abmu",
+  "qty_consumed_per_unit",
+  "section_break_idvi",
+  "has_variants",
+  "original_item",
+  "column_break_gczh",
+  "sourced_by_supplier"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stock_qty",
+   "fieldtype": "Float",
+   "label": "Stock Qty",
+   "read_only": 1,
+   "read_only_depends_on": "eval:doc.is_stock_item == 1"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Source Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_alternative_item",
+   "fieldtype": "Check",
+   "label": "Allow Alternative Item"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "print_width": "150px",
+   "read_only": 1,
+   "width": "150px"
+  },
+  {
+   "fieldname": "base_amount",
+   "fieldtype": "Currency",
+   "label": "Base Amount",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "base_rate",
+   "fieldtype": "Currency",
+   "label": "Base Rate"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor",
+   "read_only_depends_on": "eval:doc.is_stock_item == 1"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "do_not_explode",
+   "fieldtype": "Check",
+   "label": "Do Not Explode"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_variants",
+   "fieldtype": "Check",
+   "label": "Has Variants"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "label": "Image"
+  },
+  {
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "mandatory_depends_on": "eval:doc.is_stock_item == 1",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "original_item",
+   "fieldtype": "Link",
+   "label": "Original Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "qty_consumed_per_unit",
+   "fieldtype": "Float",
+   "label": "Quantity Consumed Per Unit"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate",
+   "read_only_depends_on": "eval:doc.is_stock_item == 1",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sourced_by_supplier",
+   "fieldtype": "Check",
+   "label": "Sourced by Supplier"
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_unal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image_view",
+   "fieldtype": "Image",
+   "label": "Image View"
+  },
+  {
+   "fieldname": "column_break_puql",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quantity_and_rate",
+   "fieldtype": "Section Break",
+   "label": "Quantity & Conversion"
+  },
+  {
+   "fieldname": "column_break_dvgh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate_amount_section",
+   "fieldtype": "Section Break",
+   "label": "Rate & Amount"
+  },
+  {
+   "fieldname": "column_break_esci",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_abmu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_idvi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_gczh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:!doc.do_not_explode",
+   "fieldname": "qbom_no",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "label": "QBOM No",
+   "options": "Quotation Pricing",
+   "print_width": "150px",
+   "search_index": 1,
+   "width": "150px"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-15 08:03:41.809759",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "QBOM Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

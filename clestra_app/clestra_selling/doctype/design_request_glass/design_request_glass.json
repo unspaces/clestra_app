@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-06 09:55:16.513214",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "spec_type",
+  "layer",
+  "grooving",
+  "thickness",
+  "glass_type",
+  "sealing",
+  "column_break_qhhp"
+ ],
+ "fields": [
+  {
+   "fieldname": "spec_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Spec Type",
+   "options": "\nStandard\nCustomize"
+  },
+  {
+   "fieldname": "layer",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Layer",
+   "options": "\nSingle\nDouble"
+  },
+  {
+   "fieldname": "grooving",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Grooving",
+   "options": "\nGrooving\nNon-Grooving"
+  },
+  {
+   "columns": 1,
+   "fieldname": "thickness",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Thickness",
+   "options": "\n5\n6\n7\n8\n10\n10.76\n12\n12.76\n16.76"
+  },
+  {
+   "columns": 2,
+   "fieldname": "glass_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Glass Type",
+   "options": "\nClear\nClear Tempered\nHeat Soaked\nClear Heat Soaked\nClear Laminated\nClear Laminated Tempered\nClear Laminated Heat Soaked\nLow-Iron\nLow-Iron Heat Soaked\nLow-Iron Laminated\nLow-Iron Laminated Heat Soaked\nLow-Iron Laminated Tempered with Magic Film\nGrooved Heat Soaked\nGrooved Clear Tempered\nGrooved Low-Iron Heat Soaked\nGrooved Low-Iron Tempered\nBack Painted Tempered"
+  },
+  {
+   "fieldname": "sealing",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Sealing",
+   "options": "\n3M Tape\nGrooving Seal\nCaulking Tape"
+  },
+  {
+   "fieldname": "column_break_qhhp",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-06 10:16:00.201988",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Design Request Glass",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

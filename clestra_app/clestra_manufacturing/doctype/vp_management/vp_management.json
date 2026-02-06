@@ -1,0 +1,295 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:{product_name}-{YY}{MM}{DD}",
+ "creation": "2024-08-08 14:36:19.564810",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_vqur",
+  "factory",
+  "loc_type",
+  "company",
+  "column_break_xoub",
+  "start_date",
+  "end_date",
+  "amended_from",
+  "section_break_bcwj",
+  "vp_rate",
+  "column_break_reku",
+  "mfg_rate",
+  "column_break_oesc",
+  "oh_rate",
+  "section_break_kmoz",
+  "product_name",
+  "vp_bom",
+  "section_break_ahzd",
+  "width_definition",
+  "column_break_vhqf",
+  "height_definition",
+  "section_break_fzua",
+  "column_break_wvor",
+  "column_break_bgsh",
+  "calculate",
+  "caculated_data_section",
+  "calculated_data",
+  "vp_matrix_section",
+  "vp_matrix",
+  "costs_section",
+  "summary",
+  "old_tab",
+  "vp_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_vqur",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "factory",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Factory",
+   "options": "Gumi\nTaichang"
+  },
+  {
+   "fieldname": "loc_type",
+   "fieldtype": "Select",
+   "label": "Location Type",
+   "options": "DOM\nDOM_LOC\nDOM_NAT\nOVS\nOVS_INT\nOVS_REG\nGLB\nREG\nLOC",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_xoub",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "VP Management",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_kmoz",
+   "fieldtype": "Section Break",
+   "label": "VP BOM Component"
+  },
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Product Name",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "vp_bom",
+   "fieldtype": "Table",
+   "label": "VP BOM",
+   "options": "VP BOM"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_ahzd",
+   "fieldtype": "Section Break",
+   "label": "Dimension Definition"
+  },
+  {
+   "fieldname": "width_definition",
+   "fieldtype": "Table",
+   "label": "Width Definition",
+   "options": "VP Dimension Definition"
+  },
+  {
+   "fieldname": "column_break_vhqf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "height_definition",
+   "fieldtype": "Table",
+   "label": "Height Definition",
+   "options": "VP Dimension Definition"
+  },
+  {
+   "fieldname": "section_break_fzua",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "calculate",
+   "fieldtype": "Button",
+   "label": "Calculate"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "caculated_data_section",
+   "fieldtype": "Section Break",
+   "label": "Calculated Data"
+  },
+  {
+   "fieldname": "calculated_data",
+   "fieldtype": "Table",
+   "label": "Calculated Data",
+   "options": "VP Caculated Data"
+  },
+  {
+   "fieldname": "section_break_bcwj",
+   "fieldtype": "Section Break",
+   "label": "Rate"
+  },
+  {
+   "fieldname": "column_break_reku",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.386",
+   "fieldname": "mfg_rate",
+   "fieldtype": "Float",
+   "label": "Manufacturing Rate"
+  },
+  {
+   "fieldname": "column_break_oesc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.29",
+   "fieldname": "oh_rate",
+   "fieldtype": "Float",
+   "label": "Overhead Rate"
+  },
+  {
+   "fieldname": "vp_rate",
+   "fieldtype": "Int",
+   "label": "VP Rate",
+   "options": "367"
+  },
+  {
+   "fieldname": "column_break_wvor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bgsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "costs_section",
+   "fieldtype": "Section Break",
+   "label": "Costs"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Table",
+   "in_filter": 1,
+   "label": "Summary",
+   "options": "VP Summary"
+  },
+  {
+   "fieldname": "vp_matrix_section",
+   "fieldtype": "Section Break",
+   "label": "VP Matrix"
+  },
+  {
+   "fieldname": "vp_matrix",
+   "fieldtype": "Table",
+   "options": "VP Dimension Definition"
+  },
+  {
+   "fieldname": "old_tab",
+   "fieldtype": "Tab Break",
+   "label": "OLD"
+  },
+  {
+   "fieldname": "vp_table",
+   "fieldtype": "Table",
+   "options": "VP Table"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-14 16:01:36.046793",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "VP Management",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

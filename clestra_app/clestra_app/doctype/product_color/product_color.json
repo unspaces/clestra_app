@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:color",
+ "creation": "2024-11-04 11:19:45.619122",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "color",
+  "color_name",
+  "billing_color",
+  "is_active",
+  "is_conditional",
+  "conditional_color_rule",
+  "formula"
+ ],
+ "fields": [
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Color Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "depends_on": "eval:doc.is_conditional == 1",
+   "fieldname": "conditional_color_rule",
+   "fieldtype": "Table",
+   "label": "Conditional Color Rule",
+   "options": "Conditional Color Rules"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_conditional",
+   "fieldtype": "Check",
+   "label": "Is Conditional"
+  },
+  {
+   "depends_on": "eval:doc.is_conditional == 1",
+   "fieldname": "formula",
+   "fieldtype": "Code",
+   "label": "Formula",
+   "read_only": 1
+  },
+  {
+   "fieldname": "color_name",
+   "fieldtype": "Link",
+   "label": "Color Name",
+   "options": "Color"
+  },
+  {
+   "fieldname": "billing_color",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Billing Color",
+   "options": "Color"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-19 09:47:24.174961",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Product Color",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "color",
+ "sort_order": "ASC",
+ "states": []
+}

@@ -1,0 +1,310 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "PO-.order_item_code.-.company_abbr.-.YY.-.###",
+ "creation": "2025-08-27 14:00:06.603595",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project",
+  "column_break_crxp",
+  "company",
+  "company_abbr",
+  "ordered_by",
+  "column_break_gapj",
+  "date",
+  "revision_no",
+  "section_break_fgkn",
+  "mpr",
+  "column_break_yjer",
+  "job_id",
+  "column_break_bhmw",
+  "contract_no",
+  "section_break_lgbp",
+  "product_type",
+  "purchase_type",
+  "column_break_llrb",
+  "supplier",
+  "section_break_rcyj",
+  "on_site_date",
+  "asap",
+  "shipping_address",
+  "section_break_dqps",
+  "order_item",
+  "order_item_code",
+  "section_break_fwed",
+  "glass_thickness",
+  "glass_cleaning",
+  "tempering",
+  "remarks",
+  "column_break_uuos",
+  "glass_type",
+  "section_break_obne",
+  "blind_operation_type",
+  "blind_model_no",
+  "section_break_eouh",
+  "purchase_table"
+ ],
+ "fields": [
+  {
+   "fetch_from": "project.job_id",
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job ID"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Product Type",
+   "options": "\nM1 (P94)\nMplus (P94+)\npleinAir (P81)\nAlign (P95)\nALTO\nBaya Slim (91)\nBTJ6\nBTJ6 CR\nCLESLINE50 CR\nCP86 CR\nDO1\nFizz Box - Crystal\nFizz Box - London\nFizz Box - Modern\nLignage\nLoft (M82)\nMerchendising\nP61A\nP85 Synops\nP85A\nP86A\nP89L (Clean Room)\nSYSTEMAGE\nWall Cladding"
+  },
+  {
+   "fieldname": "column_break_crxp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "__user",
+   "fieldname": "ordered_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Ordered By",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_break_lgbp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "purchase_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Purchase Type",
+   "options": "\nNew\nAdditional\nSelf-breaking"
+  },
+  {
+   "fieldname": "column_break_llrb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "column_break_gapj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "on_site_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "On-Site Date"
+  },
+  {
+   "fieldname": "section_break_eouh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "purchase_table",
+   "fieldtype": "Table",
+   "options": "Glass Purchase Order Table"
+  },
+  {
+   "fieldname": "section_break_rcyj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "shipping_address",
+   "fieldtype": "Data",
+   "label": "Shipping Address"
+  },
+  {
+   "depends_on": "eval:doc.order_item == \"Glass\"",
+   "fieldname": "section_break_fwed",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "default": "0",
+   "fieldname": "glass_cleaning",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Glass Cleaning Required"
+  },
+  {
+   "fieldname": "revision_no",
+   "fieldtype": "Int",
+   "label": "Revision No."
+  },
+  {
+   "fieldname": "glass_type",
+   "fieldtype": "Link",
+   "label": "Glass Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Glass Type (KR)\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "glass_thickness",
+   "fieldtype": "Data",
+   "label": "Glass Thickness"
+  },
+  {
+   "fieldname": "column_break_uuos",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "company_abbr",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Abbr"
+  },
+  {
+   "default": "0",
+   "fieldname": "tempering",
+   "fieldtype": "Check",
+   "label": "Tempering Mark Required"
+  },
+  {
+   "fieldname": "section_break_fgkn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_yjer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bhmw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract_no",
+   "fieldtype": "Data",
+   "label": "Contract No."
+  },
+  {
+   "fetch_from": "project.mpr",
+   "fieldname": "mpr",
+   "fieldtype": "Data",
+   "label": "MPR",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "asap",
+   "fieldtype": "Check",
+   "label": "ASAP Required"
+  },
+  {
+   "fieldname": "section_break_dqps",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "order_item",
+   "fieldtype": "Select",
+   "label": "PurchaseOrder Item",
+   "options": "Glass\nBlind"
+  },
+  {
+   "depends_on": "eval:doc.order_item == \"Blind\"",
+   "fieldname": "section_break_obne",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "blind_operation_type",
+   "fieldtype": "Select",
+   "label": "Blind Operation Type",
+   "options": "\nManual\nAuto"
+  },
+  {
+   "fieldname": "blind_model_no",
+   "fieldtype": "Data",
+   "label": "Blind Model No."
+  },
+  {
+   "default": "G",
+   "fieldname": "order_item_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Purchase Order Item Code"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-03 14:21:05.990940",
+ "modified_by": "Administrator",
+ "module": "Clestra Buying",
+ "name": "Glass Blind Purchase Order",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

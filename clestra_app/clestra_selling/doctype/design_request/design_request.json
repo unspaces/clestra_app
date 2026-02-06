@@ -1,0 +1,559 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-13 10:09:36.868934",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project_information_section",
+  "project",
+  "project_name",
+  "column_break_sanv",
+  "date",
+  "company",
+  "company_abbr",
+  "column_break_mxrz",
+  "created_by",
+  "created_by_name",
+  "order_number_section",
+  "mpr",
+  "column_break_hxdd",
+  "job_id",
+  "column_break_jgcn",
+  "contract_no",
+  "shipping_details_section",
+  "set_warehouse",
+  "shipping_method",
+  "column_break_bcvl",
+  "scope_of_supply",
+  "incoterms",
+  "column_break_cycr",
+  "team_assignment_section",
+  "project_manager",
+  "column_break_zrpw",
+  "sales_person",
+  "column_break_yfno",
+  "commercial_currency_section",
+  "expected_qty_lm",
+  "factory_currency",
+  "point_value",
+  "column_break_iwla",
+  "contract_amount",
+  "local_currency",
+  "exchange_rate",
+  "exchange_rate_date",
+  "column_break_tupn",
+  "client_information_section",
+  "client_company",
+  "client_remarks",
+  "column_break_zxuy",
+  "contact_person",
+  "email_address",
+  "mobile_number",
+  "column_break_etpp",
+  "site_information_section",
+  "country",
+  "city",
+  "building_name",
+  "column_break_lxrm",
+  "zip_code",
+  "street_address",
+  "column_break_qrud",
+  "status_section",
+  "sales_status",
+  "column_break_ivmv",
+  "ex_work_date",
+  "on_site_date",
+  "column_break_fawm",
+  "request_information_section",
+  "request_type",
+  "drawing_type",
+  "column_break_ared",
+  "due_date",
+  "column_break_qeih",
+  "extra_features_section",
+  "extra_features",
+  "notes_section",
+  "dr_notes",
+  "product_info_tab",
+  "glass_section",
+  "dr_product_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_information_section",
+   "fieldtype": "Section Break",
+   "label": "Project Information"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sanv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "default": "__user",
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Created By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "extra_features_section",
+   "fieldtype": "Section Break",
+   "label": "Extra Features"
+  },
+  {
+   "fieldname": "extra_features",
+   "fieldtype": "Long Text",
+   "label": "Blind, Fabric etc.,"
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "company_abbr",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Abbr"
+  },
+  {
+   "fieldname": "column_break_mxrz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "created_by.full_name_region",
+   "fieldname": "created_by_name",
+   "fieldtype": "Data",
+   "label": "Created By (Name)"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "order_number_section",
+   "fieldtype": "Section Break",
+   "label": "Order Number"
+  },
+  {
+   "fetch_from": "project.mpr",
+   "fieldname": "mpr",
+   "fieldtype": "Data",
+   "label": "MPR"
+  },
+  {
+   "fieldname": "column_break_hxdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.job_id",
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "label": "Job ID"
+  },
+  {
+   "fieldname": "column_break_jgcn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.contract_no",
+   "fieldname": "contract_no",
+   "fieldtype": "Data",
+   "label": "Contract No."
+  },
+  {
+   "fieldname": "shipping_details_section",
+   "fieldtype": "Section Break",
+   "label": "Shipping & Delivery Details"
+  },
+  {
+   "fieldname": "set_warehouse",
+   "fieldtype": "Link",
+   "label": "Factory",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shipping_method",
+   "fieldtype": "Select",
+   "label": "Shipping Method",
+   "options": "\nSea\nAir\nTruck\nCourier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bcvl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scope_of_supply",
+   "fieldtype": "Select",
+   "label": "Scope of Supply",
+   "options": "\nSupply Ex-Work\nSupply Transport\nSupply + Supervisor\nSupply + Erect"
+  },
+  {
+   "fieldname": "incoterms",
+   "fieldtype": "Select",
+   "label": "Incoterms",
+   "options": "\nDDP(Delivered Duty Paid)\nDomestic\nFOB(Free On Board)\nCFR(Cost and Freight)\nCIF(Cost, Insurance and Freight)\nEXW(Ex Works)\nCPT(Carriage Paid To)\nCIP(Carriage and Insurance Paid to)\nDAT(Delivered At Terminal)\nDAP(Delivered At Place)"
+  },
+  {
+   "fieldname": "team_assignment_section",
+   "fieldtype": "Section Break",
+   "label": "Team Assignment"
+  },
+  {
+   "fieldname": "project_manager",
+   "fieldtype": "Link",
+   "label": "Project Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_zrpw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "commercial_currency_section",
+   "fieldtype": "Section Break",
+   "label": "Commercial & Currency Details"
+  },
+  {
+   "description": "(L/M)",
+   "fieldname": "expected_qty_lm",
+   "fieldtype": "Float",
+   "label": "Expected Quantity"
+  },
+  {
+   "fieldname": "factory_currency",
+   "fieldtype": "Link",
+   "label": "Factory Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "point_value",
+   "fieldtype": "Data",
+   "label": "Point Value"
+  },
+  {
+   "fieldname": "column_break_iwla",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract_amount",
+   "fieldtype": "Float",
+   "label": "Contract Amount"
+  },
+  {
+   "fieldname": "local_currency",
+   "fieldtype": "Link",
+   "label": "Local Currency",
+   "options": "Currency"
+  },
+  {
+   "description": "The exchange rate will be finalized based on the rate at the date of approval",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Data",
+   "label": "Exchange Rate"
+  },
+  {
+   "description": "The date on which the exchange rate was fixed",
+   "fieldname": "exchange_rate_date",
+   "fieldtype": "Date",
+   "label": "Exchange Rate Date"
+  },
+  {
+   "fieldname": "client_information_section",
+   "fieldtype": "Section Break",
+   "label": "Client Information"
+  },
+  {
+   "fieldname": "client_company",
+   "fieldtype": "Link",
+   "label": "Client Company",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "client_remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_zxuy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Link",
+   "label": "Contact Person",
+   "link_filters": "[[\"Contact\",\"link_name\",\"=\",\"eval:doc.client_company\"]]",
+   "options": "Contact"
+  },
+  {
+   "fetch_from": "contact_person.email_id",
+   "fieldname": "email_address",
+   "fieldtype": "Data",
+   "label": "Email Address"
+  },
+  {
+   "fetch_from": "contact_person.mobile_no",
+   "fieldname": "mobile_number",
+   "fieldtype": "Data",
+   "label": "Mobile Number"
+  },
+  {
+   "fieldname": "site_information_section",
+   "fieldtype": "Section Break",
+   "label": "Site Information"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lxrm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dr_notes",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "label": "City",
+   "options": "City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "building_name",
+   "fieldtype": "Data",
+   "label": "Building Name"
+  },
+  {
+   "fieldname": "zip_code",
+   "fieldtype": "Data",
+   "label": "ZIP Code"
+  },
+  {
+   "fieldname": "street_address",
+   "fieldtype": "Small Text",
+   "label": "Street Address"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "column_break_ivmv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ex_work_date",
+   "fieldtype": "Date",
+   "label": "Ex Work Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "on_site_date",
+   "fieldtype": "Date",
+   "label": "On Site Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_status",
+   "fieldtype": "Select",
+   "label": "Sales Status",
+   "options": "\nOIF\nPanic\nPre Order"
+  },
+  {
+   "fieldname": "request_information_section",
+   "fieldtype": "Section Break",
+   "label": "Request Information"
+  },
+  {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request Type",
+   "options": "\nDesign\nB/Q\nB/Q + Design"
+  },
+  {
+   "fieldname": "drawing_type",
+   "fieldtype": "Select",
+   "label": "Drawing Type",
+   "options": "\nFloor Plan\nElevation\nDetail\nOthers"
+  },
+  {
+   "fieldname": "column_break_ared",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "product_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Product Info."
+  },
+  {
+   "fieldname": "glass_section",
+   "fieldtype": "Section Break",
+   "label": "Product"
+  },
+  {
+   "fieldname": "dr_product_table",
+   "fieldtype": "Table",
+   "options": "Design Request Product"
+  },
+  {
+   "fieldname": "column_break_cycr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yfno",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_tupn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_etpp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qrud",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_fawm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qeih",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-09 09:25:03.742621",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Design Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Master Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-13 11:07:56.770247",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "color_section",
+  "color_overall",
+  "color_ch_ch",
+  "color_base",
+  "color_panel",
+  "color_frame",
+  "color_leaf",
+  "color_etc"
+ ],
+ "fields": [
+  {
+   "fieldname": "color_section",
+   "fieldtype": "Section Break",
+   "label": "Color"
+  },
+  {
+   "fieldname": "color_overall",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Overall"
+  },
+  {
+   "fieldname": "color_ch_ch",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CL/CH"
+  },
+  {
+   "fieldname": "color_base",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Base"
+  },
+  {
+   "fieldname": "color_panel",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Panel"
+  },
+  {
+   "fieldname": "color_frame",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Frame"
+  },
+  {
+   "fieldname": "color_leaf",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Leaf"
+  },
+  {
+   "fieldname": "color_etc",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Etc"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-13 11:10:17.783684",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Design Request Paint",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

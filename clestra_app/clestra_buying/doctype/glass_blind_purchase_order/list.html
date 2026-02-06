@@ -1,0 +1,200 @@
+<!-- Summary Section -->
+<br>
+<div style="width:100%;">
+    <div class="glass-type" style="width:70%; margin: 0 auto; text-align: center; border: 2px solid black; padding: 10px; font-size: 18px; font-weight: bold; margin-top: 5px; margin-bottom: 10px; ">
+        {% if doc.order_item == 'Glass' %}
+            {{ doc.glass_thickness}} {{ doc.glass_type or '' }}
+        {% else %}
+            {{ doc.blind_operation_type}} - {{ doc.blind_model_no or '' }}
+        {% endif %}
+    </div>
+</div>
+<div style="text-align: right; font-size: 14px;">
+    * 허용오차: 폭 (±1mm) / 높이 (±2mm)
+</div>
+
+<!-- Items Table -->
+<table class="table table-bordered table-condensed" style="width: 100%; border-collapse: collapse; text-align: center; vertical-align: middle;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                Zone</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                두께(T)</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                가로(W)</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                세로(H)</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                Qty</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                DWG No.</th>
+            <th style="border: 1px solid black; background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+                비고</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% set total_qty = [0] %}
+        {% for row in doc.purchase_table %}
+        
+        {# --- 스타일 및 표시 값 계산 로직 --- #}
+        
+        {# 1. Zone 그룹화 로직 #}
+        {% set is_start_zone_group = loop.first or row.zone != loop.previtem.zone %}
+        {% set is_end_zone_group = loop.last or row.zone != loop.nextitem.zone %}
+
+        {% set zone_style = '' %}
+
+        {% if is_start_zone_group %}
+            {% set zone_style = 'border-top: 1px solid black;' %}
+        {% endif %}
+        {% if is_end_zone_group %}
+            {% set zone_style = 'border-bottom: 1px solid black;' %}
+        {% endif %}
+
+        {% if not is_start_zone_group %}
+            {% set zone_style = zone_style + 'border-top-color: transparent;' %}
+        {% endif %}
+        {% if not is_end_zone_group %}
+            {% set zone_style = zone_style + 'border-bottom-color: transparent;' %}
+        {% endif %}
+
+        {# 2. Thickness 그룹화 로직 #}
+        {% set is_start_thickness_group = loop.first or row.thk != loop.previtem.thk %}
+        {% set is_end_thickness_group = loop.last or row.thk != loop.nextitem.thk %}
+
+        {% set thickness_style = '' %}
+
+        {% if is_start_thickness_group %}
+            {% set thickness_style = 'border-top: 1px solid black;' %}
+        {% endif %}
+        {% if is_end_thickness_group %}
+            {% set thickness_style = 'border-bottom: 1px solid black;' %}
+        {% endif %}
+
+        {% if not is_start_thickness_group %}
+            {% set thickness_style = thickness_style + 'border-top-color: transparent;' %}
+        {% endif %}
+        {% if not is_end_thickness_group %}
+            {% set thickness_style = thickness_style + 'border-bottom-color: transparent;' %}
+        {% endif %}
+
+        {# 3. Remarks 그룹화 로직 #}
+        {% set should_merge_remarks = not loop.first and row.remarks and row.remarks == loop.previtem.remarks %}
+        {% set is_start_of_remark_group = not should_merge_remarks %}
+        {% set is_end_of_remark_group = loop.last or not row.remarks or row.remarks != loop.nextitem.remarks %}
+
+        {% set remark_style = '' %}
+
+        {% if is_start_of_remark_group %}
+            {% set remark_style = remark_style + 'border-top: 1px solid black;' %}
+        {% else %}
+            {% set remark_style = remark_style + 'border-top-color: transparent;' %}
+        {% endif %}
+
+        {% if is_end_of_remark_group %}
+            {% set remark_style = remark_style + 'border-bottom: 1px solid black;' %}
+        {% else %}
+            {% set remark_style = remark_style + 'border-bottom-color: transparent;' %}
+        {% endif %}
+        
+        {# 4. Remarks 및 빨간 테두리 로직 #}
+        {% set mark_style = '' %}
+        {% set width_style = '' %}
+        {% set height_style = '' %}
+        {% set qty_style = '' %}
+        {% set dwg_no_style = '' %}
+        
+        {% if row.mark %}
+            {% set is_start_of_mark_group = loop.first or row.mark != loop.previtem.mark %}
+            {% set is_end_of_mark_group = loop.last or row.mark != loop.nextitem.mark %}
+            {% set is_middle_of_mark_group = not is_start_of_mark_group and not is_end_of_mark_group %}
+
+            {# 공통 빨간 테두리 스타일 #}
+            {% set red_border_left = 'border-left: 3px solid red;' %}
+            {% set red_border_right = 'border-right: 3px solid red;' %}
+            {% set red_border_top = 'border-top: 3px solid red;' %}
+            {% set red_border_bottom = 'border-bottom: 3px solid red;' %}
+
+            {# 각 셀의 스타일 조합 #}
+            {% set width_style = red_border_left %}
+            {% set dwg_no_style = red_border_right %}
+
+            {% if is_start_of_mark_group %}
+                {% set width_style = width_style + red_border_top %}
+                {% set height_style = height_style + red_border_top %}
+                {% set qty_style = qty_style + red_border_top %}
+                {% set dwg_no_style = dwg_no_style + red_border_top %}
+                {% set mark_style = mark_style + 'border-top: 1px solid black;' %}
+                {% set remark_style = remark_style + 'color: red;' %}
+            {% endif %}
+
+            {% if is_end_of_mark_group %}
+                {% set width_style = width_style + red_border_bottom %}
+                {% set height_style = height_style + red_border_bottom %}
+                {% set qty_style = qty_style + red_border_bottom %}
+                {% set dwg_no_style = dwg_no_style + red_border_bottom %}
+                {% set mark_style = mark_style + 'border-bottom: 1px solid black;' %}
+            {% endif %}
+            
+            {# 그룹 중간에 있는 행들의 위아래 테두리를 투명하게 하여 박스가 합쳐져 보이게 함 #}
+            {% if not is_start_of_mark_group %}
+                {% set width_style = width_style + 'border-top-color: transparent;' %}
+                {% set height_style = height_style + 'border-top-color: transparent;' %}
+                {% set qty_style = qty_style + 'border-top-color: transparent;' %}
+                {% set dwg_no_style = dwg_no_style + 'border-top-color: transparent;' %}
+                {% set mark_style = mark_style + 'border-top-color: transparent;' %}
+            {% endif %}
+
+            {% if not is_end_of_mark_group %}
+                {% set mark_style = mark_style + 'border-bottom-color: transparent;' %}
+            {% endif %}
+        {% else %}
+            {# 비고가 없는 행의 기본 상/하단 테두리를 설정 #}
+            {% set mark_style = 'border-top: 1px solid black; border-bottom: 1px solid black;' %}            
+        {% endif %}
+
+        <tr style="vertical-align: middle;">
+            <td style="border-left: 1px solid black; border-right: 1px solid black; {{ zone_style }}">
+                {% if is_start_zone_group %}
+                    {# row.zone 값이 있을 때만 frappe.get_doc 실행 #}
+                    {% if row.zone %}
+                        {{ frappe.get_doc("Zone", row.zone).zone_name }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td style="border-left: 1px solid black; border-right: 1px solid black; {{ thickness_style }}">
+                {{ row.thk if is_start_thickness_group else '' }}
+            </td>
+            <td class="number" style="border: 1px solid black; {{ width_style }}">
+                {{ row.width or '' }}
+            </td>
+            <td class="number" style="border: 1px solid black; {{ height_style }}">
+                {{ row.height or '' }}
+            </td>
+            <td class="number" style="border: 1px solid black; {{ qty_style }}">
+                {{ row.qty or 0 }}
+            </td>
+            <td style="border: 1px solid black; {{ dwg_no_style }}">
+                {{ row.dwg_no or '' }}
+            </td>
+            <td style="border-left: 1px solid black; border-right: 1px solid black; {{ remark_style }}">
+                {# Remark 그룹의 첫 번째 행에만 비고 내용 표시 #}
+                {% if is_start_of_remark_group %}
+                    {{ row.remarks or '' }}
+                {% endif %}
+            </td>
+        </tr>
+        {% if total_qty.append(total_qty.pop() + row.qty) %}{% endif %}
+        {% endfor %}
+        
+        <!-- Total Row -->
+        <tr style="font-weight: bold; background-color: #f2f2f2;">
+            <td colspan="4" style="border: 1px solid black; padding: 8px;">TOTAL</td>
+            <td class="number" style="border: 1px solid black; padding: 8px;">
+                {{ total_qty[0] | round(2) }}
+            </td>
+            <td colspan="2" style="border: 1px solid black; padding: 8px;"></td>
+        </tr>
+    </tbody>
+</table>

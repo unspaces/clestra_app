@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-19 16:27:20.252953",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "single_door",
+  "pair_door",
+  "sliding_door",
+  "others",
+  "column_break_dqrz"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "default": "0",
+   "fieldname": "single_door",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Single Door"
+  },
+  {
+   "columns": 2,
+   "default": "0",
+   "fieldname": "pair_door",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Pair Door"
+  },
+  {
+   "fieldname": "column_break_dqrz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "default": "0",
+   "fieldname": "sliding_door",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Sliding Door"
+  },
+  {
+   "fieldname": "others",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Others"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-09-26 16:40:44.140601",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Door Type",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

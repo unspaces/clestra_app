@@ -1,0 +1,231 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2025-06-09 09:50:07.972972",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "project",
+  "zone",
+  "zone_name",
+  "product_type",
+  "total_lm",
+  "total_square_m",
+  "section_break_akfg",
+  "ch",
+  "ph",
+  "section_break_belf",
+  "clch_type",
+  "ceiling_visible",
+  "column_break_nmwb",
+  "base_type",
+  "base_visible_h",
+  "section_break_ijji",
+  "zone_overall_color",
+  "section_break_pyrb",
+  "zone_color_frame",
+  "zone_color_transom",
+  "column_break_stmm",
+  "zone_color_leaf",
+  "zone_color_lipseal",
+  "column_break_ully",
+  "zone_color_panel",
+  "zone_color_clch",
+  "zone_color_base",
+  "zone_color_junction"
+ ],
+ "fields": [
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "columns": 1,
+   "fieldname": "product_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Prod. Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "total_lm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "L/M",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "total_square_m",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "M\u00b2",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "zone_name",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Zone ID",
+   "options": "Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_pyrb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zone_color_frame",
+   "fieldtype": "Link",
+   "label": "Frame Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_transom",
+   "fieldtype": "Link",
+   "label": "Transom Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_stmm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_color_leaf",
+   "fieldtype": "Link",
+   "label": "Leaf Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_lipseal",
+   "fieldtype": "Link",
+   "label": "Lip Seal Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_ully",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_color_panel",
+   "fieldtype": "Link",
+   "label": "Panel Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_clch",
+   "fieldtype": "Link",
+   "label": "CL/CH Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_base",
+   "fieldtype": "Link",
+   "label": "Base Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_junction",
+   "fieldtype": "Link",
+   "label": "Junction Color",
+   "options": "Product Color"
+  },
+  {
+   "columns": 1,
+   "fieldname": "zone_overall_color",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Color"
+  },
+  {
+   "fieldname": "section_break_akfg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ch",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ph",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PH"
+  },
+  {
+   "fieldname": "section_break_belf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "clch_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CL/CH",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"CL CH Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ceiling_visible",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CL Visible"
+  },
+  {
+   "fieldname": "column_break_nmwb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "base_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Base",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Base Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "columns": 1,
+   "fieldname": "base_visible_h",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Base Visible"
+  },
+  {
+   "fieldname": "section_break_ijji",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Zone",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-05 15:01:58.037132",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Sales Order Zone",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

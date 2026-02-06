@@ -1,0 +1,50 @@
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <!-- Heading Section -->
+    <div class="print-heading" style="padding-top: 17px !important; padding-bottom: 5px !important; margin-bottom: 5px !important;">
+        <h2>
+            <div>
+                {% if doc.order_item == 'Glass' %}
+                    Glass Purchase Order
+                {% else %}
+                    Blind Purchase Order
+                {% endif %}
+            </div>
+            <br>
+            <small>
+                <div style="height:30px">{{ doc.name }}</div>
+            </small>
+        </h2>
+    </div>
+
+    <!-- Approval Section -->
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <table style="border-collapse: collapse; border: 1px solid black; width: 300px; text-align: center; font-size: 12px; table-layout: fixed;">
+            <colgroup>
+                <col style="width: 25%;">
+                <col style="width: 25%;">
+                <col style="width: 25%;">
+                <col style="width: 25%;">
+            </colgroup>
+            <tr>
+                <th style="border: 1px solid black; padding: 5px; text-align: center; ">
+                    작성</th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center; ">
+                    검토</th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center; ">
+                    검토</th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center; ">
+                    승인</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; height: 67px; word-wrap: break-word; word-break: break-all;">
+                    {% if doc.ordered_by %}
+                        {{ frappe.get_doc("User", doc.ordered_by).full_name_region }}
+                    {% endif %}
+                </td>
+                <td style="border: 1px solid black;"></td>
+                <td style="border: 1px solid black;"></td>
+                <td style="border: 1px solid black;"></td>
+            </tr>
+        </table>
+    </div>
+</div>

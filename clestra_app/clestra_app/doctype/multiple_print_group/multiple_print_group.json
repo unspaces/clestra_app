@@ -1,0 +1,62 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-12 11:02:27.142379",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "product_type",
+  "door_set_type",
+  "door_open_type",
+  "group_name",
+  "group_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Product Type",
+   "options": "\nAlign (P95)\nALTO\nBaya Slim (91)\nBTJ6\nBTJ6 CR\nCLESLINE50 CR\nCP86 CR\nDO1\nFizz Box - Crystal\nFizz Box - London\nFizz Box - Modern\nLignage\nLoft (M82)\nM1 (P94)\nMerchendising\nMplus (P94+)\nOperable Wall\nP61A\nP85 Synops\nP85A\nP86A\nP89L (Clean Room)\npleinAir (P81)\nSYSTEMAGE\nWall Cladding"
+  },
+  {
+   "fieldname": "group_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Group Name",
+   "options": "Print Group",
+   "reqd": 1
+  },
+  {
+   "fieldname": "group_order",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Group Order"
+  },
+  {
+   "fieldname": "door_set_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Door Set Type",
+   "options": "\nSingle\nPair"
+  },
+  {
+   "fieldname": "door_open_type",
+   "fieldtype": "Select",
+   "label": "Door Open Type",
+   "options": "\nSwing\nSliding"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-12 16:07:22.527814",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Multiple Print Group",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{product_name}-{YY}{MM}{DD}",
+ "creation": "2024-08-08 14:36:19.564810",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_vqur",
+  "factory",
+  "loc_type",
+  "vp",
+  "column_break_xoub",
+  "start_date",
+  "end_date",
+  "amended_from",
+  "section_break_kmoz",
+  "product_name",
+  "vp_bom",
+  "section_break_ahzd",
+  "width_definition",
+  "column_break_vhqf",
+  "height_definition",
+  "section_break_fzua",
+  "calculate",
+  "caculated_data_section",
+  "table_gqce"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_vqur",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "factory",
+   "fieldtype": "Select",
+   "label": "Factory",
+   "options": "Gumi\nTaichang"
+  },
+  {
+   "fieldname": "column_break_xoub",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "VP Management",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "loc_type",
+   "fieldtype": "Select",
+   "label": "Location Type",
+   "options": "DOM\nDOM_LOC\nDOM_NAT\nOVS\nOVS_INT\nOVS_REG\nGLB\nREG\nLOC",
+   "search_index": 1
+  },
+  {
+   "fieldname": "vp",
+   "fieldtype": "Int",
+   "label": "VP"
+  },
+  {
+   "fieldname": "section_break_kmoz",
+   "fieldtype": "Section Break",
+   "label": "VP BOM Component"
+  },
+  {
+   "fieldname": "vp_bom",
+   "fieldtype": "Table",
+   "label": "VP BOM",
+   "options": "VP BOM"
+  },
+  {
+   "fieldname": "section_break_ahzd",
+   "fieldtype": "Section Break",
+   "label": "Dimension Definition"
+  },
+  {
+   "fieldname": "width_definition",
+   "fieldtype": "Table",
+   "label": "Width Definition",
+   "options": "VP Dimension Definition"
+  },
+  {
+   "fieldname": "column_break_vhqf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "height_definition",
+   "fieldtype": "Table",
+   "label": "Height Definition",
+   "options": "VP Dimension Definition"
+  },
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "Product Name"
+  },
+  {
+   "fieldname": "section_break_fzua",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "calculate",
+   "fieldtype": "Button",
+   "label": "Calculate"
+  },
+  {
+   "fieldname": "caculated_data_section",
+   "fieldtype": "Section Break",
+   "label": "Caculated Data"
+  },
+  {
+   "fieldname": "table_gqce",
+   "fieldtype": "Table",
+   "options": "VP Caculated Data"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 15:15:36.729069",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "VP Management",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

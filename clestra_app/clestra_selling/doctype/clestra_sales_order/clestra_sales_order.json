@@ -1,0 +1,1051 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format: SO-{mpr}-{job_id}-{contract_no}-{sub_no}-{serial_no}-{revision_no}",
+ "creation": "2025-03-31 15:00:25.379760",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_tab",
+  "general_information_section",
+  "project",
+  "project_name",
+  "general_contractor",
+  "column_break_sgvx",
+  "date",
+  "company",
+  "company_abbr",
+  "column_break_clau",
+  "created_by",
+  "created_by_name",
+  "import_design_request_section",
+  "get_items_from",
+  "column_break_sdzf",
+  "column_break_mzuz",
+  "section_break_kjqo",
+  "mpr",
+  "column_break_nfjk",
+  "job_id",
+  "column_break_npsd",
+  "contract_no",
+  "column_break_ebrz",
+  "sub_no",
+  "column_break_kimo",
+  "serial_no",
+  "column_break_avhj",
+  "revision",
+  "section_break_xfpx",
+  "set_warehouse",
+  "shipping_method",
+  "column_break_gnqo",
+  "scope_of_supply",
+  "incoterms",
+  "column_break_ivkm",
+  "team_assignment_section",
+  "project_manager",
+  "column_break_lrdp",
+  "sales_person",
+  "column_break_dmdz",
+  "commercial_currency",
+  "expected_qty_lm",
+  "factory_currency",
+  "point_value",
+  "column_break_suca",
+  "contract_amount",
+  "local_currency",
+  "exchange_rate",
+  "exchange_rate_date",
+  "column_break_zaay",
+  "end_client_information_section",
+  "client_company",
+  "client_remarks",
+  "column_break_vupz",
+  "contact_person",
+  "email_address",
+  "mobile_number",
+  "column_break_lnil",
+  "site_information_section",
+  "country",
+  "city",
+  "building_name",
+  "column_break_epek",
+  "zip_code",
+  "street_address",
+  "column_break_hhfb",
+  "status_section",
+  "sales_status",
+  "column_break_iwyt",
+  "ex_work_date",
+  "on_site_date",
+  "column_break_gycd",
+  "notes_section",
+  "notes",
+  "door_hw_spec_tab",
+  "section_break_hjnx",
+  "add_door_hw_spec",
+  "section_break_szpd",
+  "hw_spec_mapping",
+  "section_break_unqx",
+  "hw_check_1",
+  "hw_check_6",
+  "column_break_mjqp",
+  "hw_check_2",
+  "hw_check_7",
+  "column_break_ulyg",
+  "hw_check_3",
+  "hw_check_8",
+  "column_break_xgkc",
+  "hw_check_4",
+  "hw_check_9",
+  "column_break_tdat",
+  "hw_check_5",
+  "hw_check_10",
+  "section_break_pjim",
+  "hw_spec_summary",
+  "items_tab",
+  "zone_section",
+  "zone_selected",
+  "column_break_vkak",
+  "zone_product_type",
+  "column_break_shcf",
+  "lm_link",
+  "column_break_yxke",
+  "square_m_link",
+  "section_break_wysu",
+  "zone_summary",
+  "section_break_xidf",
+  "column_break_mrxb",
+  "finished_items",
+  "section_break_voui",
+  "sub_assembly_items",
+  "computation_tab",
+  "section_break_lzuk",
+  "column_break_eoak",
+  "zone_list_computation",
+  "grand_total_lm",
+  "column_break_cqpm",
+  "product_type",
+  "zone_product_type_zone_list_computation",
+  "grand_total_square_m",
+  "column_break_mvtw",
+  "default_select",
+  "standard_vp",
+  "apply_factory_discount",
+  "section_break_lwwi",
+  "computation",
+  "section_break_zzen",
+  "total_aa10_cost",
+  "column_break_wrks",
+  "total_aa10_sales",
+  "column_break_hxyj",
+  "total_aa10_discount",
+  "column_break_bxda",
+  "total_manufacturer_dc",
+  "codes_sum_tab",
+  "codes_sum",
+  "print_settings_tab",
+  "agent_dealer",
+  "print_section_section",
+  "print_cover_page",
+  "column_break_uapp",
+  "print_computation",
+  "column_break_umtl",
+  "print_codes_sum",
+  "column_break_enhv",
+  "print_items",
+  "column_break_fink",
+  "column_break_iced",
+  "print_filters_section",
+  "print_filter_product_type",
+  "column_break_ehre",
+  "print_filter_zone",
+  "column_break_hecg"
+ ],
+ "fields": [
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "get_items_from",
+   "fieldtype": "Select",
+   "label": "Get Items From",
+   "options": "\nDesign Request"
+  },
+  {
+   "fieldname": "general_contractor",
+   "fieldtype": "Data",
+   "label": "General Contractor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sgvx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "default": "__user",
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "created_by.full_name_region",
+   "fieldname": "created_by_name",
+   "fieldtype": "Data",
+   "label": "Created By (Name)"
+  },
+  {
+   "fieldname": "section_break_kjqo",
+   "fieldtype": "Section Break",
+   "label": "Order Number"
+  },
+  {
+   "fetch_from": "project.mpr",
+   "fieldname": "mpr",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "MPR"
+  },
+  {
+   "fieldname": "column_break_nfjk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.job_id",
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job ID"
+  },
+  {
+   "fieldname": "column_break_npsd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.contract_no",
+   "fieldname": "contract_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contract No"
+  },
+  {
+   "fieldname": "column_break_ebrz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "###",
+   "fieldname": "sub_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sub No",
+   "length": 3
+  },
+  {
+   "fieldname": "column_break_kimo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "#####",
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Serial No",
+   "length": 5
+  },
+  {
+   "fieldname": "column_break_avhj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_xfpx",
+   "fieldtype": "Section Break",
+   "label": "Shipping & Delivery Details"
+  },
+  {
+   "fieldname": "set_warehouse",
+   "fieldtype": "Link",
+   "label": "Factory",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shipping_method",
+   "fieldtype": "Select",
+   "label": "Shipping Method",
+   "options": "\nSea\nAir\nTruck\nCourier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gnqo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scope_of_supply",
+   "fieldtype": "Select",
+   "label": "Scope of Supply",
+   "options": "\nSupply Ex-Work\nSupply Transport\nSupply + Supervisor\nSupply + Erect"
+  },
+  {
+   "fieldname": "team_assignment_section",
+   "fieldtype": "Section Break",
+   "label": "Team Assignment"
+  },
+  {
+   "fieldname": "project_manager",
+   "fieldtype": "Link",
+   "label": "Project Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_lrdp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "commercial_currency",
+   "fieldtype": "Section Break",
+   "label": "Commercial & Currency Details"
+  },
+  {
+   "description": "(L/M)",
+   "fieldname": "expected_qty_lm",
+   "fieldtype": "Float",
+   "label": "Expected Quantity"
+  },
+  {
+   "fieldname": "factory_currency",
+   "fieldtype": "Link",
+   "label": "Factory Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "point_value",
+   "fieldtype": "Data",
+   "label": "Point Value"
+  },
+  {
+   "fieldname": "column_break_suca",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract_amount",
+   "fieldtype": "Float",
+   "label": "Contract Amount"
+  },
+  {
+   "fieldname": "local_currency",
+   "fieldtype": "Link",
+   "label": "Local Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "site_information_section",
+   "fieldtype": "Section Break",
+   "label": "Site Information"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "City",
+   "options": "City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_epek",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zip_code",
+   "fieldtype": "Data",
+   "label": "ZIP Code"
+  },
+  {
+   "fieldname": "street_address",
+   "fieldtype": "Small Text",
+   "label": "Street Address"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "sales_status",
+   "fieldtype": "Select",
+   "label": "Sales Status",
+   "options": "\nOIF\nPanic\nPre Order"
+  },
+  {
+   "fieldname": "column_break_iwyt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ex_work_date",
+   "fieldtype": "Date",
+   "label": "Ex Work Date"
+  },
+  {
+   "fieldname": "on_site_date",
+   "fieldtype": "Date",
+   "label": "On Site Date"
+  },
+  {
+   "fieldname": "items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Items"
+  },
+  {
+   "fieldname": "zone_section",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "section_break_xidf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_mrxb",
+   "fieldtype": "Column Break",
+   "width": "30%"
+  },
+  {
+   "fieldname": "sub_assembly_items",
+   "fieldtype": "Table",
+   "label": "Sub Items",
+   "options": "Sub Assembly"
+  },
+  {
+   "fieldname": "column_break_vkak",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "finished_items",
+   "fieldtype": "Table",
+   "label": "Order Details",
+   "options": "Sales Order Finished Items"
+  },
+  {
+   "fieldname": "section_break_voui",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_shcf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_product_type",
+   "fieldtype": "Link",
+   "label": "Zone - Product Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fetch_from": "zone_list.lm",
+   "fieldname": "lm_link",
+   "fieldtype": "Float",
+   "label": "L/M",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_yxke",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "zone_list.square_m",
+   "fieldname": "square_m_link",
+   "fieldtype": "Float",
+   "label": "M\u00b2",
+   "precision": "2"
+  },
+  {
+   "fieldname": "door_hw_spec_tab",
+   "fieldtype": "Tab Break",
+   "label": "Hardwares"
+  },
+  {
+   "fieldname": "section_break_pjim",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "hw_spec_summary",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "section_break_hjnx",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "default": "zone_product_type",
+   "fieldname": "computation_tab",
+   "fieldtype": "Tab Break",
+   "label": "Computation"
+  },
+  {
+   "default": "VP-25",
+   "fieldname": "default_select",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "options": "VP Rate"
+  },
+  {
+   "fetch_from": "default_select.value",
+   "fieldname": "standard_vp",
+   "fieldtype": "Data",
+   "label": "VP"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Product Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "options": "Selection Library",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eoak",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_cqpm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_lwwi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "codes_sum",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "column_break_clau",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "general_information_section",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "import_design_request_section",
+   "fieldtype": "Section Break",
+   "label": "Import Design Request"
+  },
+  {
+   "fieldname": "column_break_sdzf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mzuz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "end_client_information_section",
+   "fieldtype": "Section Break",
+   "label": "Client Information"
+  },
+  {
+   "fieldname": "client_company",
+   "fieldtype": "Link",
+   "label": "Client Company",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_vupz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Link",
+   "label": "Contact Person",
+   "link_filters": "[[\"Contact\",\"link_name\",\"=\",\"eval:doc.client_company\"]]",
+   "options": "Contact"
+  },
+  {
+   "fetch_from": "contact_person.email_id",
+   "fieldname": "email_address",
+   "fieldtype": "Data",
+   "label": "Email Address"
+  },
+  {
+   "fetch_from": "contact_person.mobile_no",
+   "fieldname": "mobile_number",
+   "fieldtype": "Data",
+   "label": "Mobile Number"
+  },
+  {
+   "fieldname": "client_remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "company_abbr",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Abbr"
+  },
+  {
+   "fieldname": "general_tab",
+   "fieldtype": "Tab Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "column_break_mvtw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_lzuk",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "section_break_unqx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_1",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_6",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_mjqp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_2",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_7",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_ulyg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_3",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_8",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_xgkc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_4",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_9",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_tdat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_5",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hw_check_10",
+   "fieldtype": "Check",
+   "hidden": 1
+  },
+  {
+   "fieldname": "building_name",
+   "fieldtype": "Data",
+   "label": "Building Name"
+  },
+  {
+   "fieldname": "incoterms",
+   "fieldtype": "Select",
+   "label": "Incoterms",
+   "options": "\nDDP(Delivered Duty Paid)\nDomestic\nFOB(Free On Board)\nCFR(Cost and Freight)\nCIF(Cost, Insurance and Freight)\nEXW(Ex Works)\nCPT(Carriage Paid To)\nCIP(Carriage and Insurance Paid to)\nDAT(Delivered At Terminal)\nDAP(Delivered At Place)"
+  },
+  {
+   "fieldname": "section_break_zzen",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "total_aa10_cost",
+   "fieldtype": "Float",
+   "label": "Total AA10 Cost"
+  },
+  {
+   "fieldname": "column_break_hxyj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bxda",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_manufacturer_dc",
+   "fieldtype": "Float",
+   "label": "Total Manufacturer DC"
+  },
+  {
+   "fieldname": "apply_factory_discount",
+   "fieldtype": "Button",
+   "label": "Apply Manufacturer Discount"
+  },
+  {
+   "fieldname": "column_break_wrks",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_aa10_sales",
+   "fieldtype": "Float",
+   "label": "Total AA10 Sales"
+  },
+  {
+   "fieldname": "total_aa10_discount",
+   "fieldtype": "Float",
+   "label": "Total AA10 Discount"
+  },
+  {
+   "fieldname": "codes_sum_tab",
+   "fieldtype": "Tab Break",
+   "label": "Codes Sum"
+  },
+  {
+   "description": "The exchange rate will be finalized based on the rate at the date of approval",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Data",
+   "label": "Exchange Rate"
+  },
+  {
+   "description": "The date on which the exchange rate was fixed",
+   "fieldname": "exchange_rate_date",
+   "fieldtype": "Date",
+   "label": "Exchange Rate Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "computation",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "print_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Print Settings"
+  },
+  {
+   "fieldname": "print_section_section",
+   "fieldtype": "Section Break",
+   "label": "Print Section"
+  },
+  {
+   "default": "1",
+   "fieldname": "print_cover_page",
+   "fieldtype": "Check",
+   "label": "Cover Page"
+  },
+  {
+   "fieldname": "column_break_uapp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "print_computation",
+   "fieldtype": "Check",
+   "label": "Computation"
+  },
+  {
+   "fieldname": "column_break_umtl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "print_items",
+   "fieldtype": "Check",
+   "label": "Items"
+  },
+  {
+   "fieldname": "column_break_enhv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "print_codes_sum",
+   "fieldtype": "Check",
+   "label": "Codes Sum"
+  },
+  {
+   "fieldname": "print_filters_section",
+   "fieldtype": "Section Break",
+   "label": "Print Filters"
+  },
+  {
+   "fieldname": "print_filter_product_type",
+   "fieldtype": "Select",
+   "label": "Filter by Product Type",
+   "options": "\nAlign (P95)\nALTO\nBaya Slim (91)\nBTJ6\nBTJ6 CR\nCLESLINE50 CR\nCP86 CR\nDO1\nFizz Box - Crystal\nFizz Box - London\nFizz Box - Modern\nLignage\nLoft (M82)\nM1 (P94)\nMerchendising\nMplus (P94+)\nOperable Wall\nP61A\nP85 Synops\nP85A\nP86A\nP89L (Clean Room)\npleinAir (P81)\nSYSTEMAGE\nWall Cladding"
+  },
+  {
+   "fieldname": "column_break_ehre",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "print_filter_zone",
+   "fieldtype": "Link",
+   "label": "Filter by Zone",
+   "options": "Zone"
+  },
+  {
+   "fieldname": "column_break_fink",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hecg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_iced",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "If checked, VP and Amount will be hidden in the print.",
+   "fieldname": "agent_dealer",
+   "fieldtype": "Check",
+   "label": "Agent/Dealer Version"
+  },
+  {
+   "fieldname": "section_break_wysu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zone_summary",
+   "fieldtype": "Table",
+   "options": "Sales Order Zone"
+  },
+  {
+   "fieldname": "zone_list_computation",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Zone",
+   "options": "Zone"
+  },
+  {
+   "fetch_from": "zone_list_2.zone_product_type",
+   "fieldname": "zone_product_type_zone_list_computation",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Zone - Product Type"
+  },
+  {
+   "fieldname": "zone_selected",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Zone"
+  },
+  {
+   "fieldname": "grand_total_lm",
+   "fieldtype": "Float",
+   "label": "LM"
+  },
+  {
+   "fieldname": "grand_total_square_m",
+   "fieldtype": "Float",
+   "label": "M\u00b2"
+  },
+  {
+   "fieldname": "section_break_szpd",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "hw_spec_mapping",
+   "fieldtype": "JSON"
+  },
+  {
+   "description": "##",
+   "fieldname": "revision",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Revision No",
+   "length": 2
+  },
+  {
+   "fieldname": "column_break_ivkm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dmdz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zaay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lnil",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hhfb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_gycd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "add_door_hw_spec",
+   "fieldtype": "Button",
+   "label": "Add Door Hardware Spec"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-14 09:59:30.967888",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Clestra Sales Order",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

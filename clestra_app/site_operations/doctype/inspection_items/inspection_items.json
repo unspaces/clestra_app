@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-09 16:10:06.870246",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section",
+  "column_break_bocu",
+  "check_item",
+  "section_break_inoj",
+  "o_check",
+  "column_break_zqrm",
+  "x_check",
+  "section_break_gooo",
+  "column_break_ainu",
+  "details",
+  "section_break_gqxo",
+  "image_uploaded",
+  "attach_image",
+  "image",
+  "column_break_obst"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "section",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Section",
+   "options": "Door & Partition\nGlass\nDoor\nSolid Panel\nGlass Panel\nOthers",
+   "print_width": "100"
+  },
+  {
+   "fieldname": "column_break_bocu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "check_item",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Check Item",
+   "print_width": "150"
+  },
+  {
+   "fieldname": "section_break_inoj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "o_check",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "O",
+   "print_width": "50"
+  },
+  {
+   "fieldname": "column_break_zqrm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "x_check",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "X",
+   "print_width": "50"
+  },
+  {
+   "fieldname": "section_break_gooo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ainu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Long Text",
+   "in_list_view": 1,
+   "label": "Details"
+  },
+  {
+   "fieldname": "section_break_gqxo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "image_uploaded",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Image Uploaded",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "attach_image",
+   "fieldtype": "Attach Image",
+   "label": "Attach Image"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Image",
+   "label": "Image",
+   "options": "attach_image"
+  },
+  {
+   "fieldname": "column_break_obst",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-11-01 09:26:58.490042",
+ "modified_by": "Administrator",
+ "module": "Site Operations",
+ "name": "Inspection Items",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

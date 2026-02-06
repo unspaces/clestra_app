@@ -1,0 +1,178 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:formula_name",
+ "creation": "2024-11-28 08:10:45.589412",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "category",
+  "formula_name",
+  "formula_type",
+  "formula",
+  "column_break_jqkz",
+  "company",
+  "status",
+  "description",
+  "section_break_qvnb",
+  "conditions",
+  "remarks",
+  "markdown_2"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "formula_name",
+   "fieldtype": "Data",
+   "label": "Formula Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "formula",
+   "fieldtype": "Code",
+   "in_list_view": 1,
+   "label": "Formula",
+   "mandatory_depends_on": "eval:doc.formula_type == 'General'",
+   "read_only_depends_on": "eval:doc.formula_type == 'Conditional'"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "Size Calculation\nQuantity Adjustment\nCost Estimation\nEmpty Value\nDefault\nQuotation"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nInactive"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "formula_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Formula Type",
+   "options": "General\nConditional\nValue",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.formula_type == 'Conditional'",
+   "fieldname": "conditions",
+   "fieldtype": "Table",
+   "label": "Conditions",
+   "mandatory_depends_on": "eval:doc.formula_type == 'Conditional'",
+   "options": "Condition Formula Detail"
+  },
+  {
+   "fieldname": "column_break_jqkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qvnb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Allowed variations: {width, height, ch, ph, ceiling_visible, base_visible_h, under_cut, panel_crh, panel_trh, abl_a, abl_b, leaf_width, leaf_height, open_width, open_height}\nExample: width - 1\n\nAllowed conditions with values: {door_frame, astragal, sub_contract, leaf_item_code}\nExample: door_frame == \"MP-FSDU\" / astragal == \"Y\"",
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "read_only": 1
+  },
+  {
+   "default": "**Allowed variations**: {width, height, ch, ph, ceiling\\_visible, base\\_visible\\_h, under\\_cut, panel\\_crh, panel\\_trh, abl\\_a, abl\\_b, leaf\\_width, leaf\\_height, open\\_width, open\\_height}  \n*Example*: width - 1  \n\n**Allowed conditions with values**: {door\\_frame, astragal, sub\\_contract, leaf\\_item\\_code}  \n*Example*: door\\_frame == \"MP-FSDU\" / astragal == \"Y\"",
+   "fieldname": "markdown_2",
+   "fieldtype": "Markdown Editor",
+   "hidden": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-26 13:34:22.621071",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Formula Library",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

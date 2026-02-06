@@ -1,0 +1,152 @@
+{% if doc.print_items %}
+    <div style="page-break-before: always;"></div>
+    {% set summary = doc.get_print_codes_sum_data(view_type="zone") %}
+    {% set project = frappe.get_doc("Project", doc.project) if doc.project else None %}
+    {% if summary and summary.zones %}
+        {% for zone in summary.zones %}
+            {%- set zone_doc = frappe.get_doc("Zone", zone.zone_name) -%}
+
+            <!-- 첫 번째 줄 -->
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10pt; border: 0;">
+                                <h4 style="margin: 0; padding: 0;">ITEMS</h4>
+                        </td>
+                        <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                            <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                            <div>Project: {{ project.project_name if project else '' }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- 두 번째 줄 Zone 타이틀 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 10px !important;">
+                <div style="flex-basis: 1%;"></div>
+                <div style="flex-basis: 16%; font-weight: bold; font-size: 11pt;">Zone:&nbsp;{{ zone_doc.zone_name }}</div>
+                <div style="flex-basis: 20%; text-align: left;">
+                    {% if not doc.agent_dealer %}
+                        VP: {{doc.standard_vp}}
+                    {% endif %}
+                </div>
+                <div style="flex-basis: 38%; text-align: left;">Product Type: {{ zone_doc.zone_product_type or '-' }}</div>
+                <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(zone.total.lm or 0) }} LM</div>
+                <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(zone.total.square_m or 0) }} M2</div>
+                <div style="flex-basis: 1%;"></div>
+            </div>
+            
+
+            <div class="table-responsive">
+                <!-- 🔥 1. 기본 테이블 클래스 변경 및 스타일 추가 -->
+                <table class="table table-sm" style="width: 100%; margin-bottom: 3px 0 5px !important; border-collapse: collapse;">
+                    
+                    <!-- 🔥 2. 헤더 스타일 수정 -->
+                    <thead style="border-top: 1px solid black; border-bottom: 1px solid black;">
+                        <tr>
+                            <th style="width: 20%; padding: 5px;">Item Code</th>
+                            <th style="width: 45%; padding: 5px;">Item Name</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Height</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Width</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Qty</th>
+                            {% if not doc.agent_dealer %}
+                                <th style="width: 14%; text-align: right; padding: 5px;">Unit Price</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% for row in zone.rows %}
+                            
+                            {# 그룹 헤더 행 - 윗줄만 표시 #}
+                            {% if row.indent_level == 0 and (loop.first or row.product_section != loop.previtem.product_section) %}
+                                <tr style="background-color: #f8f9fa;">
+                                    <td colspan="6" style="font-weight: bold; border-top: 1px solid #ddd; padding: 6px 5px;">
+                                        {{ row.product_section }} Group
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            
+                            {# 데이터 행 - 모든 선 제거 #}
+                            <tr>
+                                <td style="border: 0; padding: 5px;">{{ "&nbsp;&nbsp;&nbsp;&nbsp;" if row.indent_level > 0 else "" }}{{ row.item_code or "" }}</td>
+                                <td style="border: 0; padding: 5px; padding-left: {{ 5 + (15 * row.indent_level) }}px;">
+                                    {{ row.item_name or '' }}
+                                </td>
+                                <td style="border: 0; text-align: right; padding: 5px;">
+                                    {% if row.indent_level == 0 or (row.indent_level == 1 and row.product_section == "Leaf") %}
+                                        {{ frappe.utils.fmt_money(row.ch or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                <td style="border: 0; text-align: right; padding: 5px;">
+                                    {% if row.indent_level == 0 or (row.indent_level == 1 and row.product_section == "Leaf") %}
+                                        {{ frappe.utils.fmt_money(row.width or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                <td style="border: 0; text-align: right; font-weight: bold; padding: 5px;">
+                                    {% if row.indent_level == 0 %}
+                                        {{ frappe.utils.fmt_money(row.qty or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                {% if not doc.agent_dealer %}
+                                    <td style="border: 0; text-align: right; padding: 5px;">
+                                        {% set unit_price = 0 %}
+                                        {% if row.price and row.price > 0 %}
+                                            {% set unit_price = (row.price / row.qty) if row.qty else 0 %}
+                                        {% elif row.vp and row.vp > 0 %}
+                                            {% set unit_price = (row.vp / row.qty) if row.qty else 0 %}
+                                        {% endif %}
+                                        
+                                        {% if unit_price > 0 %}
+                                            <b>{{ frappe.utils.fmt_money(unit_price, 0) }}</b> {{ row.uom or '' }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% if row.product_section == "Door" and row.indent_level == 0 %}
+                            <tr>
+                                <td colspan="6" style="background-color: #f9f9f9; font-size: 8pt; padding: 4px 10px; color: #555; border-top-color: transparent;">
+                                    <strong>Handle:</strong> {{ row.handle_direct or '-' }} |
+                                    <strong>HW Spec:</strong> {{ row.door_hw_spec or '-' }} | 
+                                    <strong>Keeper:</strong> {{ (row.keeper or '-') | replace('Keeper-', '') }} |
+                                    <strong>Hinge:</strong> {{ (row.hinge or '-') | replace('Hinge-', '') }} |
+                                    <strong>Undercut:</strong> {{ row.under_cut or '-' }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot style="border-top: 1px solid black;">
+                        <!-- Zone Total - 안쪽 세로선 숨김 -->
+                        <tr style="font-weight: bold;">
+                            <!-- 첫 번째 셀: 왼쪽, 위, 아래 테두리 -->
+                            <td colspan="2" style="padding: 5px; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">
+                                {{ zone_doc.zone_name }} Total
+                            </td>
+                            <!-- 두 번째 셀: 오른쪽, 위, 아래 테두리 -->
+                            <td colspan="4" style="text-align: right; padding: 5px; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">
+                                L/M: {{ "%.2f"|format(zone.total.lm or 0) }}&nbsp;&nbsp;&nbsp;&nbsp;M2: {{ "%.2f"|format(zone.total.square_m or 0) }}
+                            </td>
+                        </tr>
+                        <!-- Product Type별 합계 - 선 없음 -->
+                        {% for type_name, totals in zone.type_totals.items() %}
+                        <tr style="font-weight: bold;">
+                            <td colspan="2" style="padding: 5px; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">{{ type_name }} Sub Total</td>
+                            <td colspan="{{'4' if not doc.agent_dealer else '3'}}" style="text-align: right; padding: 5px; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">
+                                L/M: {{ "%.2f"|format(totals.lm or 0) }}&nbsp;&nbsp;&nbsp;&nbsp;M2: {{ "%.2f"|format(totals.square_m or 0) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tfoot>
+                </table>
+            </div>
+            <!-- <div style="page-break-inside: avoid;"></div> -->
+            {% if not loop.last %}
+            <div style="page-break-after: always;"></div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endif %}

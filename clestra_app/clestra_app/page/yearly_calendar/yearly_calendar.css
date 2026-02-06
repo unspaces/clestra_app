@@ -1,0 +1,65 @@
+.calendar-container {
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.calendar-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.weekday {
+    color: #333;
+}
+
+.saturday {
+    color: #3498db;
+}
+
+.sunday {
+    color: #e74c3c;
+}
+
+.event-info {
+    text-align: center;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.date-event {
+    display: flex;
+    justify-content: space-between; /* 날짜와 이벤트를 양쪽으로 배치 */
+    align-items: center;
+    gap: 8px; /* 날짜와 이벤트 간격 */
+    padding: 4px;
+}
+
+.date {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.event {
+    background-color: #f39c12;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    white-space: nowrap; /* 텍스트 줄 바꿈 방지 */
+    /* overflow: hidden;
+    text-overflow: ellipsis; */
+}

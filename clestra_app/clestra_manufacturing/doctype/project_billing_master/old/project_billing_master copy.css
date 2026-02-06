@@ -1,0 +1,36 @@
+/* sub_items 테이블의 row-index를 숨깁니다. */
+[data-fieldname="sub_items"] .grid-body .rows .row-index {
+    display: none;
+}
+
+/* sub_items 테이블 헤더의 첫 번째 인덱스 컬럼도 숨깁니다. */
+[data-fieldname="sub_items"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+    display: none;
+}
+
+
+/* panel_cover, door_cover 테이블에도 동일하게 적용하려면 아래처럼 추가합니다. */
+
+/* panel_cover 테이블 */
+[data-fieldname="panel_cover"] .grid-body .rows .row-index,
+[data-fieldname="panel_cover"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+    display: none;
+}
+
+/* door_cover 테이블 */
+[data-fieldname="door_cover"] .grid-body .rows .row-index,
+[data-fieldname="door_cover"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+    display: none;
+}
+
+[data-fieldname="detail_bom_items"] .form-grid .grid-row .col-xs-1:first-child {
+    /* 1. 고정된 최소/최대 너비 설정 */
+    min-width: 45px !important; /* 최소 너비를 지정하여 내용물이 줄어들어도 너비 유지 */
+    max-width: 45px !important; /* 최대 너비를 지정하여 내용물이 늘어나도 너비 유지 */
+    width: 45px !important;     /* 너비를 명확하게 고정 */
+
+    /* 2. 내용물을 중앙에 정렬 (선택 사항, 미관상 개선) */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 아이콘과 체크박스를 수평 중앙에 배치 */
+}

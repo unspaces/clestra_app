@@ -1,0 +1,50 @@
+// 예시: 20분할 그리드 시스템을 위한 클래스 정의
+// 이 클래스들이 Frappe의 기본 col-sm-X 와 함께 사용될지,
+// 아니면 완전히 새로운 그리드 시스템을 위한 것인지에 따라 정의 방식이 달라짐.
+// 여기서는 Bootstrap의 col-sm-X와 유사하게, 하지만 20분할로 정의한다고 가정.
+
+// $grid-columns: 20; // 새로운 그리드 컬럼 수 (변수로 관리하면 좋음)
+
+// @for $i from 13 through 20 {
+//   .col-#{$i} { // .col-13, .col-14, ...
+//     position: relative;
+//     width: 100%;
+//     padding-right: var(--bs-gutter-x, 0.75rem); // Bootstrap 5 gutter 변수 사용 예시
+//     padding-left: var(--bs-gutter-x, 0.75rem);
+//   }
+// }
+
+// Flexbox 기반 그리드 컬럼 너비 설정 (Bootstrap 5 col-* 방식과 유사하게)
+// $grid-columns: 20; // 사용자 정의 총 컬럼 수
+// @for $i from 1 through $grid-columns {
+//   .col-#{$i} {
+//     flex: 0 0 auto;
+//     width: percentage($i / $grid_columns);
+//   }
+// }
+
+// 만약 단순히 col-13 ~ col-20 클래스만 추가하고 싶다면:
+// 이 클래스들이 어떤 컨텍스트에서 사용될지 (e.g., Frappe의 form grid, website 등)에 따라
+// 필요한 스타일이 달라집니다.
+// Form Grid의 경우, JavaScript에서 colsize로 이 숫자들을 사용하고,
+// Frappe의 Grid JavaScript가 col-sm-{colsize} 클래스를 동적으로 추가합니다.
+// 이 경우, .col-sm-13, .col-sm-14 등을 정의해야 합니다.
+
+// Frappe Form Grid (.col.col-sm-X) 에 대한 확장이라고 가정:
+// SCSS 파일 (예: 앱의 main SCSS 파일)
+// $max_grid_columns_for_form: 20; // 사용자 정의 최대 컬럼 수
+
+// @for $i from 1 through $max_grid_columns_for_form {
+//     .col-sm-#{$i} {
+//         // Bootstrap의 .col-sm-X 는 float 기반일 수도 있고, flex 기반일 수도 있습니다.
+//         // Frappe v13+는 flexbox 기반입니다.
+//         // width: percentage($i / 12) !important; // 기존 12분할 시스템을 확장하는 경우라면 주의 필요
+//                                              // Frappe의 Grid.js는 colsize를 기반으로 너비를 직접 계산할 수 있습니다.
+//                                              // 이 CSS 정의는 Frappe의 JS 계산을 덮어쓰거나 보조할 수 있습니다.
+
+//         // 만약 JS가 col-sm-X 클래스만 추가하고 CSS에서 너비를 전적으로 제어해야 한다면:
+//         flex-basis: percentage($i / $max_grid_columns_for_form); // 20분할 기준
+//         max-width: percentage($i / $max_grid_columns_for_form);  // 20분할 기준
+//         // padding, position 등은 기존 .col-sm-X 스타일을 따르거나 필요시 추가
+//     }
+// }

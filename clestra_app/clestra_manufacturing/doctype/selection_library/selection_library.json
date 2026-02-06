@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:opt_value",
+ "creation": "2024-11-18 14:39:42.568136",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "opt_name",
+  "opt_value",
+  "opt_value_kr",
+  "numeric_value",
+  "is_active",
+  "related_product",
+  "project_only"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "fieldname": "project_only",
+   "fieldtype": "Check",
+   "label": "Project Only"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "related_product",
+   "fieldtype": "Table MultiSelect",
+   "label": "Related Product",
+   "options": "Product Type Multiselect"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "opt_name",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Selection Name",
+   "options": "\nProduct Type\nGlass Type\nGlass Type (KR)\nDoor Closer\nHandle Direction\nHinge & Keeper\nHinge\nKeeper\nHinge Type\nNumber of Hinge Holes\nLeaf Material\nLeaf Active Status\nAuto Drop Seal\nAstragal\nFlush Bolt\nFGD\nTape & Seal Color\nFixing Screw Cap\nYesNo\nCL CH Type\nBase Type\nHW Mortise\nHW Handle\nHW Key Cylinder"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "opt_value",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Value",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "numeric_value",
+   "fieldtype": "Int",
+   "label": "Numeric Value"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "opt_value_kr",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Values (KR)",
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-13 11:00:11.335640",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Selection Library",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "opt_value, opt_value_kr",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

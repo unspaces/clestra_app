@@ -1,0 +1,294 @@
+/* CSS Variables for easy theme management */
+:root {
+    --primary-color: #005A9E; /* A slightly deeper blue */
+    --primary-hover-color: #004070;
+    --secondary-button-bg: #f0f0f0;
+    --secondary-button-hover-bg: #e0e0e0;
+    --secondary-button-text: #333;
+    --text-color: #333;
+    --label-color: #555;
+    --border-color: #d1d5db; /* Lighter gray */
+    --input-bg-color: #fff;
+    --input-focus-border-color: var(--primary-color);
+    --container-bg-color: #fff;
+    --body-bg-color: #f9fafb; /* Very light gray */
+    --output-bg-color: #f3f4f6; /* Subtle background for output */
+    --success-color: #10b981; /* Green for success message */
+    --border-radius: 6px;
+    --spacing-unit: 1rem; /* Base spacing unit (approx 16px) */
+    --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Basic Reset and Body Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px; /* Base font size */
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0; /* Remove default margin */
+    padding: calc(var(--spacing-unit) * 1.5); /* Add padding around the body */
+    background-color: var(--body-bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Container Styling */
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: calc(var(--spacing-unit) * 2);
+    background: var(--container-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+}
+
+/* Heading */
+h2 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    color: var(--primary-color);
+    text-align: center;
+}
+
+/* Form Group Styling */
+.form-group {
+    display: flex;
+    margin-bottom: var(--spacing-unit);
+    gap: var(--spacing-unit); /* Gap between columns */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.form-group > .column {
+    flex: 1; /* Each column takes equal space */
+    min-width: 200px; /* Prevent columns from becoming too narrow */
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) / 3); /* Small gap between label and input */
+}
+
+/* Form Group (Single Column Layout) */
+.form-group.single-column {
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) / 3);
+}
+.form-group.single-column label {
+     margin-bottom: 0; /* No extra margin needed due to parent gap */
+}
+
+/* Label Styling */
+label {
+    display: block; /* Ensure label is on its own line */
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    color: var(--label-color);
+}
+
+/* Input and Select Styling */
+input[type="text"],
+select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem; /* 14.4px */
+    background-color: var(--input-bg-color);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--input-focus-border-color);
+    box-shadow: 0 0 0 3px rgba(0, 90, 158, 0.2); /* Subtle focus ring */
+}
+
+select {
+     appearance: none; /* Remove default arrow */
+     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23555" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+     background-repeat: no-repeat;
+     background-position: right 0.75rem center;
+     background-size: 16px 12px;
+     padding-right: 2.5rem; /* Space for custom arrow */
+}
+
+/* Button Styling */
+button {
+    display: inline-block; /* Allow setting width/padding */
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem; /* 14.4px */
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+button:focus {
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(0, 90, 158, 0.3); /* Focus ring consistent with inputs */
+}
+
+/* Primary Button (Generate) */
+button.primary {
+    background-color: var(--primary-color);
+    color: white;
+    width: 100%; /* Make generate button full width */
+}
+
+button.primary:hover {
+    background-color: var(--primary-hover-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Secondary Button (Copy) */
+button.secondary {
+    background-color: var(--secondary-button-bg);
+    color: var(--secondary-button-text);
+    border: 1px solid var(--border-color);
+    width: 100%; /* Make copy button full width */
+}
+
+button.secondary:hover {
+    background-color: var(--secondary-button-hover-bg);
+}
+
+/* Output Area Styling */
+.output {
+    margin-top: var(--spacing-unit);
+    margin-bottom: var(--spacing-unit);
+    padding: var(--spacing-unit);
+    background: var(--output-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    min-height: 150px; /* Give it some initial height */
+    overflow: auto; /* Add scroll if content overflows */
+}
+ /* Ensure signature content uses appropriate fonts if not specified inline */
+ .output > * {
+     font-family: Arial, Helvetica, sans-serif; /* Fallback to signature font */
+ }
+
+/* Toggle Switch Styling */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-unit);
+    gap: 0.75rem; /* Gap between switch and label */
+    border-top: 1px solid var(--border-color); /* Add separator */
+    margin-top: var(--spacing-unit);
+    padding-top: var(--spacing-unit);
+}
+/* Remove top border from the version toggle */
+#version-toggle-container {
+     border-top: none;
+     margin-top: 0;
+     padding-top: 0;
+}
+
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Width of the switch */
+    height: 24px; /* Height of the switch */
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px; /* Make it rounded */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; /* Size of the inner circle */
+    width: 18px;
+    left: 3px; /* Padding from left */
+    bottom: 3px; /* Padding from bottom */
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%; /* Make it a circle */
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+     box-shadow: 0 0 1px var(--primary-color); /* Optional focus indicator */
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px); /* Move circle to the right */
+}
+
+.toggle-container label.toggle-label { /* Specific class for toggle labels */
+    font-size: 0.9rem; /* 14.4px */
+    cursor: pointer;
+    margin-bottom: 0; /* Reset margin */
+    user-select: none; /* Prevent text selection on click */
+    flex: 1;
+}
+
+/* Copy Message Styling */
+.copy-message {
+    margin-top: calc(var(--spacing-unit) / 2);
+    font-size: 0.875rem; /* 14px */
+    color: var(--success-color);
+    display: none; /* Hidden by default */
+    text-align: center;
+    width: 100%;
+}
+
+/* Regional Fields Styling */
+#regional-fields {
+     /* border-top: 1px solid var(--border-color); No border needed, toggle has it */
+     margin-top: 0; /* Remove top margin */
+     padding-top: 0; /* Remove top padding */
+}
+
+ /* Responsive Adjustments */
+ @media (max-width: 600px) {
+     body {
+         padding: var(--spacing-unit); /* Reduce body padding */
+     }
+     .container {
+         padding: var(--spacing-unit);
+     }
+     .form-group {
+         flex-direction: column; /* Stack columns vertically */
+         gap: var(--spacing-unit); /* Maintain gap between stacked items */
+     }
+     .form-group > .column {
+        min-width: 100%; /* Allow columns to take full width */
+     }
+     h2 {
+         font-size: 1.3rem; /* Slightly smaller heading */
+     }
+     .toggle-container { /* Ensure toggle label doesn't wrap too early */
+         flex-wrap: nowrap;
+     }
+ }

@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-13 10:36:14.415937",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ch",
+  "ph",
+  "cl_ch",
+  "base_h",
+  "lsh",
+  "crh",
+  "trh"
+ ],
+ "fields": [
+  {
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CH"
+  },
+  {
+   "fieldname": "ph",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "PH"
+  },
+  {
+   "fieldname": "cl_ch",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CL/CH H"
+  },
+  {
+   "fieldname": "base_h",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Base H"
+  },
+  {
+   "fieldname": "lsh",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "LSH"
+  },
+  {
+   "fieldname": "crh",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CRH"
+  },
+  {
+   "fieldname": "trh",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "TRH"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-13 12:35:45.718877",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Design Request Size",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

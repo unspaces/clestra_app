@@ -1,0 +1,289 @@
+{
+ "actions": [],
+ "creation": "2024-06-25 09:39:23.995669",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "qty",
+  "column_break_koko",
+  "section_break_awcp",
+  "ch",
+  "width",
+  "section_break_ifdj",
+  "glass_btn",
+  "column_break_usit",
+  "section_break_lgkd",
+  "rate",
+  "vp_rate",
+  "amount",
+  "column_break_segh",
+  "base_amount",
+  "section_break_vqpg",
+  "tempered_glass_a",
+  "glass_type_a",
+  "glass_thk_a",
+  "glass_cost_a",
+  "is_double_partitions",
+  "column_break_jvrd",
+  "tempered_glass_b",
+  "glass_type_b",
+  "glass_thk_b",
+  "glass_cost_b",
+  "section_break_ivpi",
+  "aa10_result",
+  "ac40_result",
+  "ab20_result",
+  "column_break_gcil",
+  "ab44_result",
+  "ac33_result",
+  "ab30_result",
+  "column_break_ldrj",
+  "ac34_result",
+  "ad43_result",
+  "ad41_result",
+  "ab52_result",
+  "sp1_result"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "column_break_koko",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_lgkd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate",
+   "precision": "0"
+  },
+  {
+   "columns": 1,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "precision": "0"
+  },
+  {
+   "fieldname": "column_break_segh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_amount",
+   "fieldtype": "Currency",
+   "label": "Amount (Company Currency)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "columns": 1,
+   "fieldname": "vp_rate",
+   "fieldtype": "Link",
+   "label": "VP Rate",
+   "link_filters": "[]",
+   "options": "VP Rate"
+  },
+  {
+   "fieldname": "section_break_awcp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width"
+  },
+  {
+   "fieldname": "section_break_vqpg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "tempered_glass_a",
+   "fieldtype": "Check",
+   "label": "Tempered Glass A"
+  },
+  {
+   "fieldname": "glass_type_a",
+   "fieldtype": "Link",
+   "label": "Glass Type A",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "glass_thk_a",
+   "fieldtype": "Select",
+   "label": "Thickness A",
+   "options": "\n5\n6\n8\n10\n12"
+  },
+  {
+   "fieldname": "glass_cost_a",
+   "fieldtype": "Currency",
+   "label": "Glass Cost A"
+  },
+  {
+   "fieldname": "column_break_jvrd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "glass_type_b",
+   "fieldtype": "Link",
+   "label": "Glass Type B",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "glass_thk_b",
+   "fieldtype": "Select",
+   "label": "Thickness B",
+   "options": "\n5\n6\n8\n10\n12"
+  },
+  {
+   "fieldname": "glass_cost_b",
+   "fieldtype": "Currency",
+   "label": "Glass Cost B"
+  },
+  {
+   "fieldname": "section_break_ifdj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "glass_btn",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Glass"
+  },
+  {
+   "fieldname": "column_break_usit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_double_partitions",
+   "fieldtype": "Check",
+   "label": "Double Partitions"
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ivpi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "aa10_result",
+   "fieldtype": "Currency",
+   "label": "AA10 (Factory)"
+  },
+  {
+   "fieldname": "ac40_result",
+   "fieldtype": "Currency",
+   "label": "AC40 (Glass)"
+  },
+  {
+   "fieldname": "ab20_result",
+   "fieldtype": "Currency",
+   "label": "AB20 (Install)"
+  },
+  {
+   "fieldname": "column_break_gcil",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ab44_result",
+   "fieldtype": "Currency",
+   "label": "AB44 (Cleaning)"
+  },
+  {
+   "fieldname": "ac33_result",
+   "fieldtype": "Currency",
+   "label": "AC33 (Caulking)"
+  },
+  {
+   "fieldname": "ab30_result",
+   "fieldtype": "Currency",
+   "label": "AB30 (Transp.)"
+  },
+  {
+   "fieldname": "column_break_ldrj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ac34_result",
+   "fieldtype": "Currency",
+   "label": "AC34 (HW)"
+  },
+  {
+   "fieldname": "ad43_result",
+   "fieldtype": "Currency",
+   "label": "AD43 (Waste)"
+  },
+  {
+   "fieldname": "ad41_result",
+   "fieldtype": "Currency",
+   "label": "AD41 (Contingency)"
+  },
+  {
+   "fieldname": "ab52_result",
+   "fieldtype": "Currency",
+   "label": "AB52 (PM)"
+  },
+  {
+   "fieldname": "sp1_result",
+   "fieldtype": "Currency",
+   "label": "SP1 (Royalty)"
+  },
+  {
+   "default": "0",
+   "fieldname": "tempered_glass_b",
+   "fieldtype": "Check",
+   "label": "Tempered Glass B"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-23 15:36:59.782089",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Clestra Quotation Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

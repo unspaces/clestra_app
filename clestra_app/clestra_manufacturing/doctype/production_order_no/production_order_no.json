@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-08 14:59:05.226636",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "country",
+  "column_break_qmek",
+  "factory",
+  "section_break_aevd",
+  "2digits",
+  "column_break_zwuy",
+  "3digits",
+  "section_break_fsoa",
+  "po_no",
+  "project"
+ ],
+ "fields": [
+  {
+   "fieldname": "country",
+   "fieldtype": "Select",
+   "label": "Country",
+   "options": "\nKorea\nJapan\nHK\nSGP\nChina\nFrance\nUSA"
+  },
+  {
+   "fieldname": "column_break_qmek",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "factory",
+   "fieldtype": "Select",
+   "label": "Factory",
+   "options": "\nGumi\nTaicang\nFrance"
+  },
+  {
+   "fieldname": "section_break_aevd",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "default": "01",
+   "fieldname": "2digits",
+   "fieldtype": "Int",
+   "label": "2 Digits",
+   "length": 2
+  },
+  {
+   "fieldname": "column_break_zwuy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "3digits",
+   "fieldtype": "Int",
+   "label": "3 Digits",
+   "length": 3
+  },
+  {
+   "fieldname": "section_break_fsoa",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "po_no",
+   "fieldtype": "Int",
+   "label": "Production Order No"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-11-08 15:06:08.408206",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Production Order No",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,703 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "format:QP-{item_code}-{YY}{MM}",
+ "creation": "2026-01-21 08:14:47.277985",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "production_item_tab",
+  "item_code",
+  "model_code",
+  "uom",
+  "item_vp",
+  "column_break_njlr",
+  "company",
+  "is_active",
+  "is_default",
+  "section_break_dniu",
+  "column_break_gmhx",
+  "column_break_rvnj",
+  "total_cost",
+  "base_total_cost",
+  "target_price",
+  "difference",
+  "margin_rate",
+  "section_break_kcli",
+  "mat_margin",
+  "mat_rate",
+  "glass_rate",
+  "column_break_pzqc",
+  "inst_rate",
+  "ch_surcharge_rate",
+  "other_rate",
+  "column_break_cejc",
+  "vp_rate",
+  "pm_reserve_rate",
+  "royalty_rate",
+  "column_break_ldyq",
+  "ch",
+  "width",
+  "buffer_rate",
+  "section_break_fnym",
+  "clch_item_code",
+  "base_item_code",
+  "joint_item_code",
+  "leveler_item_code",
+  "column_break_fvcg",
+  "clch_vp",
+  "base_vp",
+  "joint_vp",
+  "leveler_vp",
+  "column_break_eopk",
+  "formula_section_section",
+  "aa10_formula",
+  "column_break_psoc",
+  "column_break_acyn",
+  "aa10_result",
+  "section_break_uock",
+  "column_break_vwbq",
+  "ac40_formula",
+  "column_break_ikmy",
+  "is_tempered_a",
+  "glass_type_a",
+  "glass_thk_a",
+  "glass_cost_a",
+  "is_double_partitions",
+  "is_tempered_b",
+  "glass_type_b",
+  "glass_thk_b",
+  "glass_cost_b",
+  "column_break_onmd",
+  "ac40_result",
+  "section_break_wyum",
+  "ab20_formula",
+  "column_break_naud",
+  "inst_type",
+  "inst_cost",
+  "column_break_umgl",
+  "ab20_result",
+  "section_break_uzct",
+  "column_break_fjxk",
+  "ab44_formula",
+  "ac33_formula",
+  "ab30_formula",
+  "ac34_formula",
+  "ad43_formula",
+  "ad41_formula",
+  "ab52_formula",
+  "sp1_formula",
+  "column_break_zjuc",
+  "column_break_rlie",
+  "ab44_result",
+  "ac33_result",
+  "ab30_result",
+  "ac34_result",
+  "ad43_result",
+  "ad41_result",
+  "ab52_result",
+  "sp1_result",
+  "materials_section",
+  "items",
+  "more_info_tab",
+  "item_name",
+  "description",
+  "amended_from",
+  "column_break_glaz"
+ ],
+ "fields": [
+  {
+   "fieldname": "production_item_tab",
+   "fieldtype": "Tab Break",
+   "label": "Production Item"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "model_code",
+   "fieldtype": "Data",
+   "label": "Model Code"
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Item UOM",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "column_break_njlr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "section_break_dniu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Cost"
+  },
+  {
+   "fieldname": "base_total_cost",
+   "fieldtype": "Currency",
+   "label": "Total Cost (Company Currency)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Difference"
+  },
+  {
+   "columns": 1,
+   "fieldname": "margin_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Margin Rate"
+  },
+  {
+   "fieldname": "section_break_kcli",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "label": "CH"
+  },
+  {
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "label": "Width"
+  },
+  {
+   "fieldname": "section_break_fnym",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "clch_item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Ceiling Channel Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "base_item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Base Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "joint_item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Joint Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "leveler_item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leveler Code",
+   "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_fvcg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "clch_vp",
+   "fieldtype": "Int",
+   "label": "CL/CH VP"
+  },
+  {
+   "fieldname": "base_vp",
+   "fieldtype": "Int",
+   "label": "Base VP"
+  },
+  {
+   "fieldname": "joint_vp",
+   "fieldtype": "Int",
+   "label": "Joint VP"
+  },
+  {
+   "fieldname": "leveler_vp",
+   "fieldtype": "Int",
+   "label": "Leveler VP"
+  },
+  {
+   "fieldname": "formula_section_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Formula Section"
+  },
+  {
+   "fieldname": "aa10_formula",
+   "fieldtype": "Link",
+   "label": "AA10 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ac40_formula",
+   "fieldtype": "Link",
+   "label": "AC40 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ab20_formula",
+   "fieldtype": "Link",
+   "label": "AB20 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ab44_formula",
+   "fieldtype": "Link",
+   "label": "AB44 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ac33_formula",
+   "fieldtype": "Link",
+   "label": "AC33 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ab30_formula",
+   "fieldtype": "Link",
+   "label": "AB30 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ac34_formula",
+   "fieldtype": "Link",
+   "label": "AC34 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ad43_formula",
+   "fieldtype": "Link",
+   "label": "AD43 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ad41_formula",
+   "fieldtype": "Link",
+   "label": "AD41 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "ab52_formula",
+   "fieldtype": "Link",
+   "label": "AB52 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "sp1_formula",
+   "fieldtype": "Link",
+   "label": "SP1 Formula",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "options": "Formula Library"
+  },
+  {
+   "fieldname": "column_break_rlie",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "aa10_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AA10 (Factory)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ac40_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AC40 (Glass)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ab20_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AB20 (Install)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ab44_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AB44 (Cleaning)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ac33_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AC33 (Caulking)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ab30_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AB30 (Transp.)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ac34_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AC34 (HW)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ad43_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AD43 (Waste)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ad41_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AD41 (Contingency)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ab52_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "AB52 (PM)"
+  },
+  {
+   "columns": 1,
+   "fieldname": "sp1_result",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "SP1 (Royalty)"
+  },
+  {
+   "fieldname": "materials_section",
+   "fieldtype": "Section Break",
+   "label": "Raw Materials"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "QBOM Item"
+  },
+  {
+   "fieldname": "more_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "More Info"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Item Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Quotation Pricing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_glaz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_vp",
+   "fieldtype": "Int",
+   "label": "Item VP"
+  },
+  {
+   "fieldname": "mat_margin",
+   "fieldtype": "Float",
+   "label": "Material Margin"
+  },
+  {
+   "fieldname": "mat_rate",
+   "fieldtype": "Float",
+   "label": "Material Rate"
+  },
+  {
+   "fieldname": "column_break_pzqc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "glass_rate",
+   "fieldtype": "Float",
+   "label": "Glass Rate"
+  },
+  {
+   "fieldname": "inst_rate",
+   "fieldtype": "Float",
+   "label": "Installation Rate"
+  },
+  {
+   "fieldname": "other_rate",
+   "fieldtype": "Float",
+   "label": "Other Rate"
+  },
+  {
+   "fieldname": "column_break_cejc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vp_rate",
+   "fieldtype": "Int",
+   "label": "VP Rate"
+  },
+  {
+   "fieldname": "column_break_ldyq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "buffer_rate",
+   "fieldtype": "Float",
+   "label": "Buffer Rate"
+  },
+  {
+   "fieldname": "column_break_eopk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vwbq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inst_cost",
+   "fieldtype": "Currency",
+   "label": "AB20(Inst. Cost)"
+  },
+  {
+   "fieldname": "column_break_ikmy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_onmd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_uzct",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_fjxk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zjuc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inst_type",
+   "fieldtype": "Select",
+   "label": "AB20 (Install Type)",
+   "options": "\nMetro - New Installation\nMetro - Dismantle\nMetro - Reinstallation\nRegional - New Installation\nRegional - Dismantle\nRegional - Reinstallation"
+  },
+  {
+   "fieldname": "column_break_psoc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_acyn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_uock",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "section_break_wyum",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "column_break_naud",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_umgl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_double_partitions == 1",
+   "fieldname": "glass_type_b",
+   "fieldtype": "Link",
+   "label": "Glass Type B",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_double_partitions == 1",
+   "fieldname": "is_tempered_b",
+   "fieldtype": "Check",
+   "label": "Tempered Glass B"
+  },
+  {
+   "depends_on": "eval:doc.is_double_partitions == 1",
+   "fieldname": "glass_cost_b",
+   "fieldtype": "Currency",
+   "label": "Glass Cost B"
+  },
+  {
+   "fieldname": "pm_reserve_rate",
+   "fieldtype": "Float",
+   "label": "PM Reserve Rate"
+  },
+  {
+   "fieldname": "royalty_rate",
+   "fieldtype": "Float",
+   "label": "Royalty Rate"
+  },
+  {
+   "columns": 1,
+   "fieldname": "target_price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Target Price"
+  },
+  {
+   "fieldname": "glass_type_a",
+   "fieldtype": "Link",
+   "label": "Glass Type A",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "glass_thk_a",
+   "fieldtype": "Select",
+   "label": "Thickness A",
+   "options": "\n5\n6\n8\n10\n12"
+  },
+  {
+   "fieldname": "glass_cost_a",
+   "fieldtype": "Currency",
+   "label": "Glass Cost A"
+  },
+  {
+   "depends_on": "eval:doc.is_double_partitions == 1",
+   "fieldname": "glass_thk_b",
+   "fieldtype": "Select",
+   "label": "Thickness B",
+   "options": "5\n6\n8\n10\n12"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_tempered_a",
+   "fieldtype": "Check",
+   "label": "Tempered Glass A"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_double_partitions",
+   "fieldtype": "Check",
+   "label": "Double Partitions"
+  },
+  {
+   "fieldname": "column_break_gmhx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rvnj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "For CH > 3,000mm",
+   "fieldname": "ch_surcharge_rate",
+   "fieldtype": "Float",
+   "label": "CH Surcharge Rate"
+  }
+ ],
+ "links": [],
+ "modified": "2026-01-26 09:16:24.710597",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Quotation Pricing",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

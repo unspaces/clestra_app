@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{zone_name}-{project_name}-{product_type}",
+ "creation": "2025-07-01 09:38:48.100295",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "project",
+  "project_name",
+  "zone_name",
+  "product_type",
+  "lm",
+  "square_m",
+  "manufacturer_dc"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "zone_name",
+   "fieldtype": "Data",
+   "label": "Zone Name"
+  },
+  {
+   "fieldname": "lm",
+   "fieldtype": "Float",
+   "label": "L/M",
+   "precision": "2"
+  },
+  {
+   "fieldname": "square_m",
+   "fieldtype": "Float",
+   "label": "M\u00b2"
+  },
+  {
+   "fieldname": "manufacturer_dc",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Manufacturer Discount"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "product_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-03 14:33:28.032040",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "Zone",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Design User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "zone_name"
+}

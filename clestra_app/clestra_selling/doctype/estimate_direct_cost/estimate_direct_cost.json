@@ -1,0 +1,172 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EDC-.expense_item.-.comp_abbr.-.YY.-.MM.-.#.",
+ "creation": "2026-01-16 16:28:01.748810",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "expense_cat",
+  "column_break_hxda",
+  "labor_inst",
+  "logis_handling",
+  "equip_freight",
+  "site_material",
+  "waste_mngt",
+  "expense_item",
+  "column_break_tnys",
+  "company",
+  "comp_abbr",
+  "section_break_gibq",
+  "rate",
+  "reg_rate",
+  "qty",
+  "uom",
+  "section_break_lcbb",
+  "remark"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "expense_cat",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expense Category",
+   "options": "\nLabor & Installation\nLogistics & Handling\nEquipment & Freight\nSite Materials\nWaste Management"
+  },
+  {
+   "depends_on": "eval:doc.expense_cat == \"Labor & Installation\"",
+   "fieldname": "labor_inst",
+   "fieldtype": "Select",
+   "label": "Labor & Installation",
+   "mandatory_depends_on": "eval:doc.expense_cat == \"Labor & Installation\"",
+   "options": "\nProtection Labor\nLayout & Marking Labor\nGlass Installation Labor\nMisc. Product Installation\nPartition Labor\nGlass Cleaning Fee\nSilicone & Caulking Works\nMechanical Works\nElectrical Works"
+  },
+  {
+   "depends_on": "eval:doc.expense_cat == \"Logistics & Handling\"",
+   "fieldname": "logis_handling",
+   "fieldtype": "Select",
+   "label": "Logistics & Handling",
+   "mandatory_depends_on": "eval:doc.expense_cat == \"Logistics & Handling\"",
+   "options": "\nVertical Lifting\nMaterial Handling"
+  },
+  {
+   "fieldname": "column_break_hxda",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.expense_cat == \"Equipment & Freight\"",
+   "fieldname": "equip_freight",
+   "fieldtype": "Select",
+   "label": "Equipment & Freight",
+   "mandatory_depends_on": "eval:doc.expense_cat == \"Equipment & Freight\"",
+   "options": "\nLadder Truck Freight\nSky Lift Freight\nForklift Freight\n1-Ton Truck Freight\n5-Ton Truck Freight"
+  },
+  {
+   "depends_on": "eval:doc.expense_cat == \"Site Materials\"",
+   "fieldname": "site_material",
+   "fieldtype": "Select",
+   "label": "Site Materials",
+   "mandatory_depends_on": "eval:doc.expense_cat == \"Site Materials\"",
+   "options": "\nProtection Materials\nMisc. Materials Cost\nFilm Materials\nFabric Materials"
+  },
+  {
+   "fieldname": "column_break_tnys",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_gibq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate"
+  },
+  {
+   "fieldname": "section_break_lcbb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "reg_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Regional Rate"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fetch_from": "company.abbr",
+   "fieldname": "comp_abbr",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Abbr"
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "expense_item",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expense Item",
+   "options": "\nProtection Labor\nLayout & Marking Labor\nGlass Installation Labor\nMisc. Product Installation\nPartition Labor\nGlass Cleaning Fee\nSilicone & Caulking Works\nMechanical Works\nElectrical Works\nVertical Lifting\nMaterial Handling\nLadder Truck Freight\nSky Lift Freight\nForklift Freight\n1-Ton Truck Freight\n5-Ton Truck Freight\nProtection Materials\nMisc. Materials Cost\nFilm Materials\nFabric Materials\nGeneral Waste Disposal\nIndustrial Waste Disposal"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "depends_on": "eval:doc.expense_cat == \"Waste Management\"",
+   "fieldname": "waste_mngt",
+   "fieldtype": "Select",
+   "label": "Waste Management",
+   "mandatory_depends_on": "eval:doc.expense_cat == \"Waste Management\"",
+   "options": "\nGeneral Waste Disposal\nIndustrial Waste Disposal"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-05 09:38:01.724810",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Estimate Direct Cost",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

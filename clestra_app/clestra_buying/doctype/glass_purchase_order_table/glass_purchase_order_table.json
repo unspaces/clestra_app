@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-27 14:34:13.986571",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "zone",
+  "thk",
+  "width",
+  "height",
+  "qty",
+  "dwg_no",
+  "remarks",
+  "mark"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Zone",
+   "link_filters": "[[\"Zone\",\"project\",\"=\",\"eval: parent.project\"]]",
+   "options": "Zone"
+  },
+  {
+   "columns": 1,
+   "fieldname": "thk",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Thickness",
+   "options": "\n5T\n6T\n8T\n10T\n10.76T\n12T\n12.76T\n16.76T"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width"
+  },
+  {
+   "columns": 1,
+   "fieldname": "height",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Height"
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "columns": 2,
+   "fieldname": "dwg_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "DWG No."
+  },
+  {
+   "columns": 2,
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remarks"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "mark",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Mark"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-27 15:11:43.386874",
+ "modified_by": "Administrator",
+ "module": "Clestra Buying",
+ "name": "Glass Purchase Order Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

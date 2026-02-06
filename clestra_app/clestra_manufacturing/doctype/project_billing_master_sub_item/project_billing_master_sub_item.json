@@ -1,0 +1,1586 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-14 16:38:25.652023",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_axmh",
+  "old_idx",
+  "indent_level",
+  "product_section",
+  "product_type",
+  "item_code",
+  "item_code_prefix",
+  "bom_no",
+  "item_name",
+  "item_group",
+  "color",
+  "column_break_ymrt",
+  "fg_item_code",
+  "parent_item_code",
+  "linked_item_ref",
+  "zone",
+  "add_desc",
+  "parent_row_no",
+  "size_section",
+  "width",
+  "pw",
+  "ch",
+  "uh",
+  "ph",
+  "leaf_width",
+  "leaf_height",
+  "size",
+  "column_break_gczj",
+  "ceiling_visible",
+  "base_visible_h",
+  "under_cut",
+  "open_width",
+  "open_height",
+  "column_break_jjtu",
+  "panel_trh",
+  "panel_crh",
+  "abl_a",
+  "abl_b",
+  "depth",
+  "column_break_hgjd",
+  "lm",
+  "top",
+  "conti_base",
+  "general_section",
+  "app_country",
+  "section_break_wsve",
+  "print_group",
+  "print_order",
+  "print_hide",
+  "is_panel_cover",
+  "exclude_from_cover",
+  "image_caption",
+  "keywords_column",
+  "door_set_type_keyword",
+  "product_memo",
+  "leaf_keyword",
+  "section_break_fnwa",
+  "qty",
+  "qty_prefix",
+  "qty_suffix",
+  "show_qty_bracket",
+  "zone_qty",
+  "column_break_mknt",
+  "use_unit",
+  "uom",
+  "stock_uom",
+  "column_break_tkzu",
+  "rh_qty",
+  "lh_qty",
+  "rhr_qty",
+  "lhr_qty",
+  "panel_section",
+  "panel",
+  "product_keyword",
+  "product_keyword_prefix",
+  "product_keyword_suffix",
+  "additional_information_section",
+  "panel_heading",
+  "glass_a",
+  "glass_b",
+  "door_unit_heading",
+  "door_open_type",
+  "door_set_type",
+  "door_frame",
+  "door_closer",
+  "handle_direct",
+  "door_closer_name",
+  "column_break_rtyb",
+  "keeper_heading",
+  "keeper",
+  "keeper_glass_a",
+  "keeper_glass_b",
+  "keeper_depth",
+  "hinge_heading",
+  "hinge",
+  "hinge_glass_a",
+  "hinge_glass_b",
+  "hinge_type",
+  "hinge_depth",
+  "column_break_ovpf",
+  "leaf_item",
+  "leaf_item_code",
+  "leaf_glass_a",
+  "leaf_material",
+  "leaf_b_item_code",
+  "leaf_glass_b",
+  "column_break_gwrn",
+  "hardwares",
+  "auto_drop_seal",
+  "other_auto_drop_seal",
+  "flush_bolt",
+  "flush_bolt_type",
+  "custom_flush_bolt",
+  "fgd_type",
+  "blind",
+  "panel_installation_type_section",
+  "installation_column",
+  "panel_install_std",
+  "panel_install_free_stand",
+  "panel_install_gap15",
+  "panel_install_bi_block",
+  "base_column",
+  "base_type_synops",
+  "base_type_p85a",
+  "door_specification_section",
+  "handle",
+  "unit_depth",
+  "is_pair_door",
+  "column_break_anwm",
+  "column_break_nfkb",
+  "door_cover_section",
+  "door_hw_spec",
+  "ref_name",
+  "column_break_mfay",
+  "butt",
+  "hinge_num",
+  "custom_butt",
+  "pivot",
+  "custom_pivot",
+  "hinge_other",
+  "custom_hinge",
+  "column_break_dlxq",
+  "3m_tape_and_foam_seal_color",
+  "tape_seal_color_gray",
+  "tape_seal_color_white",
+  "tape_seal_color_black",
+  "fixing_screw_cap_color",
+  "fix_screw_gray",
+  "fix_screw_white",
+  "fix_screw_black",
+  "back_painted_border",
+  "back_painted_no",
+  "back_painted_yes",
+  "door_hardware_section",
+  "mortise",
+  "lockset_h",
+  "lockset_h_custom",
+  "lockset_h_second",
+  "lockset_h_second_custom",
+  "dummy",
+  "dummy_for_pair",
+  "column_break_vxta",
+  "security_access_control",
+  "wiring",
+  "key_cylinder",
+  "master_key",
+  "master_key_number",
+  "column_break_hrzc",
+  "inactive_leaf",
+  "al_strip",
+  "ads_cover_painted",
+  "aluminum_case_column",
+  "for_lockset",
+  "for_door_closer",
+  "door_leaf_specification_section",
+  "active_leaf_keyword",
+  "active_leaf_width",
+  "active_leaf_height",
+  "active_leaf_open_w",
+  "active_leaf_open_h",
+  "column_break_zdbp",
+  "inactive_leaf_keyword",
+  "inactive_leaf_width",
+  "inactive_leaf_height",
+  "inactive_leaf_open_w",
+  "inactive_leaf_open_h",
+  "section_break_hech",
+  "fg_warehouse",
+  "schedule_date",
+  "column_break_vbmz",
+  "bom_level",
+  "type_of_manufacturing",
+  "supplier",
+  "work_order_details_section",
+  "wo_produced_qty",
+  "purchase_order",
+  "production_plan_item",
+  "column_break_oqfd",
+  "received_qty",
+  "indent",
+  "section_break_wwzi",
+  "actual_qty",
+  "column_break_zxjr",
+  "projected_qty",
+  "section_break_bhnb",
+  "remark",
+  "description",
+  "virtual_fields_section",
+  "zone_1",
+  "zone_2",
+  "zone_3",
+  "zone_4",
+  "zone_5",
+  "column_break_wsor",
+  "zone_6",
+  "zone_7",
+  "zone_8",
+  "zone_9",
+  "zone_10",
+  "column_break_lbmp",
+  "zone_11",
+  "zone_12",
+  "zone_13",
+  "zone_14",
+  "zone_15",
+  "column_break_scrs",
+  "zone_16",
+  "zone_17",
+  "zone_18",
+  "zone_19",
+  "zone_20"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "color",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_ymrt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Width",
+   "precision": "1"
+  },
+  {
+   "fieldname": "section_break_fnwa",
+   "fieldtype": "Section Break",
+   "label": "Quantity & Unit"
+  },
+  {
+   "fieldname": "column_break_mknt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "depends_on": "eval: doc.section == \"Panel\" || doc.section == \"Etc\"",
+   "fieldname": "abl_a",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "ABL A"
+  },
+  {
+   "columns": 1,
+   "depends_on": "eval: doc.section == \"Panel\" || doc.section == \"Etc\"",
+   "fieldname": "abl_b",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "ABL B"
+  },
+  {
+   "fieldname": "section_break_bhnb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "print_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Print Group"
+  },
+  {
+   "columns": 1,
+   "fieldname": "depth",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Depth"
+  },
+  {
+   "fieldname": "section_break_axmh",
+   "fieldtype": "Section Break",
+   "label": "General Info"
+  },
+  {
+   "fieldname": "product_memo",
+   "fieldtype": "Data",
+   "label": "Product Memo "
+  },
+  {
+   "fieldname": "door_specification_section",
+   "fieldtype": "Section Break",
+   "label": "Door Specification"
+  },
+  {
+   "fieldname": "hinge_depth",
+   "fieldtype": "Int",
+   "label": "Hinge Depth"
+  },
+  {
+   "fieldname": "column_break_anwm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unit_depth",
+   "fieldtype": "Int",
+   "label": "Unit Depth"
+  },
+  {
+   "fieldname": "keeper_depth",
+   "fieldtype": "Int",
+   "label": "Keeper Depth"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "door_leaf_specification_section",
+   "fieldtype": "Section Break",
+   "label": "Leaf - Size"
+  },
+  {
+   "fieldname": "column_break_zdbp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "active_leaf_width",
+   "fieldtype": "Int",
+   "label": "Active Leaf Width"
+  },
+  {
+   "fieldname": "active_leaf_height",
+   "fieldtype": "Int",
+   "label": "Active Leaf Height"
+  },
+  {
+   "fieldname": "active_leaf_open_w",
+   "fieldtype": "Int",
+   "label": "Active Leaf Open W"
+  },
+  {
+   "fieldname": "active_leaf_open_h",
+   "fieldtype": "Int",
+   "label": "Active Leaf Open H"
+  },
+  {
+   "fieldname": "inactive_leaf_width",
+   "fieldtype": "Int",
+   "label": "Inactive Leaf Width"
+  },
+  {
+   "fieldname": "inactive_leaf_height",
+   "fieldtype": "Int",
+   "label": "Inactive Leaf Height"
+  },
+  {
+   "fieldname": "inactive_leaf_open_w",
+   "fieldtype": "Int",
+   "label": "Inactive Leaf Open W"
+  },
+  {
+   "fieldname": "inactive_leaf_open_h",
+   "fieldtype": "Int",
+   "label": "Inactive Leaf Open H"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.hinge_type",
+   "fieldname": "hinge_type",
+   "fieldtype": "Data",
+   "label": "Hinge Type"
+  },
+  {
+   "fieldname": "hinge_num",
+   "fieldtype": "Select",
+   "label": "Number of Hinge Holes",
+   "options": "\n0\n3\n4"
+  },
+  {
+   "fieldname": "section_break_wsve",
+   "fieldtype": "Section Break",
+   "label": "Print"
+  },
+  {
+   "columns": 2,
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "parent_item_code",
+   "fieldtype": "Link",
+   "label": "Parent Item",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "schedule_date",
+   "fieldtype": "Datetime",
+   "label": "Schedule Date"
+  },
+  {
+   "fieldname": "section_break_hech",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bom_no",
+   "fieldtype": "Link",
+   "label": "BOM No.",
+   "options": "BOM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bom_level",
+   "fieldtype": "Int",
+   "label": "Level (BOM)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vbmz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "type_of_manufacturing",
+   "fieldtype": "Select",
+   "label": "Manufacturing Type",
+   "options": "In House\nSubcontract\nMaterial Request"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "columns": 1,
+   "depends_on": "eval: doc.section == \"Door\"",
+   "fetch_from": "code.weight_uom",
+   "fieldname": "uom",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Unit"
+  },
+  {
+   "fieldname": "work_order_details_section",
+   "fieldtype": "Section Break",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "wo_produced_qty",
+   "fieldtype": "Float",
+   "label": "Produced Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "production_plan_item",
+   "fieldtype": "Data",
+   "label": "Production Plan Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_oqfd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "received_qty",
+   "fieldtype": "Float",
+   "label": "Received Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "indent",
+   "fieldtype": "Int",
+   "label": "Indent"
+  },
+  {
+   "columns": 1,
+   "description": "This is for internal reference only and will not appear on printed documents.",
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Internal Note"
+  },
+  {
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Stock UOM",
+   "options": "UOM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wwzi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "actual_qty",
+   "fieldtype": "Float",
+   "label": "Actual Qty",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zxjr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "projected_qty",
+   "fieldtype": "Float",
+   "label": "Projected Qty",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "fg_warehouse",
+   "fieldtype": "Link",
+   "label": "Target Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "ch",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "CH",
+   "precision": "1"
+  },
+  {
+   "fieldname": "ph",
+   "fieldtype": "Float",
+   "label": "Panel Height",
+   "precision": "1"
+  },
+  {
+   "fieldname": "panel_crh",
+   "fieldtype": "Int",
+   "label": "Panel CRH"
+  },
+  {
+   "fieldname": "panel_trh",
+   "fieldtype": "Int",
+   "label": "Panel TRH"
+  },
+  {
+   "fieldname": "size_section",
+   "fieldtype": "Section Break",
+   "label": "Size"
+  },
+  {
+   "fieldname": "column_break_gczj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_visible_h",
+   "fieldtype": "Int",
+   "label": "Base Visible Height"
+  },
+  {
+   "fieldname": "ceiling_visible",
+   "fieldtype": "Float",
+   "label": "Ceiling Visible",
+   "precision": "1"
+  },
+  {
+   "fieldname": "under_cut",
+   "fieldtype": "Int",
+   "label": "Under Cut"
+  },
+  {
+   "fieldname": "column_break_jjtu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "print_hide",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Print Hide",
+   "options": "\nY\nN"
+  },
+  {
+   "fieldname": "handle_direct",
+   "fieldtype": "Link",
+   "label": "Handle Direction",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Handle Direction\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_qty_bracket",
+   "fieldtype": "Check",
+   "label": "Show Qty in Brackets"
+  },
+  {
+   "fieldname": "app_country",
+   "fieldtype": "Data",
+   "label": "Applicable Country"
+  },
+  {
+   "fieldname": "indent_level",
+   "fieldtype": "Int",
+   "label": "Indent Level",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Zone"
+  },
+  {
+   "fieldname": "product_keyword",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Keyword"
+  },
+  {
+   "fieldname": "active_leaf_keyword",
+   "fieldtype": "Data",
+   "label": "Active Leaf Keyword"
+  },
+  {
+   "fieldname": "inactive_leaf_keyword",
+   "fieldtype": "Data",
+   "label": "Inactive Leaf Keyword"
+  },
+  {
+   "columns": 1,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "add_desc",
+   "fieldtype": "Data",
+   "label": "Additional Description"
+  },
+  {
+   "fieldname": "ref_name",
+   "fieldtype": "Data",
+   "label": "Reference Name"
+  },
+  {
+   "fieldname": "door_set_type",
+   "fieldtype": "Select",
+   "label": "Door Set Type",
+   "options": "\nSingle\nPair"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "door_cover_section",
+   "fieldtype": "Section Break",
+   "label": "Detailed Door Hardwares"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "door_hardware_section",
+   "fieldtype": "Section Break",
+   "label": "Door Hardware - Handle, Key, Door Closer, Auto Drop Seal"
+  },
+  {
+   "fieldname": "mortise",
+   "fieldtype": "Data",
+   "label": "Mortise (Lockset)"
+  },
+  {
+   "fieldname": "handle",
+   "fieldtype": "Data",
+   "label": "Handle"
+  },
+  {
+   "fieldname": "lockset_h",
+   "fieldtype": "Data",
+   "label": "Lockset H"
+  },
+  {
+   "fieldname": "lockset_h_custom",
+   "fieldtype": "Data",
+   "label": "Lockset H Custom"
+  },
+  {
+   "fieldname": "lockset_h_second",
+   "fieldtype": "Data",
+   "label": "2nd Lockset H"
+  },
+  {
+   "fieldname": "lockset_h_second_custom",
+   "fieldtype": "Data",
+   "label": "2nd Lockset H Custom"
+  },
+  {
+   "fieldname": "dummy",
+   "fieldtype": "Data",
+   "label": "Dummy"
+  },
+  {
+   "fieldname": "dummy_for_pair",
+   "fieldtype": "Data",
+   "label": "Dummy Type for Pair"
+  },
+  {
+   "fieldname": "column_break_vxta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "security_access_control",
+   "fieldtype": "Data",
+   "label": "Security & Access Control"
+  },
+  {
+   "fieldname": "wiring",
+   "fieldtype": "Data",
+   "label": "Wiring"
+  },
+  {
+   "fieldname": "key_cylinder",
+   "fieldtype": "Link",
+   "label": "Key Cylinder",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"YesNo\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "master_key",
+   "fieldtype": "Check",
+   "label": "Master Key"
+  },
+  {
+   "fieldname": "master_key_number",
+   "fieldtype": "Data",
+   "label": "Master Key Number"
+  },
+  {
+   "fieldname": "column_break_hrzc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.door_closer",
+   "fieldname": "door_closer",
+   "fieldtype": "Data",
+   "label": "Door Closer"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.door_closer_name",
+   "fieldname": "door_closer_name",
+   "fieldtype": "Data",
+   "label": "Door Closer Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "inactive_leaf",
+   "fieldtype": "Check",
+   "label": "Inactive Leaf"
+  },
+  {
+   "fieldname": "al_strip",
+   "fieldtype": "Data",
+   "label": "Al. Strip"
+  },
+  {
+   "fieldname": "auto_drop_seal",
+   "fieldtype": "Data",
+   "label": "Auto Drop Seal"
+  },
+  {
+   "fieldname": "other_auto_drop_seal",
+   "fieldtype": "Data",
+   "label": "Other Auto Drop Seal"
+  },
+  {
+   "default": "0",
+   "fieldname": "ads_cover_painted",
+   "fieldtype": "Check",
+   "label": "Cover Painted"
+  },
+  {
+   "fieldname": "aluminum_case_column",
+   "fieldtype": "Column Break",
+   "label": "Aluminum Case"
+  },
+  {
+   "default": "0",
+   "fieldname": "for_lockset",
+   "fieldtype": "Check",
+   "label": "for Lockset"
+  },
+  {
+   "default": "0",
+   "fieldname": "for_door_closer",
+   "fieldtype": "Check",
+   "label": "for Door Closer"
+  },
+  {
+   "fieldname": "column_break_mfay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.butt",
+   "fieldname": "butt",
+   "fieldtype": "Data",
+   "label": " Butt Hinge"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_butt",
+   "fieldname": "custom_butt",
+   "fieldtype": "Data",
+   "label": "Custom Butt Details"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.pivot",
+   "fieldname": "pivot",
+   "fieldtype": "Data",
+   "label": "Pivot"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_pivot",
+   "fieldname": "custom_pivot",
+   "fieldtype": "Data",
+   "label": "Custom Pivot Details"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.hinge_other",
+   "fieldname": "hinge_other",
+   "fieldtype": "Data",
+   "label": "Other"
+  },
+  {
+   "fetch_from": "door_hw_spec_code.custom_hinge",
+   "fieldname": "custom_hinge",
+   "fieldtype": "Data",
+   "label": "Other Hinge Details"
+  },
+  {
+   "fieldname": "flush_bolt",
+   "fieldtype": "Data",
+   "label": "Flush Bolt"
+  },
+  {
+   "fieldname": "flush_bolt_type",
+   "fieldtype": "Data",
+   "label": "Flush Bolt Type"
+  },
+  {
+   "fieldname": "custom_flush_bolt",
+   "fieldtype": "Data",
+   "label": "Custom Flush Bolt Details"
+  },
+  {
+   "fieldname": "door_set_type_keyword",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Set Type"
+  },
+  {
+   "fieldname": "leaf_keyword",
+   "fieldtype": "Data",
+   "label": "Leaf"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "keywords_column",
+   "fieldtype": "Column Break",
+   "label": "Keywords"
+  },
+  {
+   "fieldname": "print_order",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Print Order"
+  },
+  {
+   "fieldname": "qty_prefix",
+   "fieldtype": "Data",
+   "label": "Qty Prefix"
+  },
+  {
+   "fieldname": "qty_suffix",
+   "fieldtype": "Data",
+   "label": "Qty Suffix"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_unit",
+   "fieldtype": "Check",
+   "label": "Use Unit"
+  },
+  {
+   "fieldname": "leaf_width",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Leaf Width",
+   "precision": "1"
+  },
+  {
+   "fieldname": "leaf_height",
+   "fieldtype": "Float",
+   "label": "Leaf Height",
+   "precision": "1"
+  },
+  {
+   "fieldname": "rh_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "RH Qty"
+  },
+  {
+   "fieldname": "lh_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "LH Qty"
+  },
+  {
+   "description": "This note will be displayed on the printed document. ",
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Remark"
+  },
+  {
+   "fieldname": "blind",
+   "fieldtype": "Data",
+   "label": "Blind"
+  },
+  {
+   "fieldname": "fgd_type",
+   "fieldtype": "Data",
+   "label": "FGD Type"
+  },
+  {
+   "fieldname": "column_break_dlxq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "3m_tape_and_foam_seal_color",
+   "fieldtype": "Heading",
+   "label": "3M Tape and Foam Seal Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fieldname": "tape_seal_color_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "fixing_screw_cap_color",
+   "fieldtype": "Heading",
+   "label": "Fixing Screw Cap Color"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_gray",
+   "fieldtype": "Check",
+   "label": "Standard (Gray)"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_white",
+   "fieldtype": "Check",
+   "label": "White"
+  },
+  {
+   "default": "0",
+   "fieldname": "fix_screw_black",
+   "fieldtype": "Check",
+   "label": "Black"
+  },
+  {
+   "fieldname": "back_painted_border",
+   "fieldtype": "Heading",
+   "label": "Back Painted Border"
+  },
+  {
+   "default": "0",
+   "fieldname": "back_painted_no",
+   "fieldtype": "Check",
+   "label": "No"
+  },
+  {
+   "default": "0",
+   "fieldname": "back_painted_yes",
+   "fieldtype": "Check",
+   "label": "Yes"
+  },
+  {
+   "fieldname": "lm",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "LM"
+  },
+  {
+   "fieldname": "panel_installation_type_section",
+   "fieldtype": "Section Break",
+   "label": "Panel Installation Type"
+  },
+  {
+   "default": "0",
+   "fieldname": "panel_install_std",
+   "fieldtype": "Check",
+   "label": "Standard"
+  },
+  {
+   "default": "0",
+   "fieldname": "panel_install_free_stand",
+   "fieldtype": "Check",
+   "label": "Free Standing"
+  },
+  {
+   "default": "0",
+   "fieldname": "panel_install_bi_block",
+   "fieldtype": "Check",
+   "label": "Bi-Block"
+  },
+  {
+   "fieldname": "installation_column",
+   "fieldtype": "Column Break",
+   "label": "Installation"
+  },
+  {
+   "fieldname": "base_column",
+   "fieldtype": "Column Break",
+   "label": "Base"
+  },
+  {
+   "fieldname": "base_type_synops",
+   "fieldtype": "Select",
+   "label": "Base Type (Synops)",
+   "options": "\nConti Base (Flush Type)\nSynops Base"
+  },
+  {
+   "fieldname": "base_type_p85a",
+   "fieldtype": "Select",
+   "label": "Base Type (P85A)",
+   "options": "New\nOld"
+  },
+  {
+   "fieldname": "pw",
+   "fieldtype": "Float",
+   "label": "Panel Width",
+   "precision": "1"
+  },
+  {
+   "fieldname": "top",
+   "fieldtype": "Int",
+   "label": "Top"
+  },
+  {
+   "fieldname": "conti_base",
+   "fieldtype": "Int",
+   "label": "Conti Base"
+  },
+  {
+   "fieldname": "uh",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "UH",
+   "precision": "1"
+  },
+  {
+   "fieldname": "size",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Size"
+  },
+  {
+   "fieldname": "product_section",
+   "fieldtype": "Select",
+   "label": "Product Section",
+   "options": "\nDoor\nLeaf\nPanel\nSub Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tkzu",
+   "fieldtype": "Column Break",
+   "label": "For Door Cover"
+  },
+  {
+   "fieldname": "rhr_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "RHR Qty"
+  },
+  {
+   "fieldname": "lhr_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "LHR Qty"
+  },
+  {
+   "default": "0",
+   "fieldname": "panel_install_gap15",
+   "fieldtype": "Check",
+   "label": "GAP 15"
+  },
+  {
+   "fieldname": "door_frame",
+   "fieldtype": "Link",
+   "label": "Door Frame",
+   "options": "Item"
+  },
+  {
+   "fieldname": "zone_qty",
+   "fieldtype": "JSON",
+   "label": "Zone Quantities"
+  },
+  {
+   "fieldname": "virtual_fields_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Zone Fields"
+  },
+  {
+   "fieldname": "column_break_wsor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lbmp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_scrs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_1",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 1"
+  },
+  {
+   "fieldname": "zone_2",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 2"
+  },
+  {
+   "fieldname": "zone_3",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 3"
+  },
+  {
+   "fieldname": "zone_4",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 4"
+  },
+  {
+   "fieldname": "zone_5",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 5"
+  },
+  {
+   "fieldname": "zone_6",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 6"
+  },
+  {
+   "fieldname": "zone_7",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 7"
+  },
+  {
+   "fieldname": "zone_8",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 8"
+  },
+  {
+   "fieldname": "zone_9",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 9"
+  },
+  {
+   "fieldname": "zone_10",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 10"
+  },
+  {
+   "fieldname": "zone_11",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 11"
+  },
+  {
+   "fieldname": "zone_12",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 12"
+  },
+  {
+   "fieldname": "zone_13",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 13"
+  },
+  {
+   "fieldname": "zone_14",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 14"
+  },
+  {
+   "fieldname": "zone_15",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Virtual Field 15"
+  },
+  {
+   "fieldname": "zone_16",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 16"
+  },
+  {
+   "fieldname": "zone_17",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 17"
+  },
+  {
+   "fieldname": "zone_18",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 18"
+  },
+  {
+   "fieldname": "zone_19",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 19"
+  },
+  {
+   "fieldname": "zone_20",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "is_virtual": 1,
+   "label": "Zone 20"
+  },
+  {
+   "default": "0",
+   "fieldname": "exclude_from_cover",
+   "fieldtype": "Check",
+   "label": "Exclude from Cover Page"
+  },
+  {
+   "fieldname": "item_code_prefix",
+   "fieldtype": "Data",
+   "label": "Item Code Prefix"
+  },
+  {
+   "fieldname": "product_keyword_prefix",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Keyword Prefix"
+  },
+  {
+   "fieldname": "product_keyword_suffix",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Keyword Suffix"
+  },
+  {
+   "fieldname": "image_caption",
+   "fieldtype": "Data",
+   "label": "Image Caption"
+  },
+  {
+   "columns": 1,
+   "fieldname": "old_idx",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Index"
+  },
+  {
+   "fieldname": "leaf_glass_a",
+   "fieldtype": "Link",
+   "label": "Leaf Glass A",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Leaf Glass\",\"Panel & Leaf Glass\"]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "leaf_glass_b",
+   "fieldtype": "Link",
+   "label": "Leaf Glass B",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Leaf Glass\",\"Panel & Leaf Glass\"]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "leaf_material",
+   "fieldtype": "Link",
+   "label": "Leaf A Material",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Leaf Material\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "fg_item_code",
+   "fieldtype": "Link",
+   "label": "Finished Good",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "panel_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "glass_a",
+   "fieldtype": "Link",
+   "label": "Glass A (Outer)",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "glass_b",
+   "fieldtype": "Link",
+   "label": "Glass B (Inner)",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "column_break_hgjd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "keeper",
+   "fieldtype": "Link",
+   "label": "Keeper Side",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Keeper\"],[\"Selection Library\",\"opt_name\",\"=\",\"Hinge & Keeper\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "column_break_nfkb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "keeper_glass_a",
+   "fieldtype": "Link",
+   "label": "Keeper Glass A",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "keeper_glass_b",
+   "fieldtype": "Link",
+   "label": "Keeper Glass B",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "hinge_glass_a",
+   "fieldtype": "Link",
+   "label": "Hinge Glass A",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "hinge_glass_b",
+   "fieldtype": "Link",
+   "label": "Hinge Glass B",
+   "link_filters": "[[\"Product Thickness\",\"type\",\"in\",[\"Panel Glass\",\"Panel & Leaf Glass\",null]]]",
+   "options": "Product Thickness"
+  },
+  {
+   "fieldname": "hinge",
+   "fieldtype": "Link",
+   "label": "Hinge Side",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Hinge\"],[\"Selection Library\",\"opt_name\",\"=\",\"Hinge & Keeper\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pair_door",
+   "fieldtype": "Check",
+   "label": "Is Pair Door"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
+  },
+  {
+   "fieldname": "door_open_type",
+   "fieldtype": "Select",
+   "label": "Door Open Type",
+   "options": "\nSwing\nSliding"
+  },
+  {
+   "fieldname": "panel",
+   "fieldtype": "Heading",
+   "label": "Panel"
+  },
+  {
+   "fieldname": "additional_information_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Information"
+  },
+  {
+   "fieldname": "panel_heading",
+   "fieldtype": "Heading",
+   "label": "Panel"
+  },
+  {
+   "fieldname": "door_unit_heading",
+   "fieldtype": "Heading",
+   "label": "Door Unit"
+  },
+  {
+   "fieldname": "column_break_rtyb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "keeper_heading",
+   "fieldtype": "Heading",
+   "label": "Keeper Side"
+  },
+  {
+   "fieldname": "hinge_heading",
+   "fieldtype": "Heading",
+   "label": "Hinge Side"
+  },
+  {
+   "fieldname": "column_break_ovpf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_gwrn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hardwares",
+   "fieldtype": "Heading",
+   "label": "Hardwares"
+  },
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_panel_cover",
+   "fieldtype": "Check",
+   "label": "Panel Cover Item"
+  },
+  {
+   "fieldname": "open_width",
+   "fieldtype": "Float",
+   "label": "Open Width"
+  },
+  {
+   "fieldname": "open_height",
+   "fieldtype": "Float",
+   "label": "Open Height"
+  },
+  {
+   "fieldname": "leaf_item",
+   "fieldtype": "Heading",
+   "label": "Leaf Item"
+  },
+  {
+   "fieldname": "leaf_item_code",
+   "fieldtype": "Link",
+   "label": "Leaf A Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "leaf_b_item_code",
+   "fieldtype": "Link",
+   "label": "Leaf B Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "parent_row_no",
+   "fieldtype": "Int",
+   "label": "Parent Row No"
+  },
+  {
+   "fieldname": "linked_item_ref",
+   "fieldtype": "Data",
+   "label": "Linked Item"
+  },
+  {
+   "fieldname": "door_hw_spec",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Door HW Spec",
+   "options": "Door Hardware Spec"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-21 15:31:21.761556",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Project Billing Master Sub Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

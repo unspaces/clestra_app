@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2025-01-03 10:10:17.154534",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-01-03 10:10:17.154534",
+ "modified_by": "Administrator",
+ "module": "Clestra App",
+ "name": "rps-result",
+ "owner": "Administrator",
+ "page_name": "rps-result",
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "RPS Result"
+}

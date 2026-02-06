@@ -1,0 +1,96 @@
+{% if doc.print_codes_sum %}
+    {% set project = frappe.get_doc("Project", doc.project) if doc.project else None %}
+    {% set codes_summary = doc.get_print_codes_sum_data(view_type="section") %}
+    <div style="page-break-before: always;"></div>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10pt; border: 0;">
+                        <h4 style="margin: 0; padding: 0;">CODES SUM</h4>
+                </td>
+                <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                    <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                    <div>Project: {{ project.project_name if project else '' }}</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- 두 번째 줄 Zone 타이틀 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="flex-basis: 1%;"></div>
+        <div style="flex-basis: 16%; font-weight: bold; font-size: 11pt;"></div>
+        <div style="flex-basis: 20%; text-align: left;">
+            {% if not doc.agent_dealer %}
+                VP: {{doc.standard_vp}}
+            {% endif %}
+        </div>
+        <div style="flex-basis: 38%; text-align: left;">Product Type: </div>
+        <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(codes_summary.total.lm or 0) }} LM</div>
+        <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(codes_summary.total.square_m or 0) }} M2</div>
+        <div style="flex-basis: 1%;"></div>
+    </div>  
+
+    {% if codes_summary and codes_summary.rows %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+            <thead style="background-color: #e9ecef;">
+                <tr>
+                    <th>CODE</th>
+                    <th>Item Name</th>
+                    <th>CH</th>
+                    <th>Width</th>
+                    <th>Qty</th>
+                    <th>LM</th>
+                    <th>M²</th>
+                    {% if not doc.agent_dealer %}
+                        <th>VP</th>
+                        <th>Total VPs</th>
+                        <th>Price</th>
+                        <th>Total Price</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in codes_summary.rows %}
+                <tr>
+                    <td>{{ row.item_code or '' }}</td>
+                    <td>{{ row.item_name or '' }}</td>
+                    <td style="text-align: right;">{{ "%d"|format(row.ch or 0) }}</td> 
+                    <td style="text-align: right;">{{ "%d"|format(row.width or 0) }}</td>
+                    <td style="text-align: right; font-weight: bold;">{{ frappe.utils.fmt_money(row.qty or 0, 0, doc.currency) }}</td>
+                    <td style="text-align: right;">{{ "%.2f"|format(row.lm or 0) }}</td>
+                    <td style="text-align: right;">{{ "%.2f"|format(row.square_m or 0) }}</td>
+                    <!-- 표준 Jinja 삼항 연산자 사용 -->
+                    {% if not doc.agent_dealer %}
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money( (row.vp / row.qty) if row.qty else 0, 0, doc.currency) }}</td>
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money(row.vp or 0, 0, doc.currency) }}</td>
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money( (row.price / row.qty) if row.qty else 0, 0, doc.currency) }}</td>
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money(row.price or 0, 0, doc.currency) }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: bold; background-color: #343a40; color: white;">
+                    <td colspan="5">Grand Total</td>
+                    <td style="text-align: right;">{{ "%.2f"|format(codes_summary.total.lm) }}</td>
+                    <td style="text-align: right;">{{ "%.2f"|format(codes_summary.total.square_m) }}</td>
+                    {% if not doc.agent_dealer %}
+                        <td></td>
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money(codes_summary.total.vps, 0, doc.currency) }}</td>
+                        <td></td>
+                        <td style="text-align: right;">{{ frappe.utils.fmt_money(codes_summary.total.price, 0, doc.currency) }}</td>
+                    {% endif %}
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% endif %}
+    {% if doc.print_items %}
+        <div style="page-break-after: always;"></div>
+    {% endif %}
+{% endif %}

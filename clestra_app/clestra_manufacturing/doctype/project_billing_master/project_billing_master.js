@@ -74,21 +74,17 @@ frappe.ui.form.on('Project Billing Master', {
         // Setup toggles (call after grids are expected to be reset/refreshed)
         // Using a timeout here aligns with the grid reset timeout
         setTimeout(() => {
-            // Disable pagination for detail_bom_items grid if needed
+            // Group-based pagination for detail_bom_items grid
             const detail_bom_items_grid = frm.fields_dict['detail_bom_items']?.grid;
             if (detail_bom_items_grid) {
-                if (detail_bom_items_grid.grid_pagination) {
-                    detail_bom_items_grid.grid_pagination.page_length = 99999;
-                    detail_bom_items_grid.refresh();
-                }
+                setup_group_pagination(frm);
+                detail_bom_items_grid.refresh();
                 setTimeout(() => {
                     setup_detail_bom_grid(frm);
-                    // frm.trigger("update_grid_qty_view");
                     
                     update_grid_qty_view(frm);
-                    setup_qty_field(frm); // Ensure this function exists and handles the qty click logic
-                    setup_size_field(frm); // Ensure this function exists and handles the size click logic
-                    // setup_bom_conditions_button(frm); // Ensure this function exists and handles the bom_conditions click logic
+                    setup_qty_field(frm);
+                    setup_size_field(frm);
 
                     child_table_for_billing.forEach(grid_name => {
                         const grid = frm.fields_dict[grid_name].grid;
@@ -381,10 +377,8 @@ frappe.ui.form.on('Project Billing Master', {
                     refresh_field("detail_bom_items"); // Refresh the field to show new data
 
                     const detail_bom_items_grid = frm.fields_dict['detail_bom_items']?.grid;
-                    if (detail_bom_items_grid?.grid_pagination) {
-                        if (detail_bom_items_grid.grid_pagination.page_length !== 99999) {
-                            detail_bom_items_grid.grid_pagination.page_length = 99999;
-                        }
+                    if (detail_bom_items_grid) {
+                        setup_group_pagination(frm);
                     }
                     setup_detail_bom_grid(frm);
 
@@ -967,17 +961,16 @@ function update_grid_qty_view(frm) {
     const grid_fieldnames_with_qty_styling = ['sub_items', 'detail_bom_items']; // Add other fieldnames here if needed
     grid_fieldnames_with_qty_styling.forEach(fieldname => {
         const grid = frm.fields_dict[fieldname]?.grid;
-        if (!grid || !grid.grid_rows) {
-            // console.log(`${fieldname} grid or rows not ready for update_grid_qty_view`);
-            return;
-        }
-        // console.log(`Updating qty view for ${grid.grid_rows.length} rows in ${fieldname}.`);
+        if (!grid) return;
 
-        grid.grid_rows.forEach(function (grid_row) {
+        // grid_rows_by_docname 사용: 현재 페이지에 실제 렌더된 행만 처리 (stale 참조 방지)
+        const rows_to_process = Object.values(grid.grid_rows_by_docname || {});
+        if (rows_to_process.length === 0) return;
+
+        rows_to_process.forEach(function (grid_row) {
             let item = grid_row.doc;
             
             if (!item || !grid_row.wrapper) {
-                // console.warn("Skipping row update: item data or row wrapper missing.", grid_row);
                 return;
             }
 
@@ -2461,6 +2454,189 @@ function update_specific_row_qty_display(frm, cdt, cdn) {
 }
 
 
+// ============================================================
+// 그룹 기반 Pagination: 부모(indent_level 0 또는 Leaf) + 자식을
+// 하나의 그룹으로 묶어 페이지 경계에서 분리되지 않도록 처리
+// ============================================================
+function setup_group_pagination(frm) {
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (!grid?.grid_pagination) return;
+    if (grid._group_pagination_setup) return; // 중복 설정 방지
+
+    const pagination = grid.grid_pagination;
+    const GROUPS_PER_PAGE = 10; // 페이지당 부모 그룹 수
+
+    // --- 1. BOM 그룹 계산 (부모 + 자식 묶음) ---
+    grid._compute_bom_groups = function() {
+        const data = this.data || [];
+        const groups = [];
+
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const is_parent = item.indent_level === 0 ||
+                             (item.indent_level == 1 && item.product_section === "Leaf");
+
+            if (is_parent) {
+                if (groups.length > 0) {
+                    groups[groups.length - 1].end = i; // 이전 그룹의 끝
+                }
+                groups.push({ start: i, end: data.length });
+            }
+        }
+
+        // 부모 없이 시작하는 행 처리 (edge case)
+        if (groups.length === 0 && data.length > 0) {
+            groups.push({ start: 0, end: data.length });
+        }
+
+        return groups;
+    };
+
+    // --- 2. 페이지별 행 범위 계산 ---
+    grid._get_page_range = function(page_idx) {
+        const groups = this._compute_bom_groups();
+        const total_groups = groups.length;
+
+        if (total_groups === 0) return { start: 0, end: 0 };
+
+        const start_group = (page_idx - 1) * GROUPS_PER_PAGE;
+        const end_group = Math.min(start_group + GROUPS_PER_PAGE, total_groups);
+
+        if (start_group >= total_groups) return { start: 0, end: 0 };
+
+        return {
+            start: groups[start_group].start,
+            end: end_group < total_groups ? groups[end_group].start : this.data.length
+        };
+    };
+
+    // --- 3. 전체 페이지 수 계산 ---
+    grid._get_total_pages = function() {
+        const groups = this._compute_bom_groups();
+        return Math.max(1, Math.ceil(groups.length / GROUPS_PER_PAGE));
+    };
+
+    // --- 4. render_result_rows 오버라이드 ---
+    // 원본 메서드(GridRow 생성자 포함)를 재활용하면서 렌더링 범위만 그룹 기반으로 변경
+    const _orig_render = grid.render_result_rows;
+    grid.render_result_rows = function($rows, append_row) {
+        const range = this._get_page_range(this.grid_pagination.page_index);
+
+        // 원본 render_result_rows는 내부적으로 다음 값으로 범위를 결정:
+        //   start = (page_index - 1) * page_length
+        //   end   = get_result_length()
+        // 이 값들을 임시로 조정하여 그룹 범위와 일치시킴
+        const saved_pi = this.grid_pagination.page_index;
+        const saved_pl = this.grid_pagination.page_length;
+        const saved_grl = this.grid_pagination.get_result_length;
+
+        // start = (page_index - 1) * 1 = range.start
+        this.grid_pagination.page_length = 1;
+        this.grid_pagination.page_index = range.start + 1;
+        this.grid_pagination.get_result_length = () => range.end;
+
+        _orig_render.call(this, $rows, append_row);
+
+        // 원본 값 복원
+        this.grid_pagination.page_index = saved_pi;
+        this.grid_pagination.page_length = saved_pl;
+        this.grid_pagination.get_result_length = saved_grl;
+    };
+
+    // --- 5. pagination 메서드 오버라이드 ---
+    // render_pagination: 그룹 기반 total_pages로 UI 결정
+    pagination.render_pagination = function() {
+        const total_pages = grid._get_total_pages();
+        if (total_pages <= 1) {
+            this.wrapper.find(".grid-pagination").html("");
+        } else {
+            this.total_pages = total_pages;
+            let $pagination_template = this.get_pagination_html();
+            this.wrapper.find(".grid-pagination").html($pagination_template);
+            this.prev_page_button = this.wrapper.find(".prev-page");
+            this.next_page_button = this.wrapper.find(".next-page");
+            this.$page_number = this.wrapper.find(".current-page-number");
+            this.$total_pages = this.wrapper.find(".total-page-number");
+            this.first_page_button = this.wrapper.find(".first-page");
+            this.last_page_button = this.wrapper.find(".last-page");
+            this.bind_pagination_events();
+        }
+    };
+
+    pagination.update_page_numbers = function() {
+        const new_total = grid._get_total_pages();
+        if (this.total_pages !== new_total) {
+            this.total_pages = new_total;
+            this.render_pagination();
+        }
+    };
+
+    pagination.get_result_length = function() {
+        const range = grid._get_page_range(this.page_index);
+        return range.end;
+    };
+
+    // render_next_page: 그룹 기반 total_pages 사용
+    pagination.render_next_page = function() {
+        const total_pages = grid._get_total_pages();
+        if (this.page_index < total_pages) {
+            this.page_index++;
+            this.go_to_page();
+        }
+    };
+
+    // render_prev_page
+    pagination.render_prev_page = function() {
+        if (this.page_index > 1) {
+            this.page_index--;
+            this.go_to_page();
+        }
+    };
+
+    // --- 6. go_to_page 오버라이드 (페이지 전환 후 toggle/qty 재적용) ---
+    pagination.go_to_page = function(index, from_refresh) {
+        if (!index) {
+            index = this.page_index;
+        } else {
+            this.page_index = index;
+        }
+
+        let $rows = $(this.grid.parent).find(".rows").empty();
+        this.grid.grid_rows_by_docname = {};
+        this.grid.render_result_rows($rows, true);
+
+        if (this.$page_number) {
+            this.$page_number.val(index);
+            this.$page_number.css("width", (index.toString().length + 1) * 8 + "px");
+        }
+
+        this.update_page_numbers();
+
+        if (!from_refresh) {
+            this.grid.scroll_to_top();
+        }
+
+        // 페이지 전환 후 toggle 로직 및 qty view 재적용
+        const grid_wrapper = $(this.grid.wrapper);
+        grid_wrapper.find('div.grid-heading-row .row-index').addClass('visibility-hidden');
+        grid_wrapper.find('.row-index').addClass('visibility-hidden');
+
+        apply_toggle_logic(frm, this.grid);
+        update_grid_qty_view(frm);
+    };
+
+    // go_to_last_page_to_add_row 수정
+    pagination.go_to_last_page_to_add_row = function() {
+        const total_pages = grid._get_total_pages();
+        if (this.page_index !== total_pages) {
+            this.go_to_page(total_pages);
+        }
+        frappe.utils.scroll_to(this.wrapper);
+    };
+
+    grid._group_pagination_setup = true;
+}
+
 function setup_detail_bom_grid(frm) {
     const grid = frm.fields_dict['detail_bom_items']?.grid;
     if (!grid || grid.is_fully_setup) return;
@@ -2483,8 +2659,8 @@ function setup_detail_bom_grid(frm) {
             add_row_button.hide(); // 'Add Row'를 숨깁니다.
         }
 
-        grid_wrapper.find('div.grid-heading-row .row-index').hide();
-        grid_wrapper.find('.row-index').hide();
+        grid_wrapper.find('div.grid-heading-row .row-index').addClass('visibility-hidden');
+        grid_wrapper.find('.row-index').addClass('visibility-hidden');
 
         update_grid_qty_view(frm);
         
@@ -2586,11 +2762,14 @@ function apply_toggle_logic(frm, grid_obj) {
         }
     });
 
-    grid_obj.grid_rows.forEach(function (grid_row) {
+    // grid_rows_by_docname을 사용하여 현재 페이지에 렌더된 행만 처리
+    const rendered_rows = Object.values(grid_obj.grid_rows_by_docname || {});
+    rendered_rows.forEach(function (grid_row) {
         const row_doc = grid_row.doc; // Doc associated with the visible grid row
         if (!row_doc) return;
 
         const $row_wrapper = $(grid_row.wrapper);
+        if (!$row_wrapper.length) return;
         $row_wrapper.find('.toggle-sub-items').remove(); // [안정성] 모든 행의 토글 버튼을 일단 제거
         $row_wrapper.show(); // [안정성] 모든 행을 일단 보이게 초기화
 

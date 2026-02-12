@@ -302,8 +302,7 @@ class ProjectBillingMaster(Document):
 				global_zone_to_virtual_field_map[actual_zone_name] = f"zone_{i + 1}"
 			else:
 				# Optional: Log if too many unique zones for available virtual fields
-				# logger.warning(f"Document has more than {MAX_VIRTUAL_FIELDS} unique zones. Zone '{actual_zone_name}' and subsequent ones will not have a 'field' mapping in zone_qty.")
-				print(f"WARNING: Document has > {MAX_VIRTUAL_FIELDS} unique zones. Zone '{actual_zone_name}' won't map to zone_X.")
+				logger.warning(f"Document has more than {MAX_VIRTUAL_FIELDS} unique zones. Zone '{actual_zone_name}' won't map to zone_X.")
 				break
 
 		# Step 1.5: Build Parent Signature Map ---
@@ -320,7 +319,22 @@ class ProjectBillingMaster(Document):
 				limit=None # <--- CRITICAL FIX: Limit removed
 			)
 			item_details_map = {item['name']: item for item in fetched_items}
-		
+
+		# [Performance] Multiple Print Group 일괄 조회 (기존: 루프 안에서 아이템마다 개별 쿼리)
+		use_multiple_item_codes = [code for code, details in item_details_map.items()
+			if cint(details.get("use_multiple_print_groups"))]
+		print_group_cache = {}  # key: (item_code, product_type, door_set_type, door_open_type) -> {group_name, group_order}
+		if use_multiple_item_codes:
+			all_print_groups = frappe.get_all(
+				"Multiple Print Group",
+				filters={"parent": ["in", use_multiple_item_codes], "parenttype": "Item"},
+				fields=["parent", "product_type", "door_set_type", "door_open_type", "group_name", "group_order"],
+				limit=None
+			)
+			for pg in all_print_groups:
+				pg_key = pg.parent  # item_code를 기본 키로
+				print_group_cache.setdefault(pg_key, []).append(pg)
+
 		# detail_bom_items를 미리 순회하여 Parent Door의 속성을 매핑
 		for row in self.detail_bom_items:
 			# product_section이 Door이고 최상위 레벨인 경우
@@ -442,28 +456,25 @@ class ProjectBillingMaster(Document):
 				use_multiple = cint(item_master_data.get("use_multiple_print_groups"))
 
 				if use_multiple == 1 and product_type:
-					door_set_type = row.get("door_set_type") # row에서 가져옴
-					door_open_type = row.get("door_open_type") # row에서 가져옴
+					door_set_type = row.get("door_set_type") or ""
+					door_open_type = row.get("door_open_type") or ""
 
-					query_filters = {
-						"parent": item_code,
-						"parenttype": "Item",
-						"product_type": product_type,
-					}
-					
-					query_filters["door_set_type"] = ["in", [door_set_type, ""]] if door_set_type else ""
-					query_filters["door_open_type"] = ["in", [door_open_type, ""]] if door_open_type else ""
-					
-					child_rows = frappe.get_all(
-						"Multiple Print Group",
-						filters=query_filters,
-						fields=["group_name", "group_order"],
-						limit=1
-					)
-					
-					if child_rows:
-						temp_print_group = child_rows[0].group_name
-						temp_print_order = child_rows[0].group_order
+					# [Performance] 캐시에서 매칭되는 Print Group 조회 (기존: DB 개별 쿼리)
+					cached_pgs = print_group_cache.get(item_code, [])
+					matched_pg = None
+					for pg in cached_pgs:
+						if pg.product_type != product_type:
+							continue
+						if door_set_type and pg.door_set_type not in [door_set_type, "", None]:
+							continue
+						if door_open_type and pg.door_open_type not in [door_open_type, "", None]:
+							continue
+						matched_pg = pg
+						break
+
+					if matched_pg:
+						temp_print_group = matched_pg.group_name
+						temp_print_order = matched_pg.group_order
 
 				# 계산된 값을 row 객체에 업데이트 (그래야 아래 키 생성 루프에서 getattr로 가져옴)
 				row.print_group = temp_print_group
@@ -814,7 +825,18 @@ class ProjectBillingMaster(Document):
 		)
 
 		mapped_items = []
-		
+
+		# [Performance] default_bom 일괄 조회 (기존: 루프 안에서 아이템마다 개별 쿼리)
+		all_item_codes = list({row.item_code for row in so_items if row.get("item_code")})
+		default_bom_map = {}
+		if all_item_codes:
+			bom_rows = frappe.get_all("Item",
+				filters={"name": ["in", all_item_codes]},
+				fields=["name", "default_bom"],
+				limit=None
+			)
+			default_bom_map = {r.name: r.default_bom for r in bom_rows}
+
 		# 3. 데이터 변환 및 필터링
 		for row in so_items:
 			if cint(row.indent_level) > 1 and row.product_section != "Leaf":
@@ -832,7 +854,7 @@ class ProjectBillingMaster(Document):
 				"doctype": "Project Billing Master Item",
 				"ch": row.ph if (row.ph and row.ph > 0) else None, # ph가 있으면 ph를 ch로 사용 로직 보완
 				"zone": row.zone_name, 
-				"bom_no": frappe.get_value("Item", row.item_code, "default_bom"),
+				"bom_no": default_bom_map.get(row.item_code),
 			})
 			
 			mapped_items.append(frappe._dict(new_row_data))
@@ -942,8 +964,13 @@ def get_sub_assembly_items(
 		# context_values는 parent_values_from_so가 됩니다.
 		exec_locals = context_values.copy()
 		exec_locals['doc'] = frappe._dict(context_values)
-		try: 
-			exec(f"result = None\n{formula.replace('return', 'result =')}", {}, exec_locals)
+		try:
+			# [Performance] 컴파일된 코드 객체 캐시 (기존: 매 호출마다 문자열 컴파일)
+			compiled_cache_key = f"color_{formula}"
+			if compiled_cache_key not in cache.get("compiled", {}):
+				code_str = f"result = None\n{formula.replace('return', 'result =')}"
+				cache.setdefault("compiled", {})[compiled_cache_key] = compile(code_str, "<color_formula>", "exec")
+			exec(cache["compiled"][compiled_cache_key], {}, exec_locals)
 			result = exec_locals.get("result")
 
 			# frappe.msgprint(f"Color: {color_name}, Formula: {formula}, Result: {result}") # 디버깅용
@@ -984,8 +1011,14 @@ def get_sub_assembly_items(
 	parent_item_data = frappe.get_cached_value("BOM", bom_no, fields_from_item, as_dict=True)
 
 	parent_data_from_bom_and_so = {}
-	for field in parent_fields:		
-		bom_value = frappe.db.get_value("BOM", bom_no, field)
+	# [Performance] parent_fields 전체를 한 번의 쿼리로 조회 (기존: 필드마다 개별 쿼리)
+	if bom_no not in global_cache.get("bom_parent_fields", {}):
+		global_cache.setdefault("bom_parent_fields", {})[bom_no] = \
+			frappe.db.get_value("BOM", bom_no, parent_fields, as_dict=True) or {}
+	bom_parent_values = global_cache["bom_parent_fields"][bom_no]
+
+	for field in parent_fields:
+		bom_value = bom_parent_values.get(field)
 		so_value = parent_values_from_so.get(field, None)
 		if so_value is not None and so_value != "":
 			parent_data_from_bom_and_so[field] = so_value
@@ -1097,13 +1130,20 @@ def get_sub_assembly_items(
 			if formula == "Enabled": return parent_value
 			elif str(formula).strip().lower() == "true": return parent_value
 			elif isinstance(formula, str):  # 수식 또는 조건식으로 처리
+				# [Performance] 컴파일된 코드 객체 캐시 (기존: 매 호출마다 문자열 컴파일)
+				compiled_cache = global_cache.setdefault("compiled", {})
 				if "if" in formula: 
-					# exec()로 조건식 처리
-					# exec_locals = {**local_variables, **conditional_fields_for_eval}
-					exec(f"result = None\n{formula.replace('return', 'result =')}", {}, execution_scope)
+					compiled_key = f"exec_{formula}"
+					if compiled_key not in compiled_cache:
+						code_str = f"result = None\n{formula.replace('return', 'result =')}"
+						compiled_cache[compiled_key] = compile(code_str, "<field_formula>", "exec")
+					exec(compiled_cache[compiled_key], {}, execution_scope)
 					return execution_scope.get("result")
 				else:
-					return eval(formula, {}, execution_scope)
+					compiled_key = f"eval_{formula}"
+					if compiled_key not in compiled_cache:
+						compiled_cache[compiled_key] = compile(formula, "<field_formula>", "eval")
+					return eval(compiled_cache[compiled_key], {}, execution_scope)
 			else:
 				# logger.info(f"{field}: BOM value is a number, set to {formula}")
 				return formula
@@ -1321,12 +1361,15 @@ def get_sub_assembly_items(
 					)
 
 	# Get BOM Items
-	bom_items = frappe.get_all(
-		"BOM Item",
-		filters={"parent": bom_no},
-		fields=BOM_ITEM_FIELDS + size_fields_keys,
-		limit=None
-	)
+	# [Performance] BOM Item 조회 결과를 캐싱 (기존: 재귀 호출마다 매번 DB 조회)
+	if bom_no not in global_cache.get("bom_items", {}):
+		global_cache.setdefault("bom_items", {})[bom_no] = frappe.get_all(
+			"BOM Item",
+			filters={"parent": bom_no},
+			fields=BOM_ITEM_FIELDS + size_fields_keys,
+			limit=None
+		)
+	bom_items = global_cache["bom_items"][bom_no]
 	# logger.info(f"BOM Items fetched: {bom_items}")
 
 	def matches_bom_details(bom_item_data, pbm_values_dict):
@@ -1428,7 +1471,10 @@ def get_sub_assembly_items(
 		return True
 
 	# Match BOM Items with get_bom_children data
-	data = get_bom_children(parent=bom_no)
+	# [Performance] get_bom_children 결과를 캐싱 (기존: 재귀 호출마다 매번 DB 조회)
+	if bom_no not in global_cache.get("bom_children", {}):
+		global_cache.setdefault("bom_children", {})[bom_no] = get_bom_children(parent=bom_no)
+	data = global_cache["bom_children"][bom_no]
 	for d in data:
 		stock_qty = d.stock_qty * flt(to_produce_qty)
 		local_variables["qty"] = stock_qty

@@ -34,3 +34,52 @@
     align-items: center;
     justify-content: center; /* 아이콘과 체크박스를 수평 중앙에 배치 */
 }
+
+/* 토글 버튼이 있는 .row-check 컬럼 너비 고정 — 컬럼 간격 틀어짐 방지 */
+[data-fieldname="detail_bom_items"] .form-grid .grid-row .row-check {
+    flex: 0 0 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+    width: 28px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* .row-index도 너비 고정하여 hide/show 시 레이아웃 안정화 */
+[data-fieldname="detail_bom_items"] .form-grid .grid-row .row-index {
+    flex: 0 0 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    width: 30px !important;
+}
+
+/* row-index를 숨기되 공간은 유지 — 칼럼 정렬 안정화 */
+[data-fieldname="detail_bom_items"] .form-grid .row-index.visibility-hidden {
+    visibility: hidden !important;
+}
+
+/* 토글 버튼 스타일 */
+[data-fieldname="detail_bom_items"] .toggle-sub-items {
+    padding: 2px 5px !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+[data-fieldname="detail_bom_items"] .toggle-sub-items:hover {
+    color: var(--text-color);
+}
+
+/* 토글 버튼이 추가되었을 때 체크박스 숨김 — 공간 절약 */
+[data-fieldname="detail_bom_items"] .row-check:has(.toggle-sub-items) .grid-row-check {
+    display: none;
+}

@@ -5,14 +5,56 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import flt
 import math
+import re
 import logging
 
 # Logger 설정
 logger = frappe.logger("quotation_pricing", allow_site=True)
 logger.setLevel(logging.DEBUG)
 
+# Quotation Pricing 고정 필드 변수 (수식에서 자동으로 사용 가능)
+FIXED_FIELDS = {
+	"item_vp", "vp_rate", "mat_rate", "glass_rate", "inst_rate", "other_rate",
+	"mat_margin", "ch_surcharge_rate", "pm_reserve_rate", "royalty_rate",
+	"width", "ch", "stnd_ch", "lh", "height", "buffer_width", "buffer_rate",
+	"glass_cost_a", "glass_cost_b",
+}
+
+
+
+# 수식에서 변수 추출용 정규식
+VAR_REGEX = r'\b(?![0-9])([a-zA-Z_][a-zA-Z0-9_]*)\b'
+
+# 변수가 아닌 Python 키워드/내장함수
+EXCLUDED_NAMES = {
+	"if", "elif", "else", "and", "or", "not", "in", "is",
+	"True", "False", "None", "return",
+	"math", "ceil", "floor", "round", "abs", "max", "min", "pow",
+}
+
+
 class QuotationPricing(Document):
 	pass
+
+
+@frappe.whitelist()
+def get_formula_variables(formula_name):
+	"""Formula Library에서 수식을 읽어 child table에 입력이 필요한 변수 목록을 반환"""
+	if not formula_name:
+		return []
+
+	formula = frappe.db.get_value("Formula Library", formula_name, "formula")
+	if not formula:
+		return []
+
+	# 수식에서 모든 식별자 추출
+	all_vars = set(re.findall(VAR_REGEX, formula))
+
+	# 고정 필드, Python 키워드 제외 → child table 변수로 취급
+	needed_vars = [v for v in all_vars if v not in FIXED_FIELDS and v not in EXCLUDED_NAMES]
+
+	# 정렬하여 반환
+	return needed_vars
 
 
 @frappe.whitelist()
@@ -112,7 +154,7 @@ def get_vp(item_code, height=None, width=None, qty=None):
 def calculate_cost(field, formula_name, doc=None):
 	formula = frappe.db.get_value("Formula Library", formula_name, "formula")
 	if not formula:
-		return None
+		return {"status": "error", "message": "Formula not found"}
 
 	context = {
         'math': math,
@@ -128,23 +170,38 @@ def calculate_cost(field, formula_name, doc=None):
 			import json
 			doc = json.loads(doc)
 		context.update(doc)
+
+		# Child table 변수 추출
+		for key, value in doc.items():
+			if isinstance(value, list):
+				for row in value:
+					if isinstance(row, dict) and 'variable' in row and 'value' in row:
+						context[row['variable']] = row['value']
 	
 	try:
 		if isinstance(formula, str):  # 수식 또는 조건식으로 처리
+			# 필요한 변수 추출 및 누락 확인
+			all_vars = set(re.findall(VAR_REGEX, formula))
+			required_vars = [v for v in all_vars if v not in EXCLUDED_NAMES]
+			missing_vars = []
+			for v in required_vars:
+				val = context.get(v)
+				if val in (None, "", 0, 0.0, "0", "0.0"):
+					missing_vars.append(v)
+			
+			if missing_vars:
+				return {"status": "missing_vars", "missing_vars": missing_vars}
+
 			if "if" in formula: 
-				# exec()로 조건식 처리
-				# logger.debug(f"{field}: Evaluating formula with if condition: {formula}")
 				exec(f"result = None\n{formula.replace('return', 'result =')}", {}, context)
-				# logger.debug(f"{field}: Evaluated formula with if condition, result: {context.get('result')}")
-				return context.get("result")
+				return {"status": "success", "result": context.get("result")}
 			else:
-				return eval(formula, {}, context)
+				return {"status": "success", "result": eval(formula, {}, context)}
 		else:
-			return formula
+			return {"status": "success", "result": formula}
 	except Exception as e:
 		frappe.log_error(
 			message=f"Error evaluating {field}: {str(e)}",
 			title="Formula Evaluation Error"
 		)
-		# logger.error(f"{field}: Error evaluating formula, set to None. BOM value: {formula}, Error: {e}")
-		return None
+		return {"status": "error", "message": str(e)}

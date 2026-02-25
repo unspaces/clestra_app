@@ -2,93 +2,168 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Quotation Pricing", {
-    onload: function(frm) {
+    onload: function (frm) {
         if (frm.is_new() && !frm.doc.company) {
-			frappe.db.get_value('User', frappe.session.user, 'company')
-				.then(r => {
-					if (r && r.message && r.message.company) {
-						frm.set_value('company', r.message.company);
-					}
-				});
-		}
+            frappe.db.get_value('User', frappe.session.user, 'company')
+                .then(r => {
+                    if (r && r.message && r.message.company) {
+                        frm.set_value('company', r.message.company);
+                    }
+                });
+        }
         if (frm.is_new()) {
             fetch_all_quotation_values(frm);
 
             // VP Rate 불러오기
             frappe.db.get_list('VP Rate', {
-				filters: {
-					'company': frm.doc.company,
-				},
-				fields: ['value'],
-				order_by: 'creation desc', // 생성일 역순 (최신순)
-				limit: 1 // 1개만 가져옴
-			}).then(res => {
-				if (res && res.length > 0) {
-					const vp_kr = res[0].value;
-					frm.set_value('vp_rate', vp_kr);
-				}
-			});
+                filters: {
+                    'company': frm.doc.company,
+                },
+                fields: ['rate'],
+                order_by: 'creation desc', // 생성일 역순 (최신순)
+                limit: 1 // 1개만 가져옴
+            }).then(res => {
+                if (res && res.length > 0) {
+                    const vp_kr = res[0].rate;
+                    frm.set_value('vp_rate', vp_kr);
+                }
+            });
         }
     },
-	refresh(frm) {
+    refresh(frm) {
         set_glass_type_filter(frm, 'glass_type_a');
         set_glass_type_filter(frm, 'glass_type_b');
         sum_fields(frm);
-	},
-    item_code: function(frm) {
+    },
+    item_code: function (frm) {
         update_vp(frm, 'item_code', 'item_vp');
         update_installation_cost(frm);
     },
-    clch_item_code: function(frm) {update_vp(frm, 'clch_item_code', 'clch_vp');},
-    base_item_code: function (frm) {update_vp(frm, 'base_item_code', 'base_vp');},
-    joint_item_code: function (frm) {update_vp(frm, 'joint_item_code', 'joint_vp');},
-    leveler_item_code: function (frm) {update_vp(frm, 'leveler_item_code', 'leveler_vp');},
 
-    total_cost: function(frm) {
-        const target_price = frm.doc.total_cost / (1 -frm.doc.mat_margin);
+    total_cost: function (frm) {
+        const target_price = frm.doc.total_cost / (1 - frm.doc.mat_margin);
         // 1,000원 단위 올림 계산
-        const target_price_ceil = Math.ceil(target_price/1000)*1000;
+        const target_price_ceil = Math.ceil(target_price / 1000) * 1000;
         frm.set_value('target_price', target_price_ceil);
     },
-    target_price: function(frm) {
+    target_price: function (frm) {
         const diff = frm.doc.target_price - frm.doc.total_cost;
         frm.set_value('difference', diff);
     },
-    difference: function(frm) {
+    difference: function (frm) {
         const margin_calc = frm.doc.target_price ? (frm.doc.difference / frm.doc.target_price) * 100 : 0;
         frm.set_value('margin_rate', margin_calc);
     },
 
-    aa10_formula: function(frm) {calc_field(frm, 'aa10_formula', 'aa10_result');},
-    ab20_formula: function(frm) {calc_field(frm, 'ab20_formula', 'ab20_result');},
-    ac40_formula: function(frm) {calc_field(frm, 'ac40_formula', 'ac40_result');},
-    ab44_formula: function(frm) {update_expense_and_calc(frm, "Glass Cleaning Fee", 'ab44_formula', 'ab44_result');},
-    ac33_formula: function(frm) {update_expense_and_calc(frm, "Silicone & Caulking Works", 'ac33_formula', 'ac33_result');},
-    ab30_formula: function(frm) {update_expense_and_calc(frm, "1-Ton Truck Freight", 'ab30_formula', 'ab30_result');},
-    ad43_formula: function(frm) {calc_field(frm, 'ad43_formula', 'ad43_result');},
-    ad41_formula: function(frm) {calc_field(frm, 'ad41_formula', 'ad41_result');},
-    ab52_formula: function(frm) {calc_field(frm, 'ab52_formula', 'ab52_result');},
-    sp1_formula: function(frm) {calc_field(frm, 'sp1_formula', 'sp1_result');},
+    aa10_formula: function (frm) {
+        populate_aa10_item(frm);
+        calc_field(frm, 'aa10_formula', 'aa10_result');
+    },
+    aa10_calc: function (frm) { calc_field(frm, 'aa10_formula', 'aa10_result'); },
 
-    inst_type: function(frm) {update_installation_cost(frm);},
+    ab20_formula: function (frm) { calc_field(frm, 'ab20_formula', 'ab20_result'); },
+    ab20_calc: function (frm) { calc_field(frm, 'ab20_formula', 'ab20_result'); },
 
-    is_tempered: function(frm) {
+    ac40_formula: function (frm) { calc_field(frm, 'ac40_formula', 'ac40_result'); },
+    ac40_calc: function (frm) { calc_field(frm, 'ac40_formula', 'ac40_result'); },
+
+    ab44_formula: function (frm) { update_expense_and_calc(frm, "Glass Cleaning Fee", 'ab44_formula', 'ab44_result'); },
+    ab44_calc: function (frm) { update_expense_and_calc(frm, "Glass Cleaning Fee", 'ab44_formula', 'ab44_result'); },
+
+    ac33_formula: function (frm) { update_expense_and_calc(frm, "Silicone & Caulking Works", 'ac33_formula', 'ac33_result'); },
+    ac33_calc: function (frm) { update_expense_and_calc(frm, "Silicone & Caulking Works", 'ac33_formula', 'ac33_result'); },
+
+    ab30_formula: function (frm) { update_expense_and_calc(frm, "1-Ton Truck Freight", 'ab30_formula', 'ab30_result'); },
+    ab30_calc: function (frm) { update_expense_and_calc(frm, "1-Ton Truck Freight", 'ab30_formula', 'ab30_result'); },
+
+    ac34_formula: function (frm) { calc_field(frm, 'ac34_formula', 'ac34_result'); },
+    ac34_calc: function (frm) { calc_field(frm, 'ac34_formula', 'ac34_result'); },
+
+    ad43_formula: function (frm) { calc_field(frm, 'ad43_formula', 'ad43_result'); },
+    ad43_calc: function (frm) { calc_field(frm, 'ad43_formula', 'ad43_result'); },
+
+    ad41_formula: function (frm) { calc_field(frm, 'ad41_formula', 'ad41_result'); },
+    ad41_calc: function (frm) { calc_field(frm, 'ad41_formula', 'ad41_result'); },
+
+    ab52_formula: function (frm) { calc_field(frm, 'ab52_formula', 'ab52_result'); },
+    ab52_calc: function (frm) { calc_field(frm, 'ab52_formula', 'ab52_result'); },
+
+    sp1_formula: function (frm) { calc_field(frm, 'sp1_formula', 'sp1_result'); },
+    sp1_calc: function (frm) { calc_field(frm, 'sp1_formula', 'sp1_result'); },
+
+    inst_type: function (frm) { update_installation_cost(frm); },
+
+    is_tempered: function (frm) {
         frm.set_value('glass_type_a', '');
         set_glass_type_a_filter(frm);
     },
 
-    is_tempered_b: function(frm) {
+    is_tempered_b: function (frm) {
         frm.set_value('glass_type_b', '');
         set_glass_type_b_filter(frm);
     },
 
-    glass_type_a: function(frm) {fetch_glass_rate(frm, 'glass_type_a', 'glass_thk_a', 'glass_cost_a');},
-    glass_thk_a: function(frm) {fetch_glass_rate(frm, 'glass_type_a', 'glass_thk_a', 'glass_cost_a');},
+    glass_type_a: function (frm) { fetch_glass_rate(frm, 'glass_type_a', 'glass_thk_a', 'glass_cost_a'); },
+    glass_thk_a: function (frm) { fetch_glass_rate(frm, 'glass_type_a', 'glass_thk_a', 'glass_cost_a'); },
 
     // --- 유리 B 세트 트리거 ---
-    glass_type_b: function(frm) {fetch_glass_rate(frm, 'glass_type_b', 'glass_thk_b', 'glass_cost_b');},
-    glass_thk_b: function(frm) {fetch_glass_rate(frm, 'glass_type_b', 'glass_thk_b', 'glass_cost_b');},
+    glass_type_b: function (frm) { fetch_glass_rate(frm, 'glass_type_b', 'glass_thk_b', 'glass_cost_b'); },
+    glass_thk_b: function (frm) { fetch_glass_rate(frm, 'glass_type_b', 'glass_thk_b', 'glass_cost_b'); },
 });
+
+// === Child Table (Clestra Quotation Child) 이벤트 ===
+frappe.ui.form.on("Clestra Quotation Child", {
+    variable: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        let is_vp = row.variable && row.variable.endsWith('_vp');
+        frappe.model.set_value(cdt, cdn, 'use_vp', is_vp ? 1 : 0);
+
+        if (is_vp && (row.item_code || frm.doc.item_code)) {
+            fetch_row_vp(frm, cdt, cdn);
+        }
+    },
+    item_code: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.use_vp && row.item_code) {
+            fetch_row_vp(frm, cdt, cdn);
+        }
+    },
+    ch: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.use_vp && (row.item_code || frm.doc.item_code)) {
+            fetch_row_vp(frm, cdt, cdn);
+        }
+    },
+    width: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.use_vp && (row.item_code || frm.doc.item_code)) {
+            fetch_row_vp(frm, cdt, cdn);
+        }
+    }
+});
+
+function fetch_row_vp(frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    let item_code = row.item_code || frm.doc.item_code;
+    let height = row.ch || frm.doc.ch;
+    let width = row.width || frm.doc.width;
+
+    if (!item_code) return;
+
+    frappe.call({
+        method: "clestra_app.clestra_selling.doctype.quotation_pricing.quotation_pricing.get_vp",
+        args: {
+            item_code: item_code,
+            height: height,
+            width: width
+        },
+        callback: function (r) {
+            if (r.message && r.message.price) {
+                frappe.model.set_value(cdt, cdn, 'value', r.message.price);
+            }
+        }
+    });
+}
 
 function update_vp(frm, item_field, target_field) {
     const item_code = frm.doc[item_field];
@@ -114,10 +189,27 @@ function update_vp(frm, item_field, target_field) {
     });
 }
 
+function set_missing_message(frm, formula_field, missing_vars) {
+    // formula_field 예: 'ac40_formula' 또는 'ac40_calc'
+    let detail_field = formula_field.split('_')[0] + '_formula_detail';
+    let target_field = frm.fields_dict[detail_field] ? detail_field : formula_field.split('_')[0] + '_formula';
+
+    // Check if the corresponding field really exists on the form
+    if (!frm.fields_dict[target_field]) return;
+
+    if (missing_vars && missing_vars.length > 0) {
+        const msg = `<span style="color:red; font-weight:bold;">⚠️ Missing Variables: ${missing_vars.join(', ')}</span>`;
+        frm.set_df_property(target_field, 'description', msg);
+    } else {
+        frm.set_df_property(target_field, 'description', '');
+    }
+}
+
 function calc_field(frm, formula_field, target_field) {
     const formula_name = frm.doc[formula_field];
     if (!formula_name) {
         frm.set_value(target_field, 0);
+        set_missing_message(frm, formula_field, []);
         sum_fields(frm);
         return;
     }
@@ -130,8 +222,17 @@ function calc_field(frm, formula_field, target_field) {
             doc: frm.doc
         },
         callback: function (r) {
-            if (r.message !== undefined) {
+            if (r.message && typeof r.message === 'object' && r.message.status) {
+                if (r.message.status === 'success') {
+                    frm.set_value(target_field, r.message.result || 0);
+                    set_missing_message(frm, formula_field, []);
+                    sum_fields(frm);
+                } else if (r.message.status === 'missing_vars') {
+                    set_missing_message(frm, formula_field, r.message.missing_vars);
+                }
+            } else if (r.message !== undefined) {
                 frm.set_value(target_field, r.message);
+                set_missing_message(frm, formula_field, []);
                 sum_fields(frm);
             }
         }
@@ -147,9 +248,9 @@ function update_expense_and_calc(frm, expense_item_name, formula_field, target_f
     }
 
     // 1. Estimate Direct Cost Doctype에서 단가(rate) 가져오기
-    frappe.db.get_value('Estimate Direct Cost', 
-        { 'expense_item': expense_item_name }, 
-        'rate', 
+    frappe.db.get_value('Estimate Direct Cost',
+        { 'expense_item': expense_item_name },
+        'rate',
         (r) => {
             frm.doc.expense_rate = r ? flt(r.rate) : 0;
             calc_field(frm, formula_field, target_field);
@@ -157,16 +258,16 @@ function update_expense_and_calc(frm, expense_item_name, formula_field, target_f
     );
 }
 
-function sum_fields (frm) {
+function sum_fields(frm) {
     let total = 0;
     const fields_to_sum = [
         'aa10_result', 'ab20_result', 'ab30_result', 'ab44_result',
-        'ac33_result', 'ac40_result', 'ad41_result', 'ad43_result',
+        'ac33_result', 'ac34_result', 'ac40_result', 'ad41_result', 'ad43_result',
         'ab52_result', 'sp1_result'
     ];
 
     fields_to_sum.forEach(field => {
-        total += frm.doc[field];
+        total += flt(frm.doc[field]);
     });
 
     frm.set_value('total_cost', total);
@@ -182,6 +283,7 @@ function fetch_all_quotation_values(frm) {
         'Other Rate': 'other_rate',
         'Buffer Rate': 'buffer_rate',
         'CH': 'ch',
+        'Standard CH': 'stnd_ch',
         'Width': 'width'
     };
 
@@ -233,9 +335,9 @@ function update_installation_cost(frm) {
     }
 
     // 3. Estimate Installation Cost 문서에서 매칭되는 아이템의 단가 가져오기
-    frappe.db.get_value('Estimate Installation Cost', 
-        { 'item_code': frm.doc.item_code }, 
-        target_column, 
+    frappe.db.get_value('Estimate Installation Cost',
+        { 'item_code': frm.doc.item_code },
+        target_column,
         (r) => {
             if (r && r[target_column] !== undefined) {
                 // 가져온 값을 inst_cost 필드에 설정
@@ -249,11 +351,63 @@ function update_installation_cost(frm) {
     );
 }
 
+function populate_aa10_item(frm) {
+    const formula_name = frm.doc.aa10_formula;
+    if (!formula_name) {
+        frm.clear_table('aa10_item');
+        frm.refresh_field('aa10_item');
+        return;
+    }
+
+    frappe.call({
+        method: "clestra_app.clestra_selling.doctype.quotation_pricing.quotation_pricing.get_formula_variables",
+        args: { formula_name: formula_name },
+        callback: function (r) {
+            if (!r.message) return;
+
+            const needed_vars = r.message;
+            let current_rows = frm.doc.aa10_item || [];
+            let seen_vars = new Set();
+            let to_remove = [];
+
+            // 1. Identify which rows to keep and stay consistent with variable list
+            current_rows.forEach(row => {
+                const v = (row.variable || "").trim();
+                if (v && needed_vars.includes(v) && !seen_vars.has(v)) {
+                    seen_vars.add(v);
+                } else {
+                    to_remove.push(row.row_id || row.name);
+                }
+            });
+
+            // 2. Remove invalid or duplicate rows
+            to_remove.forEach(id_or_name => {
+                const grid = frm.get_field('aa10_item').grid;
+                if (grid.grid_rows_by_docname[id_or_name]) {
+                    grid.grid_rows_by_docname[id_or_name].remove();
+                }
+            });
+
+            // 3. Add missing variables
+            needed_vars.forEach(v => {
+                if (!seen_vars.has(v)) {
+                    let row = frm.add_child('aa10_item');
+                    row.variable = v;
+                    row.use_vp = v.endsWith('_vp') ? 1 : 0;
+                    row.value = 0;
+                }
+            });
+
+            frm.refresh_field('aa10_item');
+        }
+    });
+}
+
 function set_glass_type_filter(frm, fld_name) {
-    frm.set_query(fld_name, function() {
+    frm.set_query(fld_name, function () {
         // 체크박스 상태에 따라 'like'와 'not like'를 결정합니다.
         let operator = frm.doc.is_tempered_a ? "like" : "not like";
-        
+
         return {
             filters: [
                 ["Selection Library", "opt_name", "=", "Glass Type"],
@@ -270,12 +424,12 @@ function fetch_glass_rate(frm, type_fld, thk_fld, target_fld) {
 
     // 두 값이 모두 있을 때만 실행
     if (glass_type && thk) {
-        frappe.db.get_value('Estimate Glass Costing', 
+        frappe.db.get_value('Estimate Glass Costing',
             {
                 'glass_type': glass_type,
                 'thk': thk
-            }, 
-            'rate', 
+            },
+            'rate',
             (r) => {
                 if (r && r.rate !== undefined) {
                     frm.set_value(target_fld, r.rate);

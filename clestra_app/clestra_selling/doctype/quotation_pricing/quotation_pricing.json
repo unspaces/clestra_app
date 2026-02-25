@@ -33,13 +33,24 @@
   "ch_surcharge_rate",
   "other_rate",
   "column_break_cejc",
+  "buffer_rate",
   "vp_rate",
   "pm_reserve_rate",
   "royalty_rate",
   "column_break_ldyq",
+  "stnd_ch",
   "ch",
+  "lh",
   "width",
-  "buffer_rate",
+  "buffer_width",
+  "section_break_fhcx",
+  "unit_type",
+  "column_break_yxal",
+  "unit_width",
+  "section_break_amgd",
+  "height_type",
+  "column_break_itzf",
+  "height",
   "section_break_fnym",
   "clch_item_code",
   "base_item_code",
@@ -56,9 +67,15 @@
   "column_break_psoc",
   "column_break_acyn",
   "aa10_result",
+  "aa10_calc",
+  "section_break_bsop",
+  "aa10_formula_detail",
+  "section_break_stlg",
+  "aa10_item",
   "section_break_uock",
   "column_break_vwbq",
   "ac40_formula",
+  "ac40_formula_detail",
   "column_break_ikmy",
   "is_tempered_a",
   "glass_type_a",
@@ -71,33 +88,52 @@
   "glass_cost_b",
   "column_break_onmd",
   "ac40_result",
+  "ac40_calc",
   "section_break_wyum",
   "ab20_formula",
+  "ab20_formula_detail",
   "column_break_naud",
   "inst_type",
   "inst_cost",
   "column_break_umgl",
   "ab20_result",
+  "ab20_calc",
   "section_break_uzct",
   "column_break_fjxk",
   "ab44_formula",
+  "ab44_formula_detail",
   "ac33_formula",
+  "ac33_formula_detail",
   "ab30_formula",
+  "ab30_formula_detail",
   "ac34_formula",
+  "ac34_formula_detail",
   "ad43_formula",
+  "ac43_formula_detail",
   "ad41_formula",
+  "ad41_formula_detail",
   "ab52_formula",
+  "ab52_formula_detail",
   "sp1_formula",
+  "sp1_formula_detail",
   "column_break_zjuc",
   "column_break_rlie",
   "ab44_result",
+  "ab44_calc",
   "ac33_result",
+  "ac33_calc",
   "ab30_result",
+  "ab30_calc",
   "ac34_result",
+  "ac34_calc",
   "ad43_result",
+  "ad43_calc",
   "ad41_result",
+  "ad41_calc",
   "ab52_result",
+  "ab52_calc",
   "sp1_result",
+  "sp1_calc",
   "materials_section",
   "items",
   "more_info_tab",
@@ -205,7 +241,8 @@
   },
   {
    "fieldname": "section_break_fnym",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
    "fieldname": "clch_item_code",
@@ -672,10 +709,204 @@
    "fieldname": "ch_surcharge_rate",
    "fieldtype": "Float",
    "label": "CH Surcharge Rate"
+  },
+  {
+   "fieldname": "stnd_ch",
+   "fieldtype": "Int",
+   "label": "Standard CH"
+  },
+  {
+   "fieldname": "section_break_stlg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "aa10_item",
+   "fieldtype": "Table",
+   "label": "AA10 Item",
+   "options": "Clestra Quotation Child"
+  },
+  {
+   "fieldname": "section_break_fhcx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "unit_type",
+   "fieldtype": "Link",
+   "label": "Door Unit Type",
+   "link_filters": "[[\"Quotation Value Settings\",\"category\",\"in\",[\"LW\",\"PC UW\",\"UW\",null]]]",
+   "options": "Quotation Value Settings"
+  },
+  {
+   "fieldname": "column_break_yxal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "unit_type.value",
+   "fieldname": "unit_width",
+   "fieldtype": "Float",
+   "label": "Door Unit Width",
+   "precision": "0"
+  },
+  {
+   "fieldname": "lh",
+   "fieldtype": "Int",
+   "label": "LH"
+  },
+  {
+   "fieldname": "section_break_amgd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "height_type",
+   "fieldtype": "Link",
+   "label": "Height Type",
+   "link_filters": "[[\"Quotation Value Settings\",\"category\",\"in\",[\"CRH\",\"TRH\",\"UPAS H\",null]]]",
+   "options": "Quotation Value Settings"
+  },
+  {
+   "fieldname": "column_break_itzf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "height_type.value",
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "label": "Height",
+   "precision": "0"
+  },
+  {
+   "fieldname": "buffer_width",
+   "fieldtype": "Float",
+   "label": "Buffer Width"
+  },
+  {
+   "fieldname": "section_break_bsop",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "aa10_formula.formula",
+   "fieldname": "aa10_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "aa10_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ac40_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fetch_from": "ac40_formula.formula",
+   "fieldname": "ac40_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ab20_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fetch_from": "ab44_formula.formula",
+   "fieldname": "ab44_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ac33_formula.formula",
+   "fieldname": "ac33_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ab30_formula.formula",
+   "fieldname": "ab30_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ac34_formula.formula",
+   "fieldname": "ac34_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ad43_formula.formula",
+   "fieldname": "ac43_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ad41_formula.formula",
+   "fieldname": "ad41_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ab52_formula.formula",
+   "fieldname": "ab52_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "sp1_formula.formula",
+   "fieldname": "sp1_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "ab20_formula.formula",
+   "fieldname": "ab20_formula_detail",
+   "fieldtype": "Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ab44_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ac33_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ab30_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ac34_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ad43_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ad41_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "ab52_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
+  },
+  {
+   "fieldname": "sp1_calc",
+   "fieldtype": "Button",
+   "label": "Calc"
   }
  ],
  "links": [],
- "modified": "2026-01-26 09:16:24.710597",
+ "modified": "2026-02-24 16:12:38.798723",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Quotation Pricing",

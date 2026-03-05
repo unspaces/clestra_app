@@ -2,7 +2,7 @@
 // erpnext/erpnext/manufacturing/doctype/project_billing_master/project_billing_master.js
 
 frappe.ui.form.on('Project Billing Master', {
-    onload: function(frm) {
+    onload: function (frm) {
         if (frm.is_new() && !frm.doc.company) {
             frappe.db.get_value('User', frappe.session.user, 'company')
                 .then(r => {
@@ -11,52 +11,57 @@ frappe.ui.form.on('Project Billing Master', {
                     }
                 });
         };
-        
+
         frm.fields_dict["po_items"].grid.get_field("app_country").get_query = function (doc, cdt, cdn) {
             return { filters: { "is_clestra": 1 } };
         };
 
         if (frm.fields_dict['door_cover']?.grid) {
-            frm.fields_dict['door_cover'].grid.get_field('hw_spec_code').get_query = function() {
-                return {filters: {}
+            frm.fields_dict['door_cover'].grid.get_field('hw_spec_code').get_query = function () {
+                return {
+                    filters: {}
                 };
             };
         }
 
-        monitor_bom_conditions_buttons(frm);
+        setup_bom_conditions_buttons(frm);
     },
 
-    refresh: function(frm) {
-        frm.set_query('project', function(doc, cdt, cdn) {
-			return {
-				filters: {
+    refresh: function (frm) {
+        frm.set_query('project', function (doc, cdt, cdn) {
+            return {
+                filters: {
                     'job_id': doc.job_id,
-					'contract_no': doc.contract_no
-				}
-			};
-		});
+                    'contract_no': doc.contract_no
+                }
+            };
+        });
 
-        frm.set_query('sales_order', function(doc, cdt, cdn) {
-			return {
-				filters: {
+        frm.set_query('sales_order', function (doc, cdt, cdn) {
+            return {
+                filters: {
                     'project': doc.project,
-				}
-			};
-		});
+                }
+            };
+        });
 
         const child_table_for_billing = ['panel_cover', 'door_cover', 'sub_items'];
         const child_table_for_bom = ['detail_bom_items'];
         const child_table_to_reset = [...child_table_for_billing, ...child_table_for_bom];
-        child_table_to_reset.forEach(fieldname => {
-            const grid = frm.fields_dict[fieldname]?.grid;
-            selected_columns_for_grid = [];
-            let value = {};
-            value[grid.doctype] = selected_columns_for_grid;
-            frappe.model.user_settings.save(frm.doctype, "GridView", value).then((r) => {
-                frappe.model.user_settings[frm.doctype] = r.message || r;
-                grid.reset_grid();
+        // 사용자 설정 초기화: 최초 1회만 실행 (매 refresh마다 5개 서버 호출 방지)
+        if (!frm._grid_columns_initialized) {
+            child_table_to_reset.forEach(fieldname => {
+                const grid = frm.fields_dict[fieldname]?.grid;
+                let selected_columns_for_grid = [];
+                let value = {};
+                value[grid.doctype] = selected_columns_for_grid;
+                frappe.model.user_settings.save(frm.doctype, "GridView", value).then((r) => {
+                    frappe.model.user_settings[frm.doctype] = r.message || r;
+                    grid.reset_grid();
+                });
             });
-        });
+            frm._grid_columns_initialized = true;
+        }
 
         const po_items_cols = ["item_code", "bom_no", "zone", "color", "ch", "width", "planned_qty", "bom_conditions"];
         const detail_bom_items_cols = ["old_idx", "item_code", "item_name", "size", "qty", "color", "remark", "zone"];
@@ -81,18 +86,18 @@ frappe.ui.form.on('Project Billing Master', {
                 detail_bom_items_grid.refresh();
                 setTimeout(() => {
                     setup_detail_bom_grid(frm);
-                    
+
                     update_grid_qty_view(frm);
                     setup_qty_field(frm);
                     setup_size_field(frm);
 
                     child_table_for_billing.forEach(grid_name => {
                         const grid = frm.fields_dict[grid_name].grid;
-                            if (grid && grid.wrapper) {
-                                grid.wrapper.find('div.grid-heading-row .row-index').hide();
-                                grid.wrapper.find('.row-index').hide();
-                                // console.log(`[${grid_name}] Row index hidden.`);
-                            }
+                        if (grid && grid.wrapper) {
+                            grid.wrapper.find('div.grid-heading-row .row-index').hide();
+                            grid.wrapper.find('.row-index').hide();
+                            // console.log(`[${grid_name}] Row index hidden.`);
+                        }
                     });
                 }, 200);
             }
@@ -120,13 +125,13 @@ frappe.ui.form.on('Project Billing Master', {
         if (frm.fields_dict['door_cover']?.grid) {
             // Assuming the Link field on the grid is 'hw_spec_code' as in this block
             // If the field is 'door_hw_spec', adjust the fieldname below
-            frm.fields_dict['door_cover'].grid.get_field('hw_spec_code').get_query = function() {
+            frm.fields_dict['door_cover'].grid.get_field('hw_spec_code').get_query = function () {
                 return { filters: {} }; // Re-apply query logic as needed
             };
             // Also ensure queries for other Link fields in door_cover are set up if necessary
         }
 
-        frm.set_query("item_code", "po_items", function(doc, cdt, cdn) {
+        frm.set_query("item_code", "po_items", function (doc, cdt, cdn) {
             const row = locals[cdt][cdn];
             let filters = {};
 
@@ -142,7 +147,7 @@ frappe.ui.form.on('Project Billing Master', {
                     "item_group": ["=", "Finished Product"]
                 };
             }
-            
+
             // 최종 필터 객체를 반환합니다.
             return {
                 filters: filters
@@ -157,129 +162,16 @@ frappe.ui.form.on('Project Billing Master', {
                     query: "clestra_app.clestra_manufacturing.doctype.project_billing_master.project_billing_master.bom",
                     filters: { item: d.item_code, docstatus: 1, company: doc.company },
                 };
-                
+
             } else {
-                 frappe.msgprint(__("Please enter Item first"));
-                 return false; // Prevent query if no item code
-            }
-        });
-    },
-    setup_toggle_sub_items(frm) {
-        const grid = frm.fields_dict['detail_bom_items']?.grid;
-        if (!grid || !grid.grid_rows || !frm.doc.detail_bom_items) {
-            // console.warn("Detail BOM Items grid/data not ready for toggle setup.");
-            return;
-        }
-        const all_items = frm.doc.detail_bom_items; // Use frm.doc for consistent state
-
-        // Ensure _expanded state exists (initialize if needed)
-        all_items.forEach(doc_row => {
-            const is_potential_parent = doc_row.indent_level === 0 || (doc_row.indent_level === 1 && doc_row.product_section === "Leaf");
-            if (is_potential_parent && doc_row._expanded === undefined) {
-                doc_row._expanded = false; // Default to collapsed
-            }
-        });
-
-        // Process only the currently rendered rows for performance
-        grid.grid_rows.forEach(function (grid_row) {
-            const row_doc = grid_row.doc; // Doc associated with the visible grid row
-            if (!row_doc) return;
-
-            // 새로운 행에 대한 숨김 처리를 중단
-            // if (row_doc.__islocal) {
-            //     $(grid_row.wrapper).show();
-            //     return;
-            // }
-
-            // Find the corresponding full data row in frm.doc.detail_bom_items using name
-            const doc_data_row = all_items.find(d => d.name === row_doc.name);
-            if (!doc_data_row) return; // Should not happen if grid_rows are in sync
-
-            const $row_wrapper = $(grid_row.wrapper);
-            if (!$row_wrapper.length) return;
-
-            const $button_container = $row_wrapper.find('.row-check'); // Target the checkbox container
-            $button_container.find('.toggle-sub-items').remove(); // Clean up previous buttons
-
-            const is_parent_row = doc_data_row.indent_level === 0 || (doc_data_row.indent_level === 1 && doc_data_row.product_section === "Leaf");
-
-            if (is_parent_row) {
-                // --- Parent Row (indent_level === 0) ---
-                if ($button_container.length > 0) {
-                    const is_expanded = doc_data_row._expanded;
-                    const button_icon = is_expanded ? '<i class="fa fa-chevron-down"></i>' : '<i class="fa fa-chevron-right"></i>';
-                    const $toggle_button = $(`
-                        <button class="btn btn-xs btn-default toggle-sub-items"
-                            title="${__('Toggle Sub Items')}"
-                            style="line-height: 1;">
-                            ${button_icon}
-                        </button>
-                    `);
-                    $button_container.prepend($toggle_button); // Add button before checkbox
-
-                    $toggle_button.off("click").on("click", function (e) {
-                        e.stopPropagation(); // Prevent row selection
-
-                        // Find the data row again to ensure we have the latest state
-                        const current_doc_row = all_items.find(d => d.name === row_doc.name);
-                        if (!current_doc_row) return;
-
-                        const new_expanded_state = !current_doc_row._expanded;
-                        current_doc_row._expanded = new_expanded_state; // Update state in frm.doc
-                        $(this).html(new_expanded_state ? '<i class="fa fa-chevron-down"></i>' : '<i class="fa fa-chevron-right"></i>'); // 버튼 아이콘 업데이트
-
-                        // Find children and toggle visibility (only for currently rendered rows)
-                        const parent_idx = all_items.findIndex(d => d.name === current_doc_row.name);
-                        if (parent_idx === -1) return;
-
-                        let next_parent_idx = -1;
-                        for (let i = parent_idx + 1; i < all_items.length; i++) {
-                            if (all_items[i].indent_level === 0 || (all_items[i].indent_level === 1 && all_items[i].product_section === "Leaf")) {
-                                next_parent_idx = i;
-                                break;
-                            }
-                        }
-                        const start_idx = parent_idx + 1;
-                        const end_idx = (next_parent_idx === -1) ? all_items.length : next_parent_idx;
-
-                        // 현재 페이지에 보이는 자손만 DOM 조작
-                        for (let i = start_idx; i < end_idx; i++) {
-                            const descendant_grid_row = grid.grid_rows.find(gr => gr.doc.name === all_items[i].name);
-                            if (descendant_grid_row) {
-                                const $descendant_wrapper = $(descendant_grid_row.wrapper);
-                                if ($descendant_wrapper.length) {
-                                     new_expanded_state ? $descendant_wrapper.show() : $descendant_wrapper.hide();
-                                }
-                            }
-                        }
-                    });
-                }
-            } else {
-                // --- Child/Descendant Row (indent_level > 0) ---
-                // Find the direct parent in the full data list
-                let parent_row = null;
-                let current_idx = all_items.findIndex(d => d.name === doc_data_row.name);
-                 if (current_idx > -1) {
-                    for (let i = current_idx - 1; i >= 0; i--) {
-                        if (all_items[i].indent_level < doc_data_row.indent_level) {
-                             parent_row = all_items[i];
-                             break;
-                        }
-                    }
-                 }
-
-                // Hide if parent is collapsed or not found
-                if (!parent_row || !parent_row._expanded) {
-                    $row_wrapper.hide();
-                } else {
-                    $row_wrapper.show(); // Ensure it's visible if parent is expanded
-                }
+                frappe.msgprint(__("Please enter Item first"));
+                return false; // Prevent query if no item code
             }
         });
     },
 
     update_grid_qty_js_string(frm) {
-         // Special handling for grids using custom qty dialog/display
+        // Special handling for grids using custom qty dialog/display
         const grid_fieldnames_with_custom_qty_display = ['door_cover']; // Add others if needed
         grid_fieldnames_with_custom_qty_display.forEach(fieldname => {
             const grid = frm.fields_dict[fieldname]?.grid;
@@ -305,7 +197,7 @@ frappe.ui.form.on('Project Billing Master', {
     // --- Other Form-level event handlers ---
 
     get_sub_assembly_items(frm) {
-         // ... (Keep existing get_sub_assembly_items function logic here) ...
+        // ... (Keep existing get_sub_assembly_items function logic here) ...
 
         const selected_items = frm.fields_dict.po_items.grid.get_selected_children();
         const selected_names = selected_items.map(doc => doc.name);
@@ -326,7 +218,7 @@ frappe.ui.form.on('Project Billing Master', {
                         default: 'append'
                     }
                 ],
-                function(values) {
+                function (values) {
                     if (values && values.action) {
                         if (values.action === 'append') {
                             // 기존 항목에 추가
@@ -350,7 +242,7 @@ frappe.ui.form.on('Project Billing Master', {
             );
         }
     },
-        
+
 
     call_get_sub_assembly_items(frm, selected_names = null, append_only = false) {
         if (frm._getting_sub_assembly_items) return;
@@ -393,7 +285,7 @@ frappe.ui.form.on('Project Billing Master', {
         });
     },
 
-    generate_billing: function(frm) {
+    generate_billing: function (frm) {
         frm.dirty();
         frappe.call({
             method: "generate_billing",
@@ -418,14 +310,14 @@ frappe.ui.form.on('Project Billing Master', {
                     setup_size_field(frm);
                 }, 100);
             },
-            error: function(r) {
+            error: function (r) {
                 // console.error("Error during generate_billing:", r);
                 frappe.msgprint(__("Error generating billing data."));
             }
         });
     },
 
-    sales_order: function(frm) {
+    sales_order: function (frm) {
         if (frm.doc.sales_order) {
             frappe.confirm(
                 __('Do you want to load items from Sales Order {0}?', [frm.doc.sales_order]),
@@ -435,18 +327,18 @@ frappe.ui.form.on('Project Billing Master', {
                         doc: frm.doc,
                         freeze: true,
                         freeze_message: __('Loading Items from Sales Order...'),
-                        callback: function(r) {
+                        callback: function (r) {
                             if (r.message) {
                                 const data = r.message;
-                                
+
                                 // [로그 추가] 서버에서 온 전체 데이터 확인
                                 console.log("Server Response:", data);
                                 console.log("Fetched Notes Value:", data.notes);
 
                                 const items = data.items || [];
-                                
+
                                 // [수정] 중요: Python은 "notes" 키로 보냈으므로 data.notes로 받아야 합니다.
-                                const notes_val = data.notes || ""; 
+                                const notes_val = data.notes || "";
 
                                 if (items.length > 0) {
                                     frm.clear_table("po_items");
@@ -488,9 +380,9 @@ frappe.ui.form.on('Project Billing Master', {
 
 // --- Child Table Event Handlers (on Project Billing Master Sub Item) ---
 frappe.ui.form.on("Project Billing Master Sub Item", {
-    
+
     // show_qty_bracket field change
-    show_qty_bracket: function(frm, cdt, cdn) {
+    show_qty_bracket: function (frm, cdt, cdn) {
         const row = locals[cdt][cdn];
         const parent_grid_fieldname = row?.parentfield; // Use optional chaining
 
@@ -512,63 +404,63 @@ frappe.ui.form.on("Project Billing Master Sub Item", {
                 $qty_cell.toggleClass("qty-bracket", !!row.show_qty_bracket);
                 console.log(`Toggled qty-bracket for row ${cdn} based on show_qty_bracket: ${!!row.show_qty_bracket}`);
             } else {
-                 // console.warn(`show_qty_bracket: Could not find cell for qty in row: ${cdn}`);
+                // console.warn(`show_qty_bracket: Could not find cell for qty in row: ${cdn}`);
             }
         }
     },
 
-    qty_prefix: function(frm, cdt, cdn) {
+    qty_prefix: function (frm, cdt, cdn) {
         update_specific_row_qty_display(frm, cdt, cdn)
     },
 
-    qty_suffix: function(frm, cdt, cdn) {
+    qty_suffix: function (frm, cdt, cdn) {
         update_specific_row_qty_display(frm, cdt, cdn)
     },
 
-    qty: function(frm, cdt, cdn) {
+    qty: function (frm, cdt, cdn) {
         update_specific_row_qty_display(frm, cdt, cdn)
     },
 
     // on_change handler for item_code in Project Billing Master Sub Item
-    item_code: function(frm, cdt, cdn) {
+    item_code: function (frm, cdt, cdn) {
         const row = locals[cdt][cdn];
         // Check if this row belongs to the 'sub_items' table field of the parent doc
         if (row?.parenttype === 'Project Billing Master' && row.parentfield === 'sub_items') {
             // Fetch print_group and print_order from the Item doctype
             fetch_and_set_print_fields(frm, cdt, cdn);
         }
-         // Add checks for other parentfields if item_code triggers logic there too
+        // Add checks for other parentfields if item_code triggers logic there too
     },
 
     // on_change handler for indent_level in Project Billing Master Sub Item
     indent_level(frm, cdt, cdn) {
         // This handler seems intended to trigger the toggle logic when indent levels change.
-        // Calling the trigger directly is fine, but it might cause setup_toggle_sub_items
-        // to run frequently. Ensure setup_toggle_sub_items is performant.
-        // The main refresh handler already calls setup_toggle_sub_items.
+        // Calling the trigger directly is fine, but it might cause the toggle logic
+        // to run frequently. Ensure apply_toggle_logic is performant.
+        // The main refresh handler already calls apply_toggle_logic via setup_detail_bom_grid.
         // You might only need this if indent_level can change *after* initial load/refresh.
         // const grid = frm.fields_dict["detail_bom_items"].grid;
         // if (grid) {
         //     const grid_row = grid.get_row(cdn); // get_row is for rendered rows, might be null if not visible
         //     if(grid_row) {
-                 setup_detail_bom_grid(frm); // Re-setup toggles based on new hierarchy
+        setup_detail_bom_grid(frm); // Re-setup toggles based on new hierarchy
         //     }
         // }
     },
 
     // `_add` triggers for different child tables
-    panel_cover_add: function(frm, cdt, cdn) {
+    panel_cover_add: function (frm, cdt, cdn) {
         set_default_section(frm, cdt, cdn, "Panel");
     },
-    door_cover_add: function(frm, cdt, cdn) {
+    door_cover_add: function (frm, cdt, cdn) {
         set_default_section(frm, cdt, cdn, "Door");
     },
-    sub_items_add: function(frm, cdt, cdn) {
+    sub_items_add: function (frm, cdt, cdn) {
         set_default_section(frm, cdt, cdn, "Sub Items");
         // Automatically fetch print fields when a sub_items row is added
         fetch_and_set_print_fields(frm, cdt, cdn);
     },
-    detail_bom_items_add: function(frm, cdt, cdn) {
+    detail_bom_items_add: function (frm, cdt, cdn) {
         // When a detail_bom_items row is added, re-setup toggles
         setup_detail_bom_grid(frm);
     },
@@ -595,13 +487,14 @@ frappe.ui.form.on("Project Billing Master Item", {
         const row = locals[cdt][cdn];
         // Check if this handler is for a row in the 'po_items' table
         if (row?.parenttype === 'Project Billing Master' && row.parentfield === 'po_items') {
-             if (row.item_code) {
+            if (row.item_code) {
                 frappe.call({
                     // Ensure this server-side method exists and returns the correct data (e.g., description, item_name, uom)
                     method: "clestra_app.clestra_manufacturing.doctype.project_billing_master.project_billing_master.get_item_data",
-                    args: { item_code: row.item_code,
-                            company: frm.doc.company
-                     },
+                    args: {
+                        item_code: row.item_code,
+                        company: frm.doc.company
+                    },
                     callback: function (r) {
                         if (r.message) {
                             // Update relevant fields in the row using model.set_value
@@ -611,17 +504,17 @@ frappe.ui.form.on("Project Billing Master Item", {
                                     frappe.model.set_value(cdt, cdn, key, r.message[key]);
                                 }
                             }
-                             // Refresh the grid row visually if model.set_value doesn't trigger it
-                             // const grid_row = frm.fields_dict['po_items']?.grid?.grid_rows_by_docname?.[cdn];
-                             // if(grid_row) grid_row.refresh();
+                            // Refresh the grid row visually if model.set_value doesn't trigger it
+                            // const grid_row = frm.fields_dict['po_items']?.grid?.grid_rows_by_docname?.[cdn];
+                            // if(grid_row) grid_row.refresh();
                         } else {
                             // Clear dependent fields if item_code is cleared or not found
-                             const fields_to_clear = ["description", "item_name", "stock_uom"]; // Add other fields to clear
-                             fields_to_clear.forEach(field => {
-                                 if (frappe.meta.has_field(cdt, field)) {
+                            const fields_to_clear = ["description", "item_name", "stock_uom"]; // Add other fields to clear
+                            fields_to_clear.forEach(field => {
+                                if (frappe.meta.has_field(cdt, field)) {
                                     frappe.model.set_value(cdt, cdn, field, null);
-                                 }
-                             });
+                                }
+                            });
                         }
                     },
                 });
@@ -631,7 +524,7 @@ frappe.ui.form.on("Project Billing Master Item", {
                     .then(r => {
                         if (r && r.message) {
                             const item_data = r.message;
-                            
+
                             // 조건: product_section이 "Door"일 때만 값 설정
                             if (item_data.product_section === "Door") {
                                 frappe.model.set_value(cdt, cdn, 'door_open_type', item_data.door_open_type || '');
@@ -642,23 +535,23 @@ frappe.ui.form.on("Project Billing Master Item", {
                                 frappe.model.set_value(cdt, cdn, 'door_set_type', '');
                             }
                         }
-                });
+                    });
 
             } else {
-                 // Clear dependent fields if item_code is cleared
-                 const fields_to_clear = ["description", "item_name", "stock_uom"]; // Add other fields to clear
-                 fields_to_clear.forEach(field => {
+                // Clear dependent fields if item_code is cleared
+                const fields_to_clear = ["description", "item_name", "stock_uom"]; // Add other fields to clear
+                fields_to_clear.forEach(field => {
                     if (frappe.meta.has_field(cdt, field)) {
-                    frappe.model.set_value(cdt, cdn, field, null);
+                        frappe.model.set_value(cdt, cdn, field, null);
                     }
                 });
             }
         }
     },
 
-    po_items_add: function(frm, cdt, cdn) {
+    po_items_add: function (frm, cdt, cdn) {
         const site_location = frm.doc.country;
-        
+
         if (site_location) {
             // console.log(`${site_location} is set, fetching country code...`);
             frappe.db.get_value('Country', { 'name': site_location }, 'code')
@@ -675,6 +568,39 @@ frappe.ui.form.on("Project Billing Master Item", {
                     // console.error("Error fetching country code:", err);
                 });
         }
+    },
+
+    // ★ bom_conditions Button 필드 클릭 핸들러 (Frappe 네이티브 방식)
+    bom_conditions(frm, cdt, cdn) {
+        const row = locals[cdt][cdn];
+        if (!row) return;
+
+        const data = row;
+        const dialog_fields = get_bom_conditions_dialog_fields(frm, data);
+        const fields_to_update = dialog_fields.map(df => df.fieldname).filter(Boolean);
+
+        const dialog = new frappe.ui.Dialog({
+            title: __("BOM Conditions for {0}", [data.item_code || __("Row {0}", [data.idx])]),
+            fields: dialog_fields,
+            primary_action_label: __('Save Conditions'),
+            primary_action: function (values) {
+                fields_to_update.forEach(field => {
+                    frappe.model.set_value(cdt, cdn, field, values[field]);
+                });
+
+                handle_leaf_item_updates(frm, row, values);
+                dialog.hide();
+            }
+        });
+
+        // Setup dynamic MultiSelect and Link queries in the dialog
+        setup_dialog_multiselect_pills(dialog, "app_country", "Country", { "is_clestra": 1 }, "code");
+        setup_dialog_multiselect_pills(dialog, "hw_options", "Item", { "item_group": "Option" }, "item_code");
+        setup_dialog_multiselect_pills(dialog, "price_study", "Item", { "item_group": "Price Study" }, "item_code");
+        setup_dialog_multiselect_pills(dialog, "sub_contract", "Item", { "item_group": "Sub Contract" }, "item_code");
+        setup_dialog_link_queries(frm, dialog, data);
+
+        dialog.show();
     },
 });
 
@@ -699,37 +625,37 @@ function setup_po_items_grid(frm) {
         }
 
         // 3. "Add Sub Item" 버튼 클릭 이벤트 핸들러
-        add_sub_item_button.on('click', function() {
+        add_sub_item_button.on('click', function () {
             // 새 행에 전달할 초기 데이터를 정의합니다.
             // is_component_row 플래그를 여기에 포함시킵니다.
             const initial_data = {
-                is_component_row: 1 
+                is_component_row: 1
             };
-            
+
             // grid.add_new_row를 사용하여 행을 '한 번만' 추가합니다.
             // 네 번째 인자로 초기 데이터를 전달합니다.
             const new_row = grid.add_new_row(null, null, false, initial_data);
-            
+
             // is_component_row 플래그를 포함하여 초기 데이터를 설정합니다.
             $.extend(new_row, new_row_doc);
 
             frm.refresh_field('po_items');
-            
+
             // 새 행으로 스크롤
             setTimeout(() => {
                 const grid_row = grid.grid_rows_by_docname[new_row.name];
-                if(grid_row) {
+                if (grid_row) {
                     $(grid_row.row).find('[data-fieldname="item_code"]').focus();
                 }
             }, 100);
         });
     }
-    
+
     // 이미 버튼이 추가되었는지 확인 (refresh 시 중복 추가 방지)
     if (grid_wrapper.find('.btn-custom-duplicate').length === 0) {
         // Duplicate 버튼 생성
         const duplicate_button = $('<button class="btn btn-secondary btn-xs btn-custom-duplicate" style="margin-right: 4px; display: none;">' + __('Duplicate') + '</button>');
-        
+
         // Add Row 버튼 뒤, Delete 버튼 앞에 삽입
         const add_row_button = grid_wrapper.find('.grid-add-row');
         if (add_row_button.length > 0) {
@@ -739,20 +665,20 @@ function setup_po_items_grid(frm) {
         }
 
         // Duplicate 버튼 클릭 이벤트 (grid.add_new_row 사용)
-        duplicate_button.on('click', function() {
+        duplicate_button.on('click', function () {
             const selected_rows_docs = grid.get_selected_children(); // 체크된 행의 '문서 객체'를 가져옴
 
             if (selected_rows_docs.length === 0) {
-                frappe.show_alert({message: __('Please select rows to duplicate.'), indicator: 'orange'});
+                frappe.show_alert({ message: __('Please select rows to duplicate.'), indicator: 'orange' });
                 return;
             }
 
-            selected_rows_docs.forEach(function(doc) {
+            selected_rows_docs.forEach(function (doc) {
                 grid.add_new_row(null, null, true, doc, true);
             });
 
             frm.refresh_field('po_items');
-            frappe.show_alert({message: __('Selected rows duplicated.'), indicator: 'green'});
+            frappe.show_alert({ message: __('Selected rows duplicated.'), indicator: 'green' });
 
             // 복제 후 선택 해제 및 버튼 숨김
             setTimeout(() => {
@@ -767,178 +693,42 @@ function setup_po_items_grid(frm) {
         });
 
         // 행의 체크박스(개별 또는 전체) 상태가 변경될 때마다 버튼 표시/숨김 처리
-        grid_wrapper.on('change', '.grid-row-check, .grid-select-all', function() {
+        grid_wrapper.on('change', '.grid-row-check, .grid-select-all', function () {
             toggle_duplicate_button(frm, 'po_items');
         });
     }
-    
-    // 행 선택/해제 시 Duplicate 버튼 보이기/숨기기
-    grid_wrapper.on('change', 'input.grid-row-check', function() {
-        toggle_duplicate_button(frm);
-    });
-    
-    // "Select All" 체크박스 변경 시
-    grid_wrapper.on('change', '.grid-select-all', function() {
-        toggle_duplicate_button(frm);
-    });
 
-    // --- 3. 통합 grid.refresh 몽키패치 ---
-    // const original_refresh = grid.refresh;
-    // grid.refresh = function() {
-    //     original_refresh.apply(this, arguments);
-    //     const grid_wrapper = $(this.wrapper);
-        
-    //     this.grid_rows.forEach(function(grid_row) {
-    //         const $row = $(grid_row.row);
-    //         const $edit_button = $row.find('[data-fieldname="bom_conditions"]');
+    // 행 선택/해제 시 Duplicate 버튼 보이기/숨기기 (블록 안의 change 이벤트에서 처리됨)
 
-    //         if ($edit_button.length > 0) {
-    //             // 1. 다른 아이콘 적용
-    //             $edit_button.html('<div class="field-area" style=""><div class="form-group frappe-control input-max-width" data-fieldtype="Button" data-fieldname="bom_conditions"><button class="btn btn-xs btn-default input-sm" data-fieldtype="Button" data-fieldname="bom_conditions" placeholder="Details" data-doctype="Project Billing Master Item" value="" data-col-idx="7" data-last-input="1"><i class="fa fa-caret-square-o-down"></i></button></div></div>');
-
-    //             // 2. 각 행을 위한 새로운 버튼을 만듭니다.
-    //             // $edit_button.css({
-    //             //     'padding': '3px 10px',
-    //             //     'line-height': '1',
-    //             // });
-
-    //             $edit_button.off('click');
-
-    //             // // 3. 새 버튼에 클릭 이벤트를 바인딩합니다.
-    //             $edit_button.on('click', function(e) {
-    //                 e.preventDefault();
-    //                 e.stopPropagation();
-
-    //                 if (!grid_row || !grid_row.doc) {
-    //                     frappe.msgprint(__('Unable to locate the selected row data.'));
-    //                     return;
-    //                 }
-    //                 const data = grid_row.doc;
-
-    //                 const dialog = new frappe.ui.Dialog({
-    //                     title: __("BOM Conditions for {0}", [data.item_code || __("Row {0}", [data.idx])]),
-    //                     fields: get_bom_conditions_dialog_fields(frm, data), // 이 함수는 별도로 정의되어 있어야 합니다.
-    //                     primary_action_label: __('Save Conditions'),
-    //                     primary_action: function(values) {
-    //                         const fields_to_update = get_bom_conditions_dialog_fields(frm, data).map(df => df.fieldname).filter(Boolean);
-
-    //                         fields_to_update.forEach(field => {
-    //                             if (values.hasOwnProperty(field)) {
-    //                                 // grid_row 객체를 사용하여 모델 값을 설정합니다.
-    //                                 frappe.model.set_value(grid_row.doc.doctype, grid_row.doc.name, field, values[field]);
-    //                             }
-    //                         });
-
-    //                         // Handle leaf item updates based on dialog values
-    //                         // 이 함수는 별도로 정의되어 있어야 합니다.
-    //                         handle_leaf_item_updates(frm, grid_row.doc, values);
-                            
-    //                         // frm.refresh_field만으로 충분할 수 있습니다. grid_row.refresh()는 종종 중복됩니다.
-    //                         frm.refresh_field("po_items");
-
-    //                         dialog.hide();
-    //                     }
-    //                 });
-
-    //                 // Setup dynamic MultiSelect and Link queries in the dialog
-    //                 // 이 함수들은 별도로 정의되어 있어야 합니다.
-    //                 setup_dialog_multiselect(dialog, "app_country", "Country", { "is_clestra": 1 }, "code");
-    //                 setup_dialog_multiselect(dialog, "hw_options", "Item", { "item_group": "Option" }, "item_code");
-    //                 setup_dialog_multiselect(dialog, "price_study", "Item", { "item_group": "Price Study" }, "item_code");
-    //                 setup_dialog_multiselect(dialog, "sub_contract", "Item", { "item_group": "Sub Contract" }, "item_code");
-    //                 setup_dialog_link_queries(frm, dialog, data);
-
-    //                 dialog.show();
-    //             });
-    //         }
-    //     });
-    // }
-    grid.is_fully_enhanced = true; // 중복 실행 방지 플래그
-    grid.refresh(); // 초기 실행
+    // --- 3. 주석 처리된 구 grid.refresh 몽키패치 제거됨 ---
+    grid.is_fully_enhanced = true;
+    grid.refresh();
 }
 
 
-function monitor_bom_conditions_buttons(frm) {
-    const grid = frm.fields_dict['po_items'].grid;
+// bom_conditions 버튼을 CSS로 아이콘화하는 함수
+// CSS는 DOM이 재생성되어도 항상 적용되므로 static-area/field-area 전환에도 유지됨
+function setup_bom_conditions_buttons(frm) {
+    if (document.getElementById('bom-conditions-icon-style')) return; // 중복 방지
 
-    // 5초 후에 감시를 중단할 수 있도록 타이머 설정 (선택 사항, 무한 루프 방지)
-    const monitoring_duration = 500; // 0.5초
-    const interval_id = setInterval(() => {
-        // 그리드나 래퍼가 없으면 중단
-        if (!grid || !grid.wrapper) {
-            clearInterval(interval_id);
-            return;
+    const style = document.createElement('style');
+    style.id = 'bom-conditions-icon-style';
+    style.textContent = `
+        /* bom_conditions 셀: static-area 텍스트를 아이콘으로 교체 */
+        .rows [data-fieldname="bom_conditions"] .static-area,
+        .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"] {
+            font-size: 0 !important;
+            line-height: 1;
+            cursor: pointer;
         }
-
-        // 처리되지 않은('.enhanced-button' 클래스가 없는) bom_conditions 버튼을 모두 찾음
-        const unhandled_buttons = $(grid.wrapper).find('[data-fieldname="bom_conditions"]:not(.enhanced-button)');
-
-        if (unhandled_buttons.length > 0) {
-            // console.log(`Found ${unhandled_buttons.length} unhandled bom_conditions buttons.`);
-            unhandled_buttons.each(function() {
-                const $edit_button = $(this);
-                const grid_row_element = $edit_button.closest('.grid-row');
-                const grid_row_name = grid_row_element.data('name');
-                const grid_row = grid.grid_rows_by_docname[grid_row_name];
-
-                if (grid_row) {
-                    // 아이콘 변경
-                    $edit_button.html('<div class="field-area"><button class="btn btn-xs btn-default input-sm"><i class="fa fa-caret-square-o-down"></i></button></div>');
-                    
-                    // 이벤트 바인딩
-                    $edit_button.off('click');
-
-                    // // 3. 새 버튼에 클릭 이벤트 바인딩
-                    $edit_button.on('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const data = grid_row.doc;
-                        const dialog = new frappe.ui.Dialog({
-                            title: __("BOM Conditions for {0}", [data.item_code || __("Row {0}", [data.idx])]),
-                            fields: get_bom_conditions_dialog_fields(frm, data), // 이 함수는 별도로 정의되어 있어야 합니다.
-                            primary_action_label: __('Save Conditions'),
-                            primary_action: function(values) {
-                                const fields_to_update = get_bom_conditions_dialog_fields(frm, data).map(df => df.fieldname).filter(Boolean);
-
-                                fields_to_update.forEach(field => {
-                                    // grid_row 객체를 사용하여 모델 값을 설정합니다.
-                                    frappe.model.set_value(grid_row.doc.doctype, grid_row.doc.name, field, values[field]);
-
-                                });
-
-                                handle_leaf_item_updates(frm, grid_row.doc, values);
-
-                                // frm.refresh_field("po_items");
-
-                                dialog.hide();
-                            }
-                        });
-
-                        // Setup dynamic MultiSelect and Link queries in the dialog
-                        // 이 함수들은 별도로 정의되어 있어야 합니다.
-                        setup_dialog_multiselect_pills(dialog, "app_country", "Country", { "is_clestra": 1 }, "code");
-                        setup_dialog_multiselect_pills(dialog, "hw_options", "Item", { "item_group": "Option" }, "item_code");
-                        setup_dialog_multiselect_pills(dialog, "price_study", "Item", { "item_group": "Price Study" }, "item_code");
-                        // setup_dialog_multiselect(dialog, "sub_contract", "Item", { "item_group": "Sub Contract" }, "item_code");
-                        setup_dialog_multiselect_pills(dialog, "sub_contract", "Item", { "item_group": "Sub Contract" }, "item_code");
-                        setup_dialog_link_queries(frm, dialog, data);
-
-                        dialog.show();
-                    });
-
-                    // 처리 완료 플래그 클래스 추가
-                    $edit_button.addClass('enhanced-button');
-                }
-            });
+        .rows [data-fieldname="bom_conditions"] .static-area::before,
+        .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"]::before {
+            font-family: 'FontAwesome';
+            content: '\\f150'; /* fa-caret-square-o-down */
+            font-size: 14px;
         }
-    }, 250); // 0.25초마다 확인
-
-    // (선택 사항) 일정 시간 후에는 감시를 멈추게 하여 불필요한 리소스 사용 방지
-    // setTimeout(() => {
-    //     clearInterval(interval_id);
-    //     console.log("BOM conditions button monitoring stopped.");
-    // }, monitoring_duration);
+    `;
+    document.head.appendChild(style);
 }
 
 
@@ -949,7 +739,7 @@ function toggle_duplicate_button(frm) {
     let grid = frm.fields_dict['po_items'].grid;
     let grid_wrapper = $(grid.wrapper);
     let duplicate_button = grid_wrapper.find('.btn-custom-duplicate');
-    
+
     if (grid.get_selected_children().length > 0) {
         duplicate_button.show();
     } else {
@@ -969,7 +759,7 @@ function update_grid_qty_view(frm) {
 
         rows_to_process.forEach(function (grid_row) {
             let item = grid_row.doc;
-            
+
             if (!item || !grid_row.wrapper) {
                 return;
             }
@@ -999,7 +789,7 @@ function update_grid_qty_view(frm) {
 
 // --- Helper/Utility Functions (Should be outside frappe.ui.form.on block) ---
 function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = false) {
-    
+
     default_columns = Array.isArray(default_columns) ? default_columns : [];
 
     const grid = frm.fields_dict[fieldname]?.grid;
@@ -1027,10 +817,10 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
                     if (typeof zones_data_obj === 'object' && zones_data_obj !== null) {
                         Object.keys(zones_data_obj).forEach(key => {
 
-                        const zone_detail = zones_data_obj[key];
+                            const zone_detail = zones_data_obj[key];
 
-                        if (key && zone_detail && typeof zone_detail === 'object' && flt(zone_detail.qty) > 0) {
-                            if (!all_unique_zone_names.includes(key)) {
+                            if (key && zone_detail && typeof zone_detail === 'object' && flt(zone_detail.qty) > 0) {
+                                if (!all_unique_zone_names.includes(key)) {
                                     all_unique_zone_names.push(key);
                                 }
                             }
@@ -1090,7 +880,7 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
     if (frm.doc[fieldname] && Array.isArray(frm.doc[fieldname])) {
         frm.doc[fieldname].forEach(row_doc => {
             // Clear all potential virtual field values for this row first
-            for (let i = 0; i <= MAX_VIRTUAL_FIELDS; i++) {
+            for (let i = 0; i < MAX_VIRTUAL_FIELDS; i++) {
                 if (row_doc) row_doc[`zone_${i + 1}`] = null; // Or 0 or ""
             }
 
@@ -1146,7 +936,7 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
 
 
     // --- 5. Override grid.setup_visible_columns ---
-    grid.setup_visible_columns = function() {
+    grid.setup_visible_columns = function () {
         this.visible_columns = [];
         this.visible_column_names = []; // Will be populated based on final_fieldnames_to_display
 
@@ -1159,11 +949,11 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
         // Define column sizes
         const fixed_width_fields = ["item_code", "item_name", "product_type", "product_keyword", "door_hw_spec", "size", "zone", "qty", "print_group", "print_order"];
         const grid_specific_col_widths = {
-            "po_items": {"row-index":1, "item_code":2, "bom_no":2, "zone":1, "color":1, "ch":1, "width":1, "planned_qty":1, "bom_conditions":1},
-            "detail_bom_items": {"item_code":2, "item_name":2, "size":2, "qty":1, "color":1, "remark":1, "zone":1},
-            "panel_cover": {"item_name":2, "size":2, "qty":1, "color":1, "remark":2, "product_keyword":2},
-            "door_cover": {"door_hw_spec":2, "product_keyword":2, "size":2, "qty":1, "color":1, "remark":1},
-            "sub_items": {"print_group":2, "print_order":1, "item_name":2, "size":1, "qty":1, "color":1, "remark":1},
+            "po_items": { "row-index": 1, "item_code": 2, "bom_no": 2, "zone": 1, "color": 1, "ch": 1, "width": 1, "planned_qty": 1, "bom_conditions": 1 },
+            "detail_bom_items": { "item_code": 2, "item_name": 2, "size": 2, "qty": 1, "color": 1, "remark": 1, "zone": 1 },
+            "panel_cover": { "item_name": 2, "size": 2, "qty": 1, "color": 1, "remark": 2, "product_keyword": 2 },
+            "door_cover": { "door_hw_spec": 2, "product_keyword": 2, "size": 2, "qty": 1, "color": 1, "remark": 1 },
+            "sub_items": { "print_group": 2, "print_order": 1, "item_name": 2, "size": 1, "qty": 1, "color": 1, "remark": 1 },
         };
         const DEFAULT_COL_SIZE = 1; // Default Bootstrap col size for virtual fields
         const MAX_BOOTSTRAP_COLS = 10; // Bootstrap 기준 컬럼 수
@@ -1184,7 +974,7 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
             const meta_columns = cint(df_col.columns);
             return meta_columns > 0 ? meta_columns : 1;
         };
-        
+
         let total_col_size = 0; // 총 너비 계산용
         let number_of_visible_columns = 0;   // 실제 화면에 표시될 컬럼의 개수
         const max_grid_width = 11;
@@ -1234,7 +1024,7 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
         // console.log(`[CUSTOM GRID VIRTUAL][${fieldname}] Override: Final visible_columns (${this.visible_columns.length}):`,
         //     this.visible_columns.map(col => `${col[0].fieldname} (Label: ${col[0].label}, Width: ${col[1]})`)
         // );
-        
+
     };
 
     // --- 6. Trigger a grid refresh/reset ---
@@ -1253,6 +1043,8 @@ function set_custom_grid_columns(frm, fieldname, default_columns, hide_idx = fal
         // // --- 7. DOM Manipulation for Header Labels (after grid reset/refresh) ---
         // console.log(`[CUSTOM GRID VIRTUAL][${fieldname}] Attempting DOM manipulation for header labels.`);
         frm.refresh_field(fieldname);
+
+
 
         if (hide_idx && current_grid_instance_for_refresh.wrapper) {
             current_grid_instance_for_refresh.wrapper.find('div.grid-heading-row .row-index').hide();
@@ -1330,7 +1122,7 @@ function generate_js_qty_string(row_data) {
     if (parsed_zone_qty && typeof parsed_zone_qty === 'object' && Object.keys(parsed_zone_qty).length > 0) {
         for (const zone_key in parsed_zone_qty) {
             if (parsed_zone_qty.hasOwnProperty(zone_key)) {
-                if  (parsed_zone_qty[zone_key].handle_details && typeof parsed_zone_qty[zone_key].handle_details === 'object') {
+                if (parsed_zone_qty[zone_key].handle_details && typeof parsed_zone_qty[zone_key].handle_details === 'object') {
                     has_any_handle_data = true;
                     total_lh += cint(parsed_zone_qty[zone_key].handle_details.LH);
                     total_rh += cint(parsed_zone_qty[zone_key].handle_details.RH);
@@ -1353,7 +1145,7 @@ function generate_js_qty_string(row_data) {
     // 모든 핸들별 수량이 0인데 qty는 0보다 큰 경우 (모든 존이 unassigned이고 handle_direct도 없는 경우)
     if (qty_parts.length === 0 && qty > 0) {
         if (handle_direct) {
-            qty_parts.push(`${qty}`); 
+            qty_parts.push(`${qty}`);
             if (handle_direct === 'LH') qty_parts.push(`LH:${qty}`);
             else if (handle_direct === 'RH') qty_parts.push(`RH:${qty}`);
             else if (handle_direct === 'LH-R') qty_parts.push(`LHR:${qty}`);
@@ -1362,8 +1154,8 @@ function generate_js_qty_string(row_data) {
                 qty_parts.push(`${qty}`);
             }
         } else { // 핸들 정보가 없으면 그냥 총 수량
-             qty_parts.push(`${qty}`);
-        } 
+            qty_parts.push(`${qty}`);
+        }
     }
 
     return qty_parts.join(", ") || ""; // 비어있으면 빈 문자열 반환
@@ -1420,7 +1212,7 @@ function fetch_and_set_print_fields(frm, cdt, cdn) {
                 filters: { name: row.item_code },
                 fieldname: ["print_group", "print_order"]
             },
-            callback: function(r) {
+            callback: function (r) {
                 if (r.message) {
                     // Use model.set_value for child table fields
                     frm.model.set_value(cdt, cdn, "print_group", r.message.print_group);
@@ -1453,14 +1245,14 @@ function open_size_edit_dialog(frm, cdt, cdn) {
     // Dynamically add fields based on product_section
     // Use 'depends_on' or simple conditional logic
     if (product_section === "Door" || product_section === "Panel") {
-         dialog_fields.push({ label: "Width", fieldname: "width", fieldtype: "Float", precision: "1", default: row.width });
-         dialog_fields.push({ label: "CH", fieldname: "ch", fieldtype: "Float", precision: "1", default: row.ch || ""});
+        dialog_fields.push({ label: "Width", fieldname: "width", fieldtype: "Float", precision: "1", default: row.width });
+        dialog_fields.push({ label: "CH", fieldname: "ch", fieldtype: "Float", precision: "1", default: row.ch || "" });
     }
     if (product_section === "Leaf") {
         dialog_fields.push({ label: "Leaf Width", fieldname: "leaf_width", fieldtype: "Float", precision: "1", default: row.leaf_width });
         dialog_fields.push({ label: "Leaf Height", fieldname: "leaf_height", fieldtype: "Float", precision: "1", default: row.leaf_height });
     }
-     if (product_section === "Panel") {
+    if (product_section === "Panel") {
         dialog_fields.push({ label: "Panel Width (PW)", fieldname: "pw", fieldtype: "Float", precision: "1", default: row.pw }); // Added PW
         dialog_fields.push({ label: "Panel Height (PH)", fieldname: "ph", fieldtype: "Float", precision: "1", default: row.ph }); // Added PH
     }
@@ -1471,7 +1263,7 @@ function open_size_edit_dialog(frm, cdt, cdn) {
         title: __("Edit Size for {0}", [row.item_name || row.item_code]),
         fields: dialog_fields,
         primary_action_label: __('Update Size'),
-        primary_action: function(values) {
+        primary_action: function (values) {
             let updated_row_data = {}; // Store values for size string generation
 
             // --- Step 1: Update all model values based on dialog fields definition ---
@@ -1488,7 +1280,7 @@ function open_size_edit_dialog(frm, cdt, cdn) {
                             new_value = 0; // Use 0 for empty Int fields
                             // console.log(`Field ${fieldname}: Converted '' to 0.`);
                         } else {
-                             new_value = cint(new_value); // Ensure other values are integers
+                            new_value = cint(new_value); // Ensure other values are integers
                         }
                     }
                     // Add similar explicit conversions for Float if needed
@@ -1507,10 +1299,10 @@ function open_size_edit_dialog(frm, cdt, cdn) {
                 }
             });
             Object.keys(row).forEach(key => {
-                 if (!updated_row_data.hasOwnProperty(key) && dialog_fields.find(df => df.fieldname === key)) {
+                if (!updated_row_data.hasOwnProperty(key) && dialog_fields.find(df => df.fieldname === key)) {
                     // If a dialog field wasn't processed (e.g., only heading), grab original value
                     updated_row_data[key] = row[key];
-                 }
+                }
             });
 
             // --- Step 2: Update the 'size' field based on updated values ---
@@ -1532,10 +1324,10 @@ function open_size_edit_dialog(frm, cdt, cdn) {
                     frm.dirty();
                 } else {
                     // console.warn("Grid row object not found for cdn:", cdn, ". Falling back to refreshing parent field:", row.parentfield);
-                    if(row.parentfield) frm.refresh_field(row.parentfield);
+                    if (row.parentfield) frm.refresh_field(row.parentfield);
                 }
             } else {
-                 // console.warn("Grid object not found for parentfield:", row.parentfield);
+                // console.warn("Grid object not found for parentfield:", row.parentfield);
             }
 
             // console.log("--- Dialog Update End ---");
@@ -1588,12 +1380,16 @@ function open_qty_edit_dialog(frm, cdt, cdn) {
     // --- Define Dialog Fields ---
     // Start with common fields or a section
     let dialog_fields = [
-        { fieldname: "zone_qty_table", label: __("Zone & Quantities"), fieldtype: "Table", data: table_data_for_dialog, fields: [
-            { label: "Zone", fieldname: "zone_name", fieldtype: "Data", default: row.zone, in_list_view: 1, reqd: 1 },
-            { label: "Handle Direct", fieldname: "handle_direct", fieldtype: "Link", options: "Selection Library", default: is_door_cover_grid ? row.handle_direct : null, in_list_view: 1,
-                filters: { opt_name: "Handle Direction", is_active: 1 }},
-            { label: "Quantity", fieldname: "qty", fieldtype: "Int", default: 0, in_list_view: 1, reqd: 1 }
-        ]},
+        {
+            fieldname: "zone_qty_table", label: __("Zone & Quantities"), fieldtype: "Table", data: table_data_for_dialog, fields: [
+                { label: "Zone", fieldname: "zone_name", fieldtype: "Data", default: row.zone, in_list_view: 1, reqd: 1 },
+                {
+                    label: "Handle Direct", fieldname: "handle_direct", fieldtype: "Link", options: "Selection Library", default: is_door_cover_grid ? row.handle_direct : null, in_list_view: 1,
+                    filters: { opt_name: "Handle Direction", is_active: 1 }
+                },
+                { label: "Quantity", fieldname: "qty", fieldtype: "Int", default: 0, in_list_view: 1, reqd: 1 }
+            ]
+        },
     ];
 
     // --- Create and Show Dialog ---
@@ -1601,7 +1397,7 @@ function open_qty_edit_dialog(frm, cdt, cdn) {
         title: __("Edit Handle Quantity for {0}", [row.item_name || row.item_code]),
         fields: dialog_fields,
         primary_action_label: __('Update'),
-        primary_action: function(values) {
+        primary_action: function (values) {
             // let updated_qty_data = {};
             const updated_table_rows = values.zone_qty_table || [];
             let new_zone_qty_json_obj = {};
@@ -1652,7 +1448,7 @@ function open_qty_edit_dialog(frm, cdt, cdn) {
             setTimeout(() => {
                 const door_cover_cols = ["door_hw_spec", "product_keyword", "size", "remark", "qty"]; // Include zone if it's a standard field and needed
                 set_custom_grid_columns(frm, 'door_cover', door_cover_cols, true);
-                
+
                 // frm.trigger("update_grid_qty_view");
                 update_grid_qty_view(frm);
                 frm.trigger("update_grid_qty_js_string");
@@ -1676,7 +1472,7 @@ function setup_qty_field(frm) {
             // Remove previous click handler to avoid duplicates
             grid.wrapper.off('click', '.grid-row .col[data-fieldname="qty"]');
             // Add click handler to open custom qty dialog
-            grid.wrapper.on('click', '.grid-row .col[data-fieldname="qty"]', function(e) {
+            grid.wrapper.on('click', '.grid-row .col[data-fieldname="qty"]', function (e) {
                 // Prevent dialog if clicking interactive elements inside cell
                 if ($(e.target).closest('button, a').length > 0) {
                     return;
@@ -1688,9 +1484,9 @@ function setup_qty_field(frm) {
                 let grid_row_obj = grid.get_row(row_name); // Get the grid row object
 
                 if (grid_row_obj && grid_row_obj.doc) {
-                        open_qty_edit_dialog(frm, grid_row_obj.doc.doctype, grid_row_obj.doc.name);
+                    open_qty_edit_dialog(frm, grid_row_obj.doc.doctype, grid_row_obj.doc.name);
                 } else {
-                        console.error("Could not find row object for clicked qty field in grid:", fieldname);
+                    console.error("Could not find row object for clicked qty field in grid:", fieldname);
                 }
             });
             // Add a class to make it look clickable
@@ -1698,14 +1494,14 @@ function setup_qty_field(frm) {
 
             if (grid.grid_rows) {
                 grid.grid_rows.forEach(grid_row => {
-                   if (grid_row.doc) {
-                       const qty_string = generate_js_qty_string(grid_row.doc);
-                       let $qty_cell_static = $(grid_row.wrapper).find('[data-fieldname="qty"] .static-area');
-                       if ($qty_cell_static.length > 0) {
+                    if (grid_row.doc) {
+                        const qty_string = generate_js_qty_string(grid_row.doc);
+                        let $qty_cell_static = $(grid_row.wrapper).find('[data-fieldname="qty"] .static-area');
+                        if ($qty_cell_static.length > 0) {
                             $qty_cell_static.text(qty_string).show();
                             $(grid_row.wrapper).find('[data-fieldname="qty"] .field-area').hide(); // Hide input
-                       }
-                   }
+                        }
+                    }
                 });
                 // console.log(`Initial Qty text set for grid: ${fieldname}`);
             }
@@ -1720,8 +1516,8 @@ function setup_size_field(frm) {
         const grid = frm.fields_dict[fieldname]?.grid;
         if (grid && grid.wrapper) {
             grid.wrapper.off('click', '.grid-row .col[data-fieldname="size"]');
-            grid.wrapper.on('click', '.grid-row .col[data-fieldname="size"]', function(e) {
-                
+            grid.wrapper.on('click', '.grid-row .col[data-fieldname="size"]', function (e) {
+
                 if ($(e.target).is('button, a')) {
                     return;
                 }
@@ -1732,9 +1528,9 @@ function setup_size_field(frm) {
                 let grid_row_obj = grid.get_row(row_name);
 
                 if (grid_row_obj && grid_row_obj.doc) {
-                        open_size_edit_dialog(frm, grid_row_obj.doc.doctype, grid_row_obj.doc.name);
+                    open_size_edit_dialog(frm, grid_row_obj.doc.doctype, grid_row_obj.doc.name);
                 } else {
-                        console.error("Could not find row object for clicked size field.");
+                    console.error("Could not find row object for clicked size field.");
                 }
             });
             grid.wrapper.find('.col[data-fieldname="size"]').addClass('clickable');
@@ -1744,83 +1540,84 @@ function setup_size_field(frm) {
 
 // Keep get_bom_conditions_dialog_fields function as is
 function get_bom_conditions_dialog_fields(frm, data) {
-     // ... (function body remains the same) ...
+    // ... (function body remains the same) ...
     return [
-        { label: __("General"), fieldtype: "Heading"},
-        { fieldtype: "Section Break", hide_border: 1},
-        { label: __("Applicable Country"), fieldname: "app_country", fieldtype: "MultiSelect", default: data.app_country},
+        { label: __("General"), fieldtype: "Heading" },
+        { fieldtype: "Section Break", hide_border: 1 },
+        { label: __("Applicable Country"), fieldname: "app_country", fieldtype: "MultiSelect", default: data.app_country },
         { label: __("Disassembled"), fieldname: "disassembled", fieldtype: "Check", default: data.disassembled },
         { fieldtype: "Column Break" },
-        { label: __("Zone"), fieldname: "zone", fieldtype: "Data", default: data.zone},
+        { label: __("Zone"), fieldname: "zone", fieldtype: "Data", default: data.zone },
         { fieldtype: "Column Break" },
         { label: __("Color"), fieldname: "color", fieldtype: "Link", default: data.color, options: "Product Color" },
         { label: __("Use Billing Color"), fieldname: "use_billing_color", fieldtype: "Check", default: data.use_billing_color },
         { fieldtype: "Column Break" },
-        { label: __("Remark"), fieldname: "remark", fieldtype: "Small Text", default: data.remark, style: "height: 5% !important;"},
+        { label: __("Remark"), fieldname: "remark", fieldtype: "Small Text", default: data.remark, style: "height: 5% !important;" },
 
         { fieldtype: "Section Break" },
-        { label: __("Panel"), fieldtype: "Heading"},
-        { fieldtype: "Section Break", hide_border: 1},
-        { label: __("Product Keyword Prefix"), fieldname: "product_keyword_prefix", fieldtype: "Data", default: data.product_keyword_prefix},
-        { label: __("Product Keyword Suffix"), fieldname: "product_keyword_suffix", fieldtype: "Data", default: data.product_keyword_suffix},
+        { label: __("Panel"), fieldtype: "Heading" },
+        { fieldtype: "Section Break", hide_border: 1 },
+        { label: __("Product Keyword Prefix"), fieldname: "product_keyword_prefix", fieldtype: "Data", default: data.product_keyword_prefix },
+        { label: __("Product Keyword Suffix"), fieldname: "product_keyword_suffix", fieldtype: "Data", default: data.product_keyword_suffix },
         { label: __("Show Qty in Brackets"), fieldname: "show_qty_bracket", fieldtype: "Check", default: data.show_qty_bracket },
         { fieldtype: "Column Break" },
-        { label: __("Glass A"), fieldname: "glass_a", fieldtype: "Link", default: data.glass_a, options: "Product Thickness"},
-        { label: __("Glass B"), fieldname: "glass_b", fieldtype: "Link", default: data.glass_b, options: "Product Thickness", description: "For double partitions only"},
+        { label: __("Glass A"), fieldname: "glass_a", fieldtype: "Link", default: data.glass_a, options: "Product Thickness" },
+        { label: __("Glass B"), fieldname: "glass_b", fieldtype: "Link", default: data.glass_b, options: "Product Thickness", description: "For double partitions only" },
         { fieldtype: "Column Break" },
-        { label: __("CL/CH Type"), fieldname: "clch_type", fieldtype: "Link", default: data.clch_type, options: "Selection Library", filters: { opt_name: "CL CH Type"}},
-        { label: __("Base Type"), fieldname: "base_type", fieldtype: "Link", default: data.base_type, options: "Selection Library", filters: { opt_name: "Base Type", is_active: 1 }},
+        { label: __("CL/CH Type"), fieldname: "clch_type", fieldtype: "Link", default: data.clch_type, options: "Selection Library", filters: { opt_name: "CL CH Type" } },
+        { label: __("Base Type"), fieldname: "base_type", fieldtype: "Link", default: data.base_type, options: "Selection Library", filters: { opt_name: "Base Type", is_active: 1 } },
         { fieldtype: "Column Break" },
-        
-        { fieldtype: "Section Break" },
-        { label: __("Size"), fieldtype: "Heading"},
-        { fieldtype: "Section Break" },
-        { label: __("Ceiling Visible Height"), fieldname: "ceiling_visible", fieldtype: "Int", default: data.ceiling_visible},
-        { label: "Width", fieldname: "width", fieldtype: "Float", precision: "1", default: data.width},
-        { label: "PW", fieldname: "pw", fieldtype: "Float", precision: "1", default: data.pw},
-        // { label: "Leaf Width", fieldname: "leaf_width", fieldtype: "Float", precision: "1", default: data.leaf_width},
-        { fieldtype: "Column Break" },
-        { label: "Base Visible Height", fieldname: "base_visible_h", fieldtype: "Int", default: data.base_visible_h},
-        { label: "CH", fieldname: "ch", fieldtype: "Float", precision: "1", default: data.ch},
-        { label: "PH", fieldname: "ph", fieldtype: "Float", precision: "1", default: data.ph},
-        // { label: "Leaf Height", fieldname: "leaf_height", fieldtype: "Float", precision: "1", default: data.leaf_height},
-        { fieldtype: "Column Break" },
-        { label: "Transom Rail Height (TRH)", fieldname: "panel_trh", fieldtype: "Int", default: data.panel_trh},
-        { label: "Chair Rail Height (CRH)", fieldname: "panel_crh", fieldtype: "Int", default: data.panel_crh},
-        { fieldtype: "Column Break" },
-        { label: "ABL A", fieldname: "abl_a", fieldtype: "Int", default: data.abl_a},
-        { label: "ABL B", fieldname: "abl_b", fieldtype: "Int", default: data.abl_b},
-        { label: "Depth", fieldname: "depth", fieldtype: "Int", default: data.depth},
-        { fieldtype: "Column Break" },
-        { label: "Open Width", fieldname: "open_width", fieldtype: "Float", precision: "1", default: data.open_width},
-        { label: "Open Height", fieldname: "open_height", fieldtype: "Float", precision: "1", default: data.open_height},
 
         { fieldtype: "Section Break" },
-        { label: __("Door Unit"), fieldtype: "Heading"},
+        { label: __("Size"), fieldtype: "Heading" },
+        { fieldtype: "Section Break" },
+        { label: __("Ceiling Visible Height"), fieldname: "ceiling_visible", fieldtype: "Int", default: data.ceiling_visible },
+        { label: "Width", fieldname: "width", fieldtype: "Float", precision: "1", default: data.width },
+        { label: "PW", fieldname: "pw", fieldtype: "Float", precision: "1", default: data.pw },
+        // { label: "Leaf Width", fieldname: "leaf_width", fieldtype: "Float", precision: "1", default: data.leaf_width},
         { fieldtype: "Column Break" },
-        { label: __("Keeper & Hinge Side"), fieldtype: "Heading"},
+        { label: "Base Visible Height", fieldname: "base_visible_h", fieldtype: "Int", default: data.base_visible_h },
+        { label: "CH", fieldname: "ch", fieldtype: "Float", precision: "1", default: data.ch },
+        { label: "PH", fieldname: "ph", fieldtype: "Float", precision: "1", default: data.ph },
+        // { label: "Leaf Height", fieldname: "leaf_height", fieldtype: "Float", precision: "1", default: data.leaf_height},
         { fieldtype: "Column Break" },
-        { label: __("Door Leaf A"), fieldtype: "Heading"},
+        { label: "Transom Rail Height (TRH)", fieldname: "panel_trh", fieldtype: "Int", default: data.panel_trh },
+        { label: "Chair Rail Height (CRH)", fieldname: "panel_crh", fieldtype: "Int", default: data.panel_crh },
+        { fieldtype: "Column Break" },
+        { label: "ABL A", fieldname: "abl_a", fieldtype: "Int", default: data.abl_a },
+        { label: "ABL B", fieldname: "abl_b", fieldtype: "Int", default: data.abl_b },
+        { label: "Depth", fieldname: "depth", fieldtype: "Int", default: data.depth },
+        { fieldtype: "Column Break" },
+        { label: "Open Width", fieldname: "open_width", fieldtype: "Float", precision: "1", default: data.open_width },
+        { label: "Open Height", fieldname: "open_height", fieldtype: "Float", precision: "1", default: data.open_height },
+
+        { fieldtype: "Section Break" },
+        { label: __("Door Unit"), fieldtype: "Heading" },
+        { fieldtype: "Column Break" },
+        { label: __("Keeper & Hinge Side"), fieldtype: "Heading" },
+        { fieldtype: "Column Break" },
+        { label: __("Door Leaf A"), fieldtype: "Heading" },
         { fieldtype: "Column Break", depends_on: "eval:doc.is_pair_door == 1" },
-        { label: __("Door Leaf B"), fieldtype: "Heading"},
-        { fieldtype: "Section Break", hide_border: 1},
+        { label: __("Door Leaf B"), fieldtype: "Heading" },
+        { fieldtype: "Section Break", hide_border: 1 },
         { label: __("Door Open Type"), fieldname: "door_open_type", fieldtype: "Select", default: data.door_open_type, options: "\nSwing\nSliding", read_only: 1 },
         { label: __("Door Set Type"), fieldname: "door_set_type", fieldtype: "Select", default: data.door_set_type, options: "\nSingle\nPair", read_only: 1 },
         { label: __("Door Frame (Read Only)"), fieldname: "door_frame", fieldtype: "Link", default: data.door_frame, options: "Item", read_only: 1 },
-        { label: __("Handle Direction"), fieldname: "handle_direct", fieldtype: "Link", default: data.handle_direct, options: "Selection Library"},
-        { label: __("Door Options"), fieldname: "hw_options", fieldtype: "MultiSelect", default: data.hw_options},
-        { label: __("Outsourced"), fieldname: "sub_contract", fieldtype: "MultiSelect", default: data.sub_contract},
-        { label: __("Price Study"), fieldname: "price_study", fieldtype: "MultiSelect", default: data.price_study},
-        { label: __("Under Cut"), fieldname: "under_cut", fieldtype: "Int", default: data.under_cut},
+        { label: __("Handle Direction"), fieldname: "handle_direct", fieldtype: "Link", default: data.handle_direct, options: "Selection Library" },
+        { label: __("Door Options"), fieldname: "hw_options", fieldtype: "MultiSelect", default: data.hw_options },
+        { label: __("Outsourced"), fieldname: "sub_contract", fieldtype: "MultiSelect", default: data.sub_contract },
+        { label: __("Price Study"), fieldname: "price_study", fieldtype: "MultiSelect", default: data.price_study },
+        { label: __("Under Cut"), fieldname: "under_cut", fieldtype: "Int", default: data.under_cut },
         { fieldtype: "Column Break" },
-        { label: __("Keeper Side"), fieldname: "keeper", fieldtype: "Link", default: data.keeper, options: "Selection Library"},
-        { label: __("Keeper Glass A"), fieldname: "keeper_glass_a", fieldtype: "Link", default: data.keeper_glass_a, options: "Product Thickness"},
-        { label: __("Keeper Glass B"), fieldname: "keeper_glass_b", fieldtype: "Link", default: data.keeper_glass_b, options: "Product Thickness"},
-        { label: __("Hinge Side"), fieldname: "hinge", fieldtype: "Link", default: data.hinge, options: "Selection Library"},
-        { label: __("Hinge Glass A"), fieldname: "hinge_glass_a", fieldtype: "Link", default: data.hinge_glass_a, options: "Product Thickness"},
-        { label: __("Hinge Glass B"), fieldname: "hinge_glass_b", fieldtype: "Link", default: data.hinge_glass_b, options: "Product Thickness"},
+        { label: __("Keeper Side"), fieldname: "keeper", fieldtype: "Link", default: data.keeper, options: "Selection Library" },
+        { label: __("Keeper Glass A"), fieldname: "keeper_glass_a", fieldtype: "Link", default: data.keeper_glass_a, options: "Product Thickness" },
+        { label: __("Keeper Glass B"), fieldname: "keeper_glass_b", fieldtype: "Link", default: data.keeper_glass_b, options: "Product Thickness" },
+        { label: __("Hinge Side"), fieldname: "hinge", fieldtype: "Link", default: data.hinge, options: "Selection Library" },
+        { label: __("Hinge Glass A"), fieldname: "hinge_glass_a", fieldtype: "Link", default: data.hinge_glass_a, options: "Product Thickness" },
+        { label: __("Hinge Glass B"), fieldname: "hinge_glass_b", fieldtype: "Link", default: data.hinge_glass_b, options: "Product Thickness" },
         { fieldtype: "Column Break" },
-        { label: __("Leaf A Item"), fieldname: "leaf_item_code", fieldtype: "Link", default: data.leaf_item_code, options: "Item", 
+        {
+            label: __("Leaf A Item"), fieldname: "leaf_item_code", fieldtype: "Link", default: data.leaf_item_code, options: "Item",
             onchange: function () {
                 const leaf_item_code = this.value;
                 const dialog = this.dialog || cur_dialog;
@@ -1856,21 +1653,22 @@ function get_bom_conditions_dialog_fields(frm, data) {
                 }
             }
         },
-        { label: __("Leaf A Active Status"), fieldname: "leaf_act_status", fieldtype: "Link", default: data.leaf_act_status, options: "Selection Library"},
-        { label: __("Leaf A Thk."), fieldname: "leaf_thk", fieldtype: "Link", default: data.leaf_thk, options: "Product Thickness"},
-        { label: __("Leaf A Material"), fieldname: "leaf_material", fieldtype: "Link", default: data.leaf_material, options: "Selection Library"},
+        { label: __("Leaf A Active Status"), fieldname: "leaf_act_status", fieldtype: "Link", default: data.leaf_act_status, options: "Selection Library" },
+        { label: __("Leaf A Thk."), fieldname: "leaf_thk", fieldtype: "Link", default: data.leaf_thk, options: "Product Thickness" },
+        { label: __("Leaf A Material"), fieldname: "leaf_material", fieldtype: "Link", default: data.leaf_material, options: "Selection Library" },
         { label: __("Leaf A Color"), fieldname: "leaf_color", fieldtype: "Link", default: data.leaf_color, options: "Product Color" },
         // { label: __("Leaf A Width"), fieldname: "leaf_a_width", fieldtype: "Float", precision: "1", default: data.leaf_a_width},
         // { label: __("Leaf A Height"), fieldname: "leaf_a_height", fieldtype: "Float", precision: "1", default: data.leaf_a_height},
-        { label: __("Leaf A Glass A"), fieldname: "leaf_glass_a", fieldtype: "Link", default: data.leaf_glass_a, options: "Product Thickness"},
-        { label: __("Leaf A Glass B"), fieldname: "leaf_glass_b", fieldtype: "Link", default: data.leaf_glass_b, options: "Product Thickness"},
-        { label: __("Leaf A Auto Drop Seal"), fieldname: "auto_drop_seal", fieldtype: "Link", default: data.auto_drop_seal, options: "Selection Library"},
+        { label: __("Leaf A Glass A"), fieldname: "leaf_glass_a", fieldtype: "Link", default: data.leaf_glass_a, options: "Product Thickness" },
+        { label: __("Leaf A Glass B"), fieldname: "leaf_glass_b", fieldtype: "Link", default: data.leaf_glass_b, options: "Product Thickness" },
+        { label: __("Leaf A Auto Drop Seal"), fieldname: "auto_drop_seal", fieldtype: "Link", default: data.auto_drop_seal, options: "Selection Library" },
         { label: __("Is Pair Door"), fieldname: "is_pair_door", fieldtype: "Check", default: data.is_pair_door /* depends_on: "eval:!doc.door_frame" */ },
         { label: __("Equal Leaf Width"), fieldname: "equal_leaf_w", fieldtype: "Check", default: data.equal_leaf_w, depends_on: "eval:doc.is_pair_door == 1" },
 
         // Section Break for Leaf B, only shown if Is Pair Door is checked
         { fieldtype: "Column Break", depends_on: "eval:doc.is_pair_door == 1" },
-        { label: __("Leaf B Item"), fieldname: "leaf_b_item_code", fieldtype: "Link", default: data.leaf_b_item_code, options: "Item", depends_on: "eval:doc.is_pair_door == 1",
+        {
+            label: __("Leaf B Item"), fieldname: "leaf_b_item_code", fieldtype: "Link", default: data.leaf_b_item_code, options: "Item", depends_on: "eval:doc.is_pair_door == 1",
             onchange: function () {
                 const leaf_item_code = this.value;
                 const dialog = this.dialog || cur_dialog;
@@ -1905,49 +1703,50 @@ function get_bom_conditions_dialog_fields(frm, data) {
                     dialog.set_value("leaf_b_material", "");
                 }
             }
-         },
-        { label: __("Leaf B Active Status"), fieldname: "leaf_b_act_status", fieldtype: "Link", default: data.leaf_b_act_status, options: "Selection Library", depends_on: "eval:doc.is_pair_door == 1"},
-        { label: __("Leaf B Thk."), fieldname: "leaf_b_thk", fieldtype: "Link", default: data.leaf_b_thk, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1"},
+        },
+        { label: __("Leaf B Active Status"), fieldname: "leaf_b_act_status", fieldtype: "Link", default: data.leaf_b_act_status, options: "Selection Library", depends_on: "eval:doc.is_pair_door == 1" },
+        { label: __("Leaf B Thk."), fieldname: "leaf_b_thk", fieldtype: "Link", default: data.leaf_b_thk, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1" },
         { label: __("Leaf B Material"), fieldname: "leaf_b_material", fieldtype: "Link", default: data.leaf_b_material, options: "Selection Library", depends_on: "eval:doc.is_pair_door == 1" },
         { label: __("Leaf B Color"), fieldname: "leaf_b_color", fieldtype: "Link", default: data.leaf_b_color, options: "Product Color", depends_on: "eval:doc.is_pair_door == 1" },
         // { label: __("Leaf B Width"), fieldname: "leaf_b_width", fieldtype: "Float", precision: "1", default: data.leaf_b_width, depends_on: "eval:doc.is_pair_door == 1" },
         // { label: __("Leaf B Height"), fieldname: "leaf_b_height", fieldtype: "Float", precision: "1", default: data.leaf_b_heightj, depends_on: "eval:doc.is_pair_door == 1" },
-        { label: __("Leaf B Glass A"), fieldname: "leaf_b_glass_a", fieldtype: "Link", default: data.leaf_b_glass_a, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1"},
-        { label: __("Leaf B Glass B"), fieldname: "leaf_b_glass_b", fieldtype: "Link", default: data.leaf_b_glass_b, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1"},
+        { label: __("Leaf B Glass A"), fieldname: "leaf_b_glass_a", fieldtype: "Link", default: data.leaf_b_glass_a, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1" },
+        { label: __("Leaf B Glass B"), fieldname: "leaf_b_glass_b", fieldtype: "Link", default: data.leaf_b_glass_b, options: "Product Thickness", depends_on: "eval:doc.is_pair_door == 1" },
         { label: __("Leaf B Auto Drop Seal"), fieldname: "leaf_b_auto_drop_seal", fieldtype: "Link", default: data.leaf_b_auto_drop_seal, options: "Selection Library", depends_on: "eval:doc.is_pair_door == 1" },
 
         { fieldtype: "Section Break" },
-        { label: __("Door Hardwares"), fieldtype: "Heading"},
+        { label: __("Door Hardwares"), fieldtype: "Heading" },
         { fieldtype: "Section Break" },
-        { label: __("Door HW Spec"), fieldname: "door_hw_spec", fieldtype: "Link", default: data.door_hw_spec, options: "Door Hardware Spec",
-            get_query: function() {
+        {
+            label: __("Door HW Spec"), fieldname: "door_hw_spec", fieldtype: "Link", default: data.door_hw_spec, options: "Door Hardware Spec",
+            get_query: function () {
                 return {
                     filters: {
                         project: frm.doc.project,
                     }
                 };
             }
-         },
-        { label: __("Door Closer"), fieldname: "door_closer", fieldtype: "Link", default: data.door_closer, options: "Selection Library"},
-        { label: __("Hinge Type"), fieldname: "hinge_type", fieldtype: "Link", default: data.hinge_type, options: "Selection Library"},
-        { label: __("Number of Hinge Holes"), fieldname: "hinge_num", fieldtype: "Link", default: data.hinge_num, options: "Selection Library"},
-        { label: __("Flush Bolt"), fieldname: "flush_bolt", fieldtype: "Link", default: data.flush_bolt, options: "Selection Library"},
+        },
+        { label: __("Door Closer"), fieldname: "door_closer", fieldtype: "Link", default: data.door_closer, options: "Selection Library" },
+        { label: __("Hinge Type"), fieldname: "hinge_type", fieldtype: "Link", default: data.hinge_type, options: "Selection Library" },
+        { label: __("Number of Hinge Holes"), fieldname: "hinge_num", fieldtype: "Link", default: data.hinge_num, options: "Selection Library" },
+        { label: __("Flush Bolt"), fieldname: "flush_bolt", fieldtype: "Link", default: data.flush_bolt, options: "Selection Library" },
         { fieldtype: "Column Break" },
-        { label: __("FGD Info"), fieldname: "fgd_info", fieldtype: "Link", default: data.fgd_info, options: "Selection Library"},
-        { label: __("Tape & Seal Color"), fieldname: "tape_seal_color", fieldtype: "Link", default: data.tape_seal_color, options: "Selection Library"},
-        { label: __("Fixing Screw Cap"), fieldname: "fix_screw_cap", fieldtype: "Link", default: data.fix_screw_cap, options: "Selection Library"},
-        { label: __("Key Cylinder"), fieldname: "key_cylinder", fieldtype: "Link", default: data.key_cylinder, options: "Selection Library"},
-        { label: __("Astragal"), fieldname: "astragal", fieldtype: "Link", default: data.astragal, options: "Selection Library"},
+        { label: __("FGD Info"), fieldname: "fgd_info", fieldtype: "Link", default: data.fgd_info, options: "Selection Library" },
+        { label: __("Tape & Seal Color"), fieldname: "tape_seal_color", fieldtype: "Link", default: data.tape_seal_color, options: "Selection Library" },
+        { label: __("Fixing Screw Cap"), fieldname: "fix_screw_cap", fieldtype: "Link", default: data.fix_screw_cap, options: "Selection Library" },
+        { label: __("Key Cylinder"), fieldname: "key_cylinder", fieldtype: "Link", default: data.key_cylinder, options: "Selection Library" },
+        { label: __("Astragal"), fieldname: "astragal", fieldtype: "Link", default: data.astragal, options: "Selection Library" },
         { fieldtype: "Column Break" },
         { fieldtype: "Column Break" },
         { fieldtype: "Column Break" },
-        
-        
+
+
     ];
 }
 
 // Keep setup_dialog_multiselect function as is
-function setup_dialog_multiselect(dialog, fieldname, target_doctype, filters=null, target_field) {
+function setup_dialog_multiselect(dialog, fieldname, target_doctype, filters = null, target_field) {
     frappe.call({
         method: "frappe.client.get_list",
         args: {
@@ -1956,7 +1755,7 @@ function setup_dialog_multiselect(dialog, fieldname, target_doctype, filters=nul
             fields: [target_field],
             limit_page_length: 0
         },
-        callback: function(response) {
+        callback: function (response) {
             if (response && response.message) {
                 let options = response.message.map(d => ({ label: d[target_field], value: d[target_field] }));
                 let field = dialog.get_field(fieldname);
@@ -1968,7 +1767,18 @@ function setup_dialog_multiselect(dialog, fieldname, target_doctype, filters=nul
     });
 }
 
+// 세션 레벨 캐시: 동일한 doctype+filters+field 조합은 한 번만 서버 호출
+const _multiselect_options_cache = {};
+
 function setup_dialog_multiselect_pills(dialog, fieldname, target_doctype, filters = null, target_field) {
+    const cache_key = `${target_doctype}|${JSON.stringify(filters)}|${target_field}`;
+
+    // 캐시에 있으면 서버 호출 없이 바로 UI 구성
+    if (_multiselect_options_cache[cache_key]) {
+        _build_multiselect_pills_ui(dialog, fieldname, _multiselect_options_cache[cache_key]);
+        return;
+    }
+
     frappe.call({
         method: "frappe.client.get_list",
         args: {
@@ -1977,21 +1787,30 @@ function setup_dialog_multiselect_pills(dialog, fieldname, target_doctype, filte
             fields: [target_field],
             limit_page_length: 0
         },
-        callback: function(response) {
+        callback: function (response) {
             if (response && response.message) {
-                // 1. 선택 가능한 옵션 리스트 준비
                 let options = response.message.map(d => d[target_field]);
-                let field = dialog.get_field(fieldname);
-                
-                if (!field) return;
+                // 캐시에 저장
+                _multiselect_options_cache[cache_key] = options;
+                _build_multiselect_pills_ui(dialog, fieldname, options);
+            }
+        }
+    });
+}
 
-                // 2. 기존 필드 요소 가져오기 및 숨기기
-                let $field_wrapper = field.$wrapper;
-                let $original_input = field.$input;
-                $original_input.hide(); // 원본 입력창 숨김
+// UI 구성 로직을 별도 함수로 분리 (캐시 히트 시에도 재사용)
+function _build_multiselect_pills_ui(dialog, fieldname, options) {
+    let field = dialog.get_field(fieldname);
 
-                // 3. 커스텀 UI 컨테이너 생성
-                let $container = $(`
+    if (!field) return;
+
+    // 2. 기존 필드 요소 가져오기 및 숨기기
+    let $field_wrapper = field.$wrapper;
+    let $original_input = field.$input;
+    $original_input.hide(); // 원본 입력창 숨김
+
+    // 3. 커스텀 UI 컨테이너 생성
+    let $container = $(`
                     <div class="form-control" style="
                         height: auto; 
                         min-height: 34px; 
@@ -2013,23 +1832,23 @@ function setup_dialog_multiselect_pills(dialog, fieldname, target_doctype, filte
                         <div class="pills-area" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
                 `);
-                
-                if ($field_wrapper.find('.pills-custom-container').length === 0) {
-                    $container.addClass('pills-custom-container');
-                    $field_wrapper.find('.control-input').append($container);
-                }
 
-                let $pills_area = $container.find('.pills-area');
-                let $search_input = $container.find('.pill-input');
+    if ($field_wrapper.find('.pills-custom-container').length === 0) {
+        $container.addClass('pills-custom-container');
+        $field_wrapper.find('.control-input').append($container);
+    }
 
-                // 4. 현재 저장된 값 불러오기
-                let current_values = ($original_input.val() || "").split(',').map(v => v.trim()).filter(v => v !== "");
-                
-                function render_pills() {
-                    $pills_area.empty();
-                    current_values.forEach(value => {
-                        // 수정: 버튼에 type="button" 명시하여 폼 전송 방지
-                        let $pill = $(`
+    let $pills_area = $container.find('.pills-area');
+    let $search_input = $container.find('.pill-input');
+
+    // 4. 현재 저장된 값 불러오기
+    let current_values = ($original_input.val() || "").split(',').map(v => v.trim()).filter(v => v !== "");
+
+    function render_pills() {
+        $pills_area.empty();
+        current_values.forEach(value => {
+            // 수정: 버튼에 type="button" 명시하여 폼 전송 방지
+            let $pill = $(`
                             <span class="btn-group pill-group" style="margin: 0;">
                                 <button type="button" class="btn btn-xs btn-default" style="cursor: default;">${value}</button>
                                 <button type="button" class="btn btn-xs btn-default remove-pill">
@@ -2037,80 +1856,77 @@ function setup_dialog_multiselect_pills(dialog, fieldname, target_doctype, filte
                                 </button>
                             </span>
                         `);
-                        // 값 참조를 위해 속성 저장 (필요시 사용)
-                        $pill.attr('data-value', value);
-                        $pills_area.append($pill);
-                    });
+            // 값 참조를 위해 속성 저장 (필요시 사용)
+            $pill.attr('data-value', value);
+            $pills_area.append($pill);
+        });
 
-                    let final_value = current_values.length > 0 ? current_values.join(', ') : "";
-                    console.log("Setting final value to:", final_value);
-                    
-                    $original_input.val(final_value).trigger('change');
-                    field.set_value(final_value);
-                    
-                }
+        let final_value = current_values.length > 0 ? current_values.join(', ') : "";
+        console.log("Setting final value to:", final_value);
 
-                // 초기 렌더링
-                render_pills();
+        $original_input.val(final_value).trigger('change');
+        field.set_value(final_value);
 
-                // 5. Awesomplete 연결
-                let awesomplete = new Awesomplete($search_input[0], {
-                    minChars: 0,
-                    maxItems: 99,
-                    autoFirst: true,
-                    list: options
-                });
+    }
 
-                // 6. 값 추가 이벤트
-                $search_input.on('awesomplete-selectcomplete', function(e) {
-                    let selected_item = e.text || (e.originalEvent && e.originalEvent.text);
-                    if (!selected_item) return;
+    // 초기 렌더링
+    render_pills();
 
-                    let selected_value = selected_item.value;
-                    $search_input.val(""); 
+    // 5. Awesomplete 연결
+    let awesomplete = new Awesomplete($search_input[0], {
+        minChars: 0,
+        maxItems: 99,
+        autoFirst: true,
+        list: options
+    });
 
-                    if (!current_values.includes(selected_value)) {
-                        current_values.push(selected_value);
-                        render_pills();
-                    }
-                });
+    // 6. 값 추가 이벤트
+    $search_input.on('awesomplete-selectcomplete', function (e) {
+        let selected_item = e.text || (e.originalEvent && e.originalEvent.text);
+        if (!selected_item) return;
 
-                $search_input.on('focus click', function() {
-                    awesomplete.evaluate();
-                });
+        let selected_value = selected_item.value;
+        $search_input.val("");
 
-                // 7. 값 삭제 이벤트 (인덱스 기반 삭제로 변경 - 가장 확실한 방법)
-                $pills_area.on('click', '.remove-pill', function(e) {
-                    // 이벤트 전파 및 기본 동작 방지 (매우 중요)
-                    e.preventDefault();
-                    e.stopPropagation();
+        if (!current_values.includes(selected_value)) {
+            current_values.push(selected_value);
+            render_pills();
+        }
+    });
 
-                    let $group = $(this).closest('.pill-group');
-                    let index = $group.index(); // 현재 Pill이 몇 번째인지 확인
+    $search_input.on('focus click', function () {
+        awesomplete.evaluate();
+    });
 
-                    if (index > -1) {
-                        // 배열에서 해당 인덱스의 값을 직접 제거
-                        current_values.splice(index, 1);
-                        render_pills();
-                    }
-                });
+    // 7. 값 삭제 이벤트 (인덱스 기반 삭제로 변경 - 가장 확실한 방법)
+    $pills_area.on('click', '.remove-pill', function (e) {
+        // 이벤트 전파 및 기본 동작 방지 (매우 중요)
+        e.preventDefault();
+        e.stopPropagation();
 
-                // 8. 강제 입력 방지
-                $search_input.on('blur keydown', function(e) {
-                    if (e.type === 'blur' || (e.type === 'keydown' && e.keyCode === 13)) {
-                        setTimeout(() => {
-                            $search_input.val("");
-                        }, 100);
-                    }
-                });
-                
-                // 컨테이너 클릭 시 입력창 포커스
-                $container.on('click', function(e) {
-                    if (e.target === this || e.target === $pills_area[0]) {
-                        $search_input.focus();
-                    }
-                });
-            }
+        let $group = $(this).closest('.pill-group');
+        let index = $group.index(); // 현재 Pill이 몇 번째인지 확인
+
+        if (index > -1) {
+            // 배열에서 해당 인덱스의 값을 직접 제거
+            current_values.splice(index, 1);
+            render_pills();
+        }
+    });
+
+    // 8. 강제 입력 방지
+    $search_input.on('blur keydown', function (e) {
+        if (e.type === 'blur' || (e.type === 'keydown' && e.keyCode === 13)) {
+            setTimeout(() => {
+                $search_input.val("");
+            }, 100);
+        }
+    });
+
+    // 컨테이너 클릭 시 입력창 포커스
+    $container.on('click', function (e) {
+        if (e.target === this || e.target === $pills_area[0]) {
+            $search_input.focus();
         }
     });
 }
@@ -2157,7 +1973,7 @@ function setup_dialog_link_queries(frm, dialog, data) {
     dialog.fields.forEach(df => {
         if (df.fieldtype === "Link" && field_query_map[df.fieldname]) {
             // Set the get_query method for the dialog field
-            dialog.get_field(df.fieldname).get_query = function() {
+            dialog.get_field(df.fieldname).get_query = function () {
                 // You can add dynamic filters here if needed, based on the form or dialog values
                 // Example: let current_dialog_values = this.dialog.get_values();
                 return field_query_map[df.fieldname];
@@ -2196,15 +2012,15 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
         door_open_type: door_open_type,
         door_set_type: door_set_type,
         door_frame: parent_row_doc.item_code,
-        door_closer: parent_row_doc.door_closer, 
-        handle_direct: parent_row_doc.handle_direct, 
+        door_closer: parent_row_doc.door_closer,
+        handle_direct: parent_row_doc.handle_direct,
         hw_options: parent_row_doc.hw_options,
         sub_contract: parent_row_doc.sub_contract,
         price_study: parent_row_doc.price_study,
         app_country: parent_row_doc.app_country,
         keeper: parent_row_doc.keeper,
         hinge: parent_row_doc.hinge,
-        hinge_type: parent_row_doc.hinge_type, 
+        hinge_type: parent_row_doc.hinge_type,
         hinge_num: parent_row_doc.hinge_num,
         hinge_glass_a: parent_row_doc.hinge_glass_a,
         hinge_glass_b: parent_row_doc.hinge_glass_b,
@@ -2245,8 +2061,8 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
             leaf_glass_b: dialog_values.leaf_glass_b,
             leaf_material: dialog_values.leaf_material,
             color: dialog_values.leaf_color || parent_row_doc.color,
-            auto_drop_seal: dialog_values.auto_drop_seal, 
-            
+            auto_drop_seal: dialog_values.auto_drop_seal,
+
             indent_level: cint(parent_row_doc.indent_level || 0) + 1, // Increase indent level
             width: leaf_width,
             is_leaf_item: 1, // Custom flag to identify Leaf items added this way
@@ -2256,7 +2072,7 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
         add_or_update_child_item(frm, table_fieldname, parent_row_doc, leaf_a_values); // 'leaf_a_row_ref' is a field on the parent_row_doc
     } else {
         // If leaf_item_code is cleared in dialog, remove the existing Leaf A row
-         remove_child_item(frm, table_fieldname, parent_row_doc, 'A');
+        remove_child_item(frm, table_fieldname, parent_row_doc, 'A');
     }
 
     // --- Leaf B ---
@@ -2265,7 +2081,7 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
         const leaf_b_values = {
             // Context from parent door row
             ...parent_context,
-             // Leaf B specific values from dialog
+            // Leaf B specific values from dialog
             item_code: dialog_values.leaf_b_item_code,
             leaf_act_status: dialog_values.leaf_b_act_status,
             leaf_thk: dialog_values.leaf_b_thk,
@@ -2280,10 +2096,10 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
             is_leaf_item: 1, // Flag as a leaf item
             leaf_name: 'B'
         };
-        add_or_update_child_item(frm, table_fieldname, parent_row_doc, leaf_b_values); 
+        add_or_update_child_item(frm, table_fieldname, parent_row_doc, leaf_b_values);
     } else {
-         // If pair door is unchecked or leaf_b_item_code is cleared, remove Leaf B row
-         remove_child_item(frm, table_fieldname, parent_row_doc, 'B');
+        // If pair door is unchecked or leaf_b_item_code is cleared, remove Leaf B row
+        remove_child_item(frm, table_fieldname, parent_row_doc, 'B');
     }
 }
 
@@ -2291,8 +2107,8 @@ async function handle_leaf_item_updates(frm, parent_row_doc, dialog_values) {
 function add_or_update_child_item(frm, child_table_fieldname, parent_row_doc, child_values) {
     const child_doctype_name = frappe.get_meta(frm.doctype).fields.find(df => df.fieldname === child_table_fieldname)?.options;
     if (!child_doctype_name) {
-         console.error(`add_or_update_child_item: Could not determine child doctype name for fieldname: ${child_table_fieldname}`);
-         return;
+        console.error(`add_or_update_child_item: Could not determine child doctype name for fieldname: ${child_table_fieldname}`);
+        return;
     }
     // Save parent_row_doc first to ensure it has a valid name.
     // frm.save_or_update();
@@ -2303,12 +2119,12 @@ function add_or_update_child_item(frm, child_table_fieldname, parent_row_doc, ch
             if (row.fg_item === old_item_code) {
                 frappe.model.set_value(row.doctype, row.name, 'fg_item', new_item_code);
             }
-            
+
             if (row.fg_reference_id === old_item_name) {
                 frappe.model.set_value(row.doctype, row.name, 'fg_reference_id', new_item_name);
             }
         });
-        
+
         // frm.refresh_field("items");
         frm.refresh();
     }, 300);
@@ -2326,7 +2142,7 @@ function add_or_update_child_item(frm, child_table_fieldname, parent_row_doc, ch
     Promise.all([
         // 1. Item 마스터의 Default BOM 조회
         frappe.db.get_value("Item", child_values.item_code, "default_bom"),
-        
+
         // 2. 현재 회사(Company)에 맞는 Active BOM 조회
         frappe.db.get_value("BOM", {
             "item": child_values.item_code,
@@ -2335,14 +2151,14 @@ function add_or_update_child_item(frm, child_table_fieldname, parent_row_doc, ch
             "docstatus": 1
         }, "name") // BOM 이름(ID) 조회
     ]).then(results => {
-            const r_default = results[0];
-            const r_company = results[1];
+        const r_default = results[0];
+        const r_company = results[1];
 
-            // 결과 파싱
-            const default_bom = (r_default && r_default.message) ? r_default.message.default_bom : null;
-            const company_bom = (r_company && r_company.message) ? r_company.message.name : null;
+        // 결과 파싱
+        const default_bom = (r_default && r_default.message) ? r_default.message.default_bom : null;
+        const company_bom = (r_company && r_company.message) ? r_company.message.name : null;
 
-            child_values.bom_no = company_bom || default_bom;
+        child_values.bom_no = company_bom || default_bom;
 
         // 1. Try to find existing child row using the stored name in the parent reference field
         if (child_row) {
@@ -2379,7 +2195,7 @@ function add_or_update_child_item(frm, child_table_fieldname, parent_row_doc, ch
             // UI에 변경사항을 확실히 반영하기 위해 그리드를 새로고칩니다.
             grid.refresh();
             frm.dirty();
-            
+
             console.log(`add_or_update_leaf_item: 새 행 ${new_child_row.name} 추가 완료. linked_item_ref: ${new_child_row.linked_item_ref}`);
         }
     })
@@ -2410,14 +2226,14 @@ function remove_child_item(frm, child_table_fieldname, parent_row_doc, parent_re
         frm.dirty(); // Mark form dirty
         // The grid refresh is handled by setup_bom_conditions_button
     } else {
-         // Row not found in doc array, but parent still has the reference.
-         // Just clear the reference to fix the link.
+        // Row not found in doc array, but parent still has the reference.
+        // Just clear the reference to fix the link.
         if (parent_row_doc[parent_ref_fieldname]) {
-             console.warn(`remove_child_item: Child row with name ${child_row_name} not found in doc array for ${child_table_fieldname}, but reference exists in parent. Clearing parent reference.`);
+            console.warn(`remove_child_item: Child row with name ${child_row_name} not found in doc array for ${child_table_fieldname}, but reference exists in parent. Clearing parent reference.`);
             frappe.model.set_value(parent_row_doc.doctype, parent_row_doc.name, parent_ref_fieldname, null);
             frm.dirty();
         } else {
-             // console.log(`remove_child_item: No child row or reference to remove for ${parent_ref_fieldname} in ${parent_row_doc.name}`);
+            // console.log(`remove_child_item: No child row or reference to remove for ${parent_ref_fieldname} in ${parent_row_doc.name}`);
         }
     }
 }
@@ -2428,7 +2244,7 @@ function update_specific_row_qty_display(frm, cdt, cdn) {
 
     const possible_parent_grids = ["detail_bom_items", "sub_items"];
     if (!parent_grid_fieldname || !possible_parent_grids.includes(parent_grid_fieldname)) {
-            console.warn("show_qty_bracket: Parent grid fieldname not valid:", parent_grid_fieldname);
+        console.warn("show_qty_bracket: Parent grid fieldname not valid:", parent_grid_fieldname);
         return;
     }
 
@@ -2448,7 +2264,7 @@ function update_specific_row_qty_display(frm, cdt, cdn) {
             $qty_cell.text(qty_string).show();
             console.log(`Updated qty display for row ${cdn}: ${qty_string}`);
         } else {
-                // console.warn(`show_qty_bracket: Could not find cell for qty in row: ${cdn}`);
+            // console.warn(`show_qty_bracket: Could not find cell for qty in row: ${cdn}`);
         }
     }
 }
@@ -2467,14 +2283,14 @@ function setup_group_pagination(frm) {
     const GROUPS_PER_PAGE = 10; // 페이지당 부모 그룹 수
 
     // --- 1. BOM 그룹 계산 (부모 + 자식 묶음) ---
-    grid._compute_bom_groups = function() {
+    grid._compute_bom_groups = function () {
         const data = this.data || [];
         const groups = [];
 
         for (let i = 0; i < data.length; i++) {
             const item = data[i];
             const is_parent = item.indent_level === 0 ||
-                             (item.indent_level == 1 && item.product_section === "Leaf");
+                (item.indent_level == 1 && item.product_section === "Leaf");
 
             if (is_parent) {
                 if (groups.length > 0) {
@@ -2493,7 +2309,7 @@ function setup_group_pagination(frm) {
     };
 
     // --- 2. 페이지별 행 범위 계산 ---
-    grid._get_page_range = function(page_idx) {
+    grid._get_page_range = function (page_idx) {
         const groups = this._compute_bom_groups();
         const total_groups = groups.length;
 
@@ -2511,7 +2327,7 @@ function setup_group_pagination(frm) {
     };
 
     // --- 3. 전체 페이지 수 계산 ---
-    grid._get_total_pages = function() {
+    grid._get_total_pages = function () {
         const groups = this._compute_bom_groups();
         return Math.max(1, Math.ceil(groups.length / GROUPS_PER_PAGE));
     };
@@ -2519,7 +2335,7 @@ function setup_group_pagination(frm) {
     // --- 4. render_result_rows 오버라이드 ---
     // 원본 메서드(GridRow 생성자 포함)를 재활용하면서 렌더링 범위만 그룹 기반으로 변경
     const _orig_render = grid.render_result_rows;
-    grid.render_result_rows = function($rows, append_row) {
+    grid.render_result_rows = function ($rows, append_row) {
         const range = this._get_page_range(this.grid_pagination.page_index);
 
         // 원본 render_result_rows는 내부적으로 다음 값으로 범위를 결정:
@@ -2545,7 +2361,7 @@ function setup_group_pagination(frm) {
 
     // --- 5. pagination 메서드 오버라이드 ---
     // render_pagination: 그룹 기반 total_pages로 UI 결정
-    pagination.render_pagination = function() {
+    pagination.render_pagination = function () {
         const total_pages = grid._get_total_pages();
         if (total_pages <= 1) {
             this.wrapper.find(".grid-pagination").html("");
@@ -2563,7 +2379,7 @@ function setup_group_pagination(frm) {
         }
     };
 
-    pagination.update_page_numbers = function() {
+    pagination.update_page_numbers = function () {
         const new_total = grid._get_total_pages();
         if (this.total_pages !== new_total) {
             this.total_pages = new_total;
@@ -2571,13 +2387,13 @@ function setup_group_pagination(frm) {
         }
     };
 
-    pagination.get_result_length = function() {
+    pagination.get_result_length = function () {
         const range = grid._get_page_range(this.page_index);
         return range.end;
     };
 
     // render_next_page: 그룹 기반 total_pages 사용
-    pagination.render_next_page = function() {
+    pagination.render_next_page = function () {
         const total_pages = grid._get_total_pages();
         if (this.page_index < total_pages) {
             this.page_index++;
@@ -2586,7 +2402,7 @@ function setup_group_pagination(frm) {
     };
 
     // render_prev_page
-    pagination.render_prev_page = function() {
+    pagination.render_prev_page = function () {
         if (this.page_index > 1) {
             this.page_index--;
             this.go_to_page();
@@ -2594,7 +2410,7 @@ function setup_group_pagination(frm) {
     };
 
     // --- 6. go_to_page 오버라이드 (페이지 전환 후 toggle/qty 재적용) ---
-    pagination.go_to_page = function(index, from_refresh) {
+    pagination.go_to_page = function (index, from_refresh) {
         if (!index) {
             index = this.page_index;
         } else {
@@ -2626,7 +2442,7 @@ function setup_group_pagination(frm) {
     };
 
     // go_to_last_page_to_add_row 수정
-    pagination.go_to_last_page_to_add_row = function() {
+    pagination.go_to_last_page_to_add_row = function () {
         const total_pages = grid._get_total_pages();
         if (this.page_index !== total_pages) {
             this.go_to_page(total_pages);
@@ -2646,7 +2462,7 @@ function setup_detail_bom_grid(frm) {
 
     // --- 2. 통합 grid.refresh 몽키패치 ---
     const original_refresh = grid.refresh;
-    grid.refresh = function() {
+    grid.refresh = function () {
         original_refresh.apply(this, arguments);
         // refresh가 호출될 때마다 실행될 로직들
         const grid_wrapper = $(this.wrapper);
@@ -2663,7 +2479,7 @@ function setup_detail_bom_grid(frm) {
         grid_wrapper.find('.row-index').addClass('visibility-hidden');
 
         update_grid_qty_view(frm);
-        
+
         // 가. 자식 행 토글 기능 적용 (기존 setup_toggle_sub_items의 로직)
         apply_toggle_logic(frm, this);
 
@@ -2684,7 +2500,7 @@ function setup_add_item_button(frm) {
     }
 
     const add_item_button = $(`<button class="btn btn-secondary btn-xs btn-add-context-item" ...>Add Item</button>`);
-    
+
     // const add_row_button = grid_wrapper.find('.grid-add-row');
     // add_row_button.after(add_item_button);
     // add_row_button.hide();
@@ -2726,7 +2542,7 @@ function setup_add_item_button(frm) {
             last_row_doc = expanded_parent;
             insert_at_idx = last_row_doc.idx + 1; // 부모 바로 다음에 삽입
         }
-        
+
         // 복사할 문서를 만들고, 특정 필드는 초기화
         const modified_doc = frappe.model.copy_doc(last_row_doc);
         modified_doc.item_code = '';
@@ -2735,7 +2551,7 @@ function setup_add_item_button(frm) {
         modified_doc.qty = 1;
         // modified_doc.rate = 0;
         // modified_doc.amount = 0;
-        
+
         // is_duplicate=false로 해야 새 __newname이 할당됨.
         // true로 하면 name까지 복사되어 중복 에러 발생.
         const new_row = grid.add_new_row(insert_at_idx, null, true, modified_doc, false);
@@ -2780,7 +2596,7 @@ function apply_toggle_logic(frm, grid_obj) {
         // ... 부모 행/자식 행에 따른 토글 버튼 추가 및 숨김 처리 ...
         const doc_data_row = all_items.find(d => d.name === row_doc.name);
         if (!doc_data_row) return; // Should not happen if grid_rows are in sync
-        
+
         const is_parent_row = doc_data_row.indent_level === 0 || (doc_data_row.indent_level === 1 && doc_data_row.product_section === "Leaf");
 
         if (is_parent_row) {
@@ -2795,9 +2611,9 @@ function apply_toggle_logic(frm, grid_obj) {
                     ${button_icon}
                 </button>
             `);
-                
+
             $button_container.prepend($toggle_button); // Add button before checkbox
-    
+
             // [핵심 수정] 토글 버튼 클릭 이벤트 (원래 로직 복원)
             $toggle_button.off("click").on("click", function (e) {
                 e.stopPropagation();
@@ -2814,7 +2630,7 @@ function apply_toggle_logic(frm, grid_obj) {
                 clicked_parent_doc._expanded = !new_expanded_state;
 
                 grid_obj.refresh();
-                
+
                 // // 버튼 아이콘 즉시 업데이트
                 // $(this).html(new_expanded_state ? "▼" : "▶");
                 // // 다른 부모 버튼 아이콘도 업데이트
@@ -2862,20 +2678,20 @@ function apply_toggle_logic(frm, grid_obj) {
 
             let top_level_parent_expanded = false;
             if (parent_row) {
-                 let top_parent_search_idx = all_items.findIndex(d => d.name === parent_row.name);
-                 for (let i = top_parent_search_idx; i >= 0; i--) {
+                let top_parent_search_idx = all_items.findIndex(d => d.name === parent_row.name);
+                for (let i = top_parent_search_idx; i >= 0; i--) {
                     const potential_top_parent = all_items[i];
                     const is_top_level_parent = potential_top_parent.indent_level === 0 || (potential_top_parent.indent_level === 1 && potential_top_parent.product_section === "Leaf");
 
-                    if(is_top_level_parent) {
+                    if (is_top_level_parent) {
                         if (potential_top_parent._expanded) {
                             top_level_parent_expanded = true;
                         }
                         break; // 최상위 부모를 찾았으므로 중단
                     }
-                 }
+                }
             }
-            
+
             // // 부모를 찾지 못했거나, 부모가 닫혀있으면 자식 행을 숨깁니다.
             // if (!parent_row || !parent_row._expanded) {
             //     $row_wrapper.hide();
@@ -2895,7 +2711,7 @@ function toggle_add_item_button_visibility(frm) {
 
     // const has_expanded_parent = (frm.doc.detail_bom_items || []).some(item => item._expanded);
     const button = grid.custom_buttons.add_item;
-    
+
     // 버튼을 항상 보이게 하고, 조건에 따라 disabled 속성만 변경
     button.show();
 }

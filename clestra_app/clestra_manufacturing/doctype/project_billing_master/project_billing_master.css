@@ -4,7 +4,7 @@
 }
 
 /* sub_items 테이블 헤더의 첫 번째 인덱스 컬럼도 숨깁니다. */
-[data-fieldname="sub_items"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+[data-fieldname="sub_items"] .grid-heading-row .grid-row>.col-xs-1:first-child {
     display: none;
 }
 
@@ -13,73 +13,60 @@
 
 /* panel_cover 테이블 */
 [data-fieldname="panel_cover"] .grid-body .rows .row-index,
-[data-fieldname="panel_cover"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+[data-fieldname="panel_cover"] .grid-heading-row .grid-row>.col-xs-1:first-child {
     display: none;
 }
 
 /* door_cover 테이블 */
 [data-fieldname="door_cover"] .grid-body .rows .row-index,
-[data-fieldname="door_cover"] .grid-heading-row .grid-row > .col-xs-1:first-child {
+[data-fieldname="door_cover"] .grid-heading-row .grid-row>.col-xs-1:first-child {
     display: none;
 }
 
-[data-fieldname="detail_bom_items"] .form-grid .grid-row .col-xs-1:first-child {
-    /* 1. 고정된 최소/최대 너비 설정 */
-    min-width: 45px !important; /* 최소 너비를 지정하여 내용물이 줄어들어도 너비 유지 */
-    max-width: 45px !important; /* 최대 너비를 지정하여 내용물이 늘어나도 너비 유지 */
-    width: 45px !important;     /* 너비를 명확하게 고정 */
-
-    /* 2. 내용물을 중앙에 정렬 (선택 사항, 미관상 개선) */
-    display: flex;
-    align-items: center;
-    justify-content: center; /* 아이콘과 체크박스를 수평 중앙에 배치 */
-}
-
-/* 토글 버튼이 있는 .row-check 컬럼 너비 고정 — 컬럼 간격 틀어짐 방지 */
-[data-fieldname="detail_bom_items"] .form-grid .grid-row .row-check {
-    flex: 0 0 28px !important;
-    min-width: 28px !important;
-    max-width: 28px !important;
-    width: 28px !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* .row-index도 너비 고정하여 hide/show 시 레이아웃 안정화 */
-[data-fieldname="detail_bom_items"] .form-grid .grid-row .row-index {
-    flex: 0 0 30px !important;
-    min-width: 30px !important;
-    max-width: 30px !important;
-    width: 30px !important;
-}
-
-/* row-index를 숨기되 공간은 유지 — 칼럼 정렬 안정화 */
-[data-fieldname="detail_bom_items"] .form-grid .row-index.visibility-hidden {
-    visibility: hidden !important;
-}
-
-/* 토글 버튼 스타일 */
-[data-fieldname="detail_bom_items"] .toggle-sub-items {
-    padding: 2px 5px !important;
-    margin: 0 !important;
-    min-width: 0 !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    cursor: pointer;
-    color: var(--text-muted);
+[data-fieldname="detail_bom_items"] .form-grid .row-index,
+[data-fieldname="detail_bom_items"] .grid-body .rows .row-index,
+[data-fieldname="detail_bom_items"] .grid-heading-row .grid-row>.col-xs-1:first-child {
+    display: none;
 }
 
 [data-fieldname="detail_bom_items"] .toggle-sub-items:hover {
     color: var(--text-color);
 }
 
-/* 토글 버튼이 추가되었을 때 체크박스 숨김 — 공간 절약 */
-[data-fieldname="detail_bom_items"] .row-check:has(.toggle-sub-items) .grid-row-check {
-    display: none;
+/* 모든 그리드에서 old_idx 열의 너비를 row-check 열과 동일하게 가변 적용 */
+.frappe-control[data-fieldname="detail_bom_items"] .col[data-fieldname="old_idx"],
+.frappe-control[data-fieldname="door_cover"] .col[data-fieldname="old_idx"],
+.frappe-control[data-fieldname="sub_items"] .col[data-fieldname="old_idx"] {
+    flex: 0 0 5.555% !important;
+    min-width: 5.555% !important;
+    max-width: 5.555% !important;
+    width: 5.555% !important;
+    text-align: center;
+}
+
+/* bom_conditions 셀 전체 및 내부를 중앙 정렬 */
+.rows .grid-row .col[data-fieldname="bom_conditions"],
+.rows [data-fieldname="bom_conditions"] {
+    text-align: center !important;
+}
+
+/* bom_conditions 셀: static-area 텍스트를 아이콘으로 교체 */
+.rows [data-fieldname="bom_conditions"] .static-area,
+.rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"] {
+    font-size: 0 !important;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.rows [data-fieldname="bom_conditions"] .static-area::before,
+.rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"]::before {
+    font-family: 'FontAwesome';
+    content: '\f150';
+    /* fa-caret-square-o-down */
+    font-size: 14px;
 }

@@ -23,8 +23,6 @@ frappe.ui.form.on('Project Billing Master', {
                 };
             };
         }
-
-        setup_bom_conditions_buttons(frm);
     },
 
     refresh: function (frm) {
@@ -703,42 +701,6 @@ function setup_po_items_grid(frm) {
     // --- 3. 주석 처리된 구 grid.refresh 몽키패치 제거됨 ---
     grid.is_fully_enhanced = true;
     grid.refresh();
-}
-
-
-// bom_conditions 버튼을 CSS로 아이콘화하는 함수
-// CSS는 DOM이 재생성되어도 항상 적용되므로 static-area/field-area 전환에도 유지됨
-function setup_bom_conditions_buttons(frm) {
-    if (document.getElementById('bom-conditions-icon-style')) return; // 중복 방지
-
-    const style = document.createElement('style');
-    style.id = 'bom-conditions-icon-style';
-    style.textContent = `
-        /* bom_conditions 셀 전체 및 내부를 중앙 정렬 */
-        .rows .grid-row .col[data-fieldname="bom_conditions"],
-        .rows [data-fieldname="bom_conditions"] {
-            text-align: center !important;
-        }
-        /* bom_conditions 셀: static-area 텍스트를 아이콘으로 교체 */
-        .rows [data-fieldname="bom_conditions"] .static-area,
-        .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"] {
-            font-size: 0 !important;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
-        .rows [data-fieldname="bom_conditions"] .static-area::before,
-        .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"]::before {
-            font-family: 'FontAwesome';
-            content: '\\f150'; /* fa-caret-square-o-down */
-            font-size: 14px;
-        }
-    `;
-    document.head.appendChild(style);
 }
 
 
@@ -2624,7 +2586,7 @@ function apply_toggle_logic(frm, grid_obj) {
 
             $button_container.prepend($toggle_button); // Add button before checkbox
 
-            // [핵심 수정] 토글 버튼 클릭 이벤트 (원래 로직 복원)
+            // [핵심 수정] 토글 버튼 클릭 이벤트
             $toggle_button.off("click").on("click", function (e) {
                 e.stopPropagation();
                 const clicked_parent_doc = all_items.find(d => d.name === grid_row.doc.name);

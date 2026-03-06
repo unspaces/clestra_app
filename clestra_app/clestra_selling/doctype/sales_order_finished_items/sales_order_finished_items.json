@@ -485,7 +485,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "columns": 3,
+   "columns": 2,
    "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
@@ -516,8 +516,10 @@
    "label": "Parent Row No"
   },
   {
+   "columns": 1,
    "fieldname": "lm",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "L/M",
    "precision": "2"
   },
@@ -754,8 +756,10 @@
    "label": "General Information"
   },
   {
+   "columns": 1,
    "fieldname": "square_m",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "M\u00b2",
    "precision": "2"
   },
@@ -850,6 +854,7 @@
    "label": "Sub Contract"
   },
   {
+   "columns": 1,
    "fieldname": "planned_qty",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -871,7 +876,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-26 11:25:04.765460",
+ "modified": "2026-01-07 11:54:53.364821",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Sales Order Finished Items",

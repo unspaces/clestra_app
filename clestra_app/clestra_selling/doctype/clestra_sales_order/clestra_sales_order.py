@@ -186,12 +186,17 @@ class ClestraSalesOrder(Document):
             # --- 서버 측에서 최종 계산 수행 ---
             lm = 0
             square_m = 0
-            qty = float(row.planned_qty) if row.planned_qty else 1
-            if row.item_code and row.height and row.width:
+            qty = float(row.planned_qty) if row.planned_qty is not None else 1
+            
+            # lm 계산: item_code와 width만 필요
+            if row.item_code and row.width:
                 include_lm = frappe.db.get_value("Item", row.item_code, "include_lm")
                 if include_lm:
                     lm = (float(row.width) / 1000) * qty
-                    square_m = ((float(row.width) * float(row.height)) / 1000000) * qty
+                    
+                    # square_m 계산: height도 필요
+                    if row.height:
+                        square_m = ((float(row.width) * float(row.height)) / 1000000) * qty
             
             row.lm = lm
             row.square_m = square_m
@@ -436,8 +441,12 @@ def calculate_and_get_row_values(item_code, height, width, qty):
     """
     주어진 값으로 lm과 square_m을 계산하여 반환합니다.
     이 함수는 클라이언트의 실시간 피드백을 위해 사용됩니다.
+    
+    lm 계산: item_code, width, qty만 필요
+    square_m 계산: item_code, height, width, qty 모두 필요
     """
-    if not all([item_code, height, width]):
+    # lm 계산을 위한 최소 필수 값 확인
+    if not item_code or not width:
         return {"lm": 0, "square_m": 0}
 
     try:
@@ -445,8 +454,15 @@ def calculate_and_get_row_values(item_code, height, width, qty):
         include_lm = frappe.db.get_value("Item", item_code, "include_lm")
         
         if include_lm:
-            lm = (float(width) / 1000) * float(qty)
-            square_m = ((float(width) * float(height)) / 1000000) * float(qty)
+            # lm 계산 (width와 qty만 필요)
+            lm = (float(width) / 1000) * float(qty) if qty else 0
+            
+            # square_m 계산 (height도 필요)
+            if height:
+                square_m = ((float(width) * float(height)) / 1000000) * float(qty) if qty else 0
+            else:
+                square_m = 0
+                
             return {"lm": lm, "square_m": square_m}
         else:
             return {"lm": 0, "square_m": 0}

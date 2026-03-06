@@ -184,13 +184,13 @@
    "reqd": 1
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
    "label": "Is Active"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "is_default",
    "fieldtype": "Check",
    "label": "Is Default"
@@ -227,7 +227,8 @@
   },
   {
    "fieldname": "section_break_kcli",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Default Values"
   },
   {
    "fieldname": "ch",
@@ -781,7 +782,8 @@
   },
   {
    "fieldname": "section_break_bsop",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hide_border": 1
   },
   {
    "fetch_from": "aa10_formula.formula",
@@ -906,7 +908,7 @@
   }
  ],
  "links": [],
- "modified": "2026-02-24 16:12:38.798723",
+ "modified": "2026-02-25 14:24:05.286261",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Quotation Pricing",

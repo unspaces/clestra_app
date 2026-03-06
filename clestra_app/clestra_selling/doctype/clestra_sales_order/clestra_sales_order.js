@@ -230,6 +230,7 @@ frappe.ui.form.on("Clestra Sales Order", {
 		setup_finished_items_grid(frm);
 		setup_group_selection_for_grid(frm);
 		apply_visibility_rules(frm);
+		update_all_planned_qty_visibility(frm);
 		clickable_unit_price_column(frm);
 
 		// ================== 5. HTML 렌더 ==================
@@ -633,17 +634,23 @@ frappe.ui.form.on("Sales Order Finished Items", {
 	},
 
 	ch: function (frm, cdt, cdn) {
-		// const row = locals[cdt][cdn];
-		// const ch_value = row.ch;
+		const row = locals[cdt][cdn];
+		const ch_value = row.ch;
 
-		// frappe.model.set_value(cdt, cdn, 'height', ch_value);
+		frappe.model.set_value(cdt, cdn, 'height', ch_value);
+		
+		// ch 값이 변경될 때마다 zone_summary 업데이트
+		update_zone_summary_table(frm);
 	},
 
 	ph: function (frm, cdt, cdn) {
-		// const row = locals[cdt][cdn];
-		// const ph_value = row.ph;
+		const row = locals[cdt][cdn];
+		const ph_value = row.ph;
 
-		// frappe.model.set_value(cdt, cdn, 'height', ph_value);
+		frappe.model.set_value(cdt, cdn, 'height', ph_value);
+		
+		// ph 값이 변경될 때마다 zone_summary 업데이트
+		update_zone_summary_table(frm);
 	},
 
 	width: function (frm, cdt, cdn) {
@@ -715,6 +722,12 @@ frappe.ui.form.on("Sales Order Finished Items", {
 			const new_indent = cint(row.parent_row_no) > 0 ? 2 : 0;
 			frappe.model.set_value(cdt, cdn, 'indent_level', new_indent);
 		}
+		
+		// planned_qty 필드 표시/숨김 처리
+		if (grid_row) {
+			toggle_planned_qty_field(grid_row, row.product_section);
+		}
+		
 		update_calculated_price(frm, cdt, cdn);
 	},
 
@@ -727,6 +740,24 @@ frappe.ui.form.on("Sales Order Finished Items", {
 		if (!newZoneName) {
 			return;
 		}
+		
+		// zone_name 변경 시 zone_summary 업데이트
+		update_zone_summary_table(frm);
+	},
+	
+	lm: function (frm, cdt, cdn) {
+		// lm 값이 변경될 때마다 zone_summary의 total_lm 업데이트
+		update_zone_summary_table(frm);
+	},
+	
+	square_m: function (frm, cdt, cdn) {
+		// square_m 값이 변경될 때마다 zone_summary의 total_square_m 업데이트
+		update_zone_summary_table(frm);
+	},
+	
+	color: function (frm, cdt, cdn) {
+		// color 값이 변경될 때마다 zone_summary의 zone_color 업데이트
+		update_zone_summary_table(frm);
 	},
 
 	finished_items_add: function (frm, cdt, cdn) {
@@ -810,8 +841,49 @@ frappe.ui.form.on("Sales Order Finished Items", {
 
 		// 4. 가시성 규칙 적용
 		apply_visibility_rules(frm);
+		
+		// 5. planned_qty 필드 표시/숨김 처리
+		const grid = frm.get_field('finished_items').grid;
+		const grid_row = grid.grid_rows_by_docname[cdn];
+		if (grid_row && new_row) {
+			toggle_planned_qty_field(grid_row, new_row.product_section);
+		}
+	},
+	
+	finished_items_remove: function(frm, cdt, cdn) {
+		// 행이 삭제될 때도 가시성 규칙 적용
+		apply_visibility_rules(frm);
+		
+		// 행이 삭제될 때 zone_summary 업데이트
+		update_zone_summary_table(frm);
 	},
 });
+
+// planned_qty 필드를 product_section 값에 따라 표시하거나 숨기는 함수
+function toggle_planned_qty_field(grid_row, product_section) {
+	if (!grid_row || !grid_row.row) return;
+	
+	const allowed_sections = ['Door', 'Leaf', 'Panel'];
+	const should_show = allowed_sections.includes(product_section);
+	
+	// planned_qty 필드를 찾아서 표시/숨김 처리
+	const $planned_qty_field = $(grid_row.row).find('[data-fieldname="planned_qty"]');
+	if ($planned_qty_field.length) {
+		$planned_qty_field.toggle(should_show);
+	}
+}
+
+// grid의 모든 행에 대해 planned_qty 필드 표시/숨김 처리
+function update_all_planned_qty_visibility(frm) {
+	const grid = frm.fields_dict['finished_items']?.grid;
+	if (!grid) return;
+	
+	grid.grid_rows.forEach(grid_row => {
+		if (grid_row.doc) {
+			toggle_planned_qty_field(grid_row, grid_row.doc.product_section);
+		}
+	});
+}
 
 
 function set_default_project(frm, cdt, cdn) {
@@ -1222,7 +1294,7 @@ function setup_zone_summary_grid(frm) {
 			// 	return;
 			// }
 
-		// update_zone_summary_table(frm);
+		update_zone_summary_table(frm);
 
 		e.preventDefault();
 		e.stopPropagation();
@@ -1840,6 +1912,33 @@ function setup_finished_items_grid(frm) {
 		}
 	}
 	
+	// finished_items 그리드의 border-right 제거를 위한 CSS 주입
+	if (!$('style#finished-items-border-fix').length) {
+		$(`
+			<style id="finished-items-border-fix">
+				.form-grid[data-fieldname="finished_items"] .grid-row .row .col,
+				.form-grid[data-fieldname="finished_items"] .grid-row .row .row-check,
+				.form-grid[data-fieldname="finished_items"] .grid-row .row .row-index,
+				.form-grid[data-fieldname="finished_items"] .grid-body .col,
+				.form-grid[data-fieldname="finished_items"] .grid-body .row-check,
+				.form-grid[data-fieldname="finished_items"] .grid-body .row-index {
+					border-right: none !important;
+					border-right-width: 0 !important;
+					border-right-style: none !important;
+					border-right-color: transparent !important;
+				}
+				.form-grid[data-fieldname="finished_items"] .grid-heading-row .col,
+				.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-check,
+				.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-index {
+					border-right: none !important;
+					border-right-width: 0 !important;
+					border-right-style: none !important;
+					border-right-color: transparent !important;
+				}
+			</style>
+		`).appendTo('head');
+	}
+	
 	if (grid.is_fully_enhanced) return;
 
 	grid.wrapper.on('focusin', '[data-fieldname="item_code"] input', function () {
@@ -2157,13 +2256,28 @@ function setup_finished_items_grid(frm) {
 			// 부모 - 자식 사이 bottom-border 스타일 변경
 			// 1. 모든 행의 테두리 스타일을 먼저 기본값으로 초기화
 			grid_wrapper.find('.grid-row').css('border-bottom', 'none');
-			grid_wrapper.find('.grid-row .row .col').css('border-right', 'none');
+			grid_wrapper.find('.grid-row .row .col, .grid-row .row .row-check, .grid-row .row .row-index').css({
+				'border-right': 'none',
+				'border-right-width': '0',
+				'border-right-style': 'none',
+				'border-right-color': 'transparent'
+			});
+			
+			// 헤더 행의 테두리도 제거
+			grid_wrapper.find('.grid-heading-row .col, .grid-heading-row .row-check, .grid-heading-row .row-index').css({
+				'border-right': 'none',
+				'border-right-width': '0',
+				'border-right-style': 'none',
+				'border-right-color': 'transparent'
+			});
 
 			const COL_RESIZE_CONFIG = {
-				'ch': '7%',
+				'item_name': '32%',
+				'height': '7%',
 				'width': '7%',
 				'planned_qty': '5%',
-				'item_name': '32%',
+				'lm': '5%',
+				'square_m': '5%'
 			};
 			const CHECK_COL_WIDTH = "8%";
 
@@ -2175,8 +2289,9 @@ function setup_finished_items_grid(frm) {
 					if (!currentStyle.includes(`flex: 0 0 ${width} !important`)) {
 						let newStyle = currentStyle.replace(/flex:[^;]+;?/g, '')
 												   .replace(/max-width:[^;]+;?/g, '')
-												   .replace(/width:[^;]+;?/g, '');
-						$(this).attr('style', newStyle + `flex: 0 0 ${width} !important; max-width: ${width} !important; width: ${width} !important;`);
+												   .replace(/width:[^;]+;?/g, '')
+												   .replace(/border-right[^;]*:[^;]+;?/g, '');
+						$(this).attr('style', newStyle + `flex: 0 0 ${width} !important; max-width: ${width} !important; width: ${width} !important; border-right: none !important; border-right-width: 0 !important; border-right-style: none !important;`);
 					}
 				});
 			};
@@ -2240,7 +2355,12 @@ function setup_finished_items_grid(frm) {
 
 				// 각 행의 스타일을 초기화
 				$row.css({ 'border-bottom': ''});
-				$row.find('.row .col').css('border-right', 'none');
+				$row.find('.row .col, .row .row-check, .row .row-index').css({
+					'border-right': 'none',
+					'border-right-width': '0',
+					'border-right-style': 'none',
+					'border-right-color': 'transparent'
+				});
 
 				// 부모 행(indent_level == 0)에만 '하위 항목 추가' 버튼을 생성하고 스타일을 적용
 				if (doc.indent_level === 0) {
@@ -2680,9 +2800,10 @@ function toggle_move_to_button(frm, table_fieldname = 'finished_items') {
 function calculate_row_values(frm, cdt, cdn) {
 	const row = locals[cdt][cdn];
 
-	// 필수 값이 없으면 계산을 중단합니다.
-	if (!row.item_code || !row.height || !row.width || !row.planned_qty) {
-		// 만약 값이 지워졌다면, 계산된 값도 초기화해주는 것이 좋습니다.
+	// lm 계산을 위한 최소 필수 값: item_code, width, planned_qty
+	// square_m 계산을 위해서는 추가로 height도 필요
+	if (!row.item_code || !row.width || !row.planned_qty) {
+		// 최소 필수 값이 없으면 계산을 중단하고 초기화
 		frappe.model.set_value(cdt, cdn, 'lm', 0);
 		frappe.model.set_value(cdt, cdn, 'square_m', 0);
 		return;
@@ -2693,17 +2814,21 @@ function calculate_row_values(frm, cdt, cdn) {
 		method: "clestra_app.clestra_selling.doctype.clestra_sales_order.clestra_sales_order.calculate_and_get_row_values",
 		args: {
 			item_code: row.item_code,
-			height: row.height,
+			height: row.height || 0,  // height가 없으면 0으로 전달
 			width: row.width,
 			qty: row.planned_qty
 		},
 		callback: function (r) {
 			if (r.message) {
 				const values = r.message;
-				// 서버에서 받은 결과로 화면의 필드를 업데이트합니다.
+					// 서버에서 받은 결과로 화면의 필드를 업데이트합니다.
 				// 이 값은 임시 값이며, 최종 저장 시 서버에서 다시 계산됩니다.
 				frappe.model.set_value(cdt, cdn, 'lm', values.lm);
 				frappe.model.set_value(cdt, cdn, 'square_m', values.square_m);
+				
+				// lm과 square_m이 변경되었으므로 zone_summary도 업데이트
+				// (lm 이벤트 핸들러가 호출되므로 중복일 수 있지만, 확실성을 위해 추가)
+				// update_zone_summary_table(frm);
 			}
 		}
 	});

@@ -1,0 +1,420 @@
+[
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FRAME_STANDARD",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Standard Frame: (item_vp * 2) * vp_rate. 40+ products (MP_P85_ABL, MP_WC, MP_KABDV 등). Excel: ((item_vp+item_vp)*vp_rate)",
+    "formula": "(item_vp + item_vp) * vp_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FRAME_COMPLEX_DG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Complex Double Glazed Frame (KDV): body+clch+base scaled by width/ch + joints scaled by ch/buffer. Excel Row 6 MP_KDV3030",
+    "formula": "((item_vp + clch_vp + base_vp) * vp_rate / (width / 1000) / (stnd_ch / 1000) + ((joint_vp * 2) + joint_vp * 2) * vp_rate / (stnd_ch / 1000) / buffer_rate) * mat_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FRAME_COMPLEX_SG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Complex Single Glazed Frame (KSVO/KSVC): joint calculation differs - uses (stnd_ch/1000) multiplier. Excel MP_KSVO3030, MP_KSVC_N",
+    "formula": "((item_vp + clch_vp + base_vp) * vp_rate / (width / 1000) / (stnd_ch / 1000) + (joint_vp * (stnd_ch / 1000) + joint_vp) * vp_rate / (stnd_ch / 1000) / buffer_rate) * mat_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FRAME_COMPLEX_DG_PANEL",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Complex DG Frame with panel VP (KDV + panel). Pricing Variables: panel_vp, hbar_qty(가로바수량), margin_factor(여유). Excel Row 11 MP_KDV3030",
+    "formula": "((item_vp + panel_vp * hbar_qty * (width / 1000) * margin_factor + clch_vp + base_vp) * vp_rate / (width / 1000) / (stnd_ch / 1000) + ((joint_vp * 2) + joint_vp * 2) * vp_rate / (stnd_ch / 1000) / buffer_rate) * mat_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FRAME_COMPLEX_SG_PANEL",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Complex SG Frame with panel VP (KSVO + panel). Pricing Variables: panel_vp, hbar_qty, margin_factor. Excel Row 12 MP_KSVO3030",
+    "formula": "((item_vp + panel_vp * hbar_qty * (width / 1000) * margin_factor + clch_vp + base_vp) * vp_rate / (width / 1000) / (stnd_ch / 1000) + (joint_vp * (stnd_ch / 1000) + (joint_vp / buffer_rate) + joint_vp * (hbar_qty + 1)) * vp_rate / (stnd_ch / 1000) / buffer_rate) * mat_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_DOOR",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door products (31+): active_leaf_vp + inactive_leaf_vp + opt_cost from VP Management/Pricing Variables. Excel: (item_vp(ACT)+item_vp(INA)+OPT)*vp_rate",
+    "formula": "(active_leaf_vp + inactive_leaf_vp + opt_cost) * vp_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_ACCESSORY",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Accessory/UPAS: item_vp scaled by buffer only. Excel: MP_UPAS_KR",
+    "formula": "item_vp * vp_rate / buffer_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_ACCESSORY_GLASS",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Accessory with glass (AS type): frame + glass component. Pricing Variables: glass_cost_component, glass_area_ratio. Excel: MP_AS_KR, MP_FG*_AS_*",
+    "formula": "item_vp * vp_rate / (stnd_ch / 1000) / buffer_rate + ((clch_vp + base_vp) * vp_rate / (width / 1000) / (stnd_ch / 1000) / buffer_rate) * mat_rate + glass_cost_component * glass_area_ratio * glass_rate * glass_surcharge"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_PC",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Operable Wall/PC: body+joint + clch/base scaled by PC UW. Pricing Variables: joint_cost(=17*3=51 등). Excel: MP_PC, MP_PC_KR",
+    "formula": "(item_vp + joint_cost) * vp_rate + ((clch_vp / (width / 1000) * pc_uw / 1000) + (base_vp / (width / 1000) * pc_uw / 1000)) * vp_rate * mat_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_SLIDING_S",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding Single (FSDU): body+extras + clch scaled by S_UW. Pricing Variables: glass_attach, joint_cost. Excel: MP_FSDU_*, MP_DGSDU_*, MP_SGSDU_*",
+    "formula": "(item_vp + glass_attach + joint_cost) * vp_rate + clch_vp * vp_rate / (width / 1000) * mat_rate * s_uw / 1000"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_SLIDING_P",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding Pair (FPDU): body+extras + clch scaled by P_UW. Pricing Variables: glass_attach, joint_cost. Excel: MP_FPDU_*, MP_DGPDU_*, MP_SGPDU_*",
+    "formula": "(item_vp + glass_attach + joint_cost) * vp_rate + clch_vp * vp_rate / (width / 1000) * mat_rate * p_uw / 1000"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_SLIDING_SS",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Simple Single Sliding (C2V40, C2SG): body+extras + clch scaled by S_S_UW. Pricing Variables: glass_attach, joint_cost.",
+    "formula": "(item_vp + glass_attach + joint_cost) * vp_rate + clch_vp * vp_rate / (width / 1000) * mat_rate * s_s_uw / 1000"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_SLIDING_PS",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Simple Pair Sliding (C2V40_P, C2SG_P): body+extras + clch scaled by P_S_UW. Pricing Variables: glass_attach, joint_cost.",
+    "formula": "(item_vp + glass_attach + joint_cost) * vp_rate + clch_vp * vp_rate / (width / 1000) * mat_rate * p_s_uw / 1000"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_FGD",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Floor Glass Door (FGD): (item_vp*2 + glass_attach)*vp_rate + glass_extra_cost) * surcharge. Pricing Variables: glass_attach, glass_extra_cost. Excel: MP_FGD40T",
+    "formula": "(((item_vp + item_vp + glass_attach) * vp_rate) + glass_extra_cost) * glass_surcharge"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AA10_LEAF_ALL_IN",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "All-in-one leaf formula (C2SG_3M_LEAF): all components in single calc. Excel: MP_C2SG_3M_LEAF",
+    "formula": "(item_vp + clch_vp + base_vp + glass_cost_a + glass_cost_b + joint_vp) * vp_rate"
+  },
+
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_GLASS_DG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Glass cost - Double Glazed: (glass_a + glass_b) * glass_rate. Excel: MP_KDV3030",
+    "formula": "(glass_cost_a + glass_cost_b) * glass_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_GLASS_SG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Glass cost - Single Glazed: glass_a * glass_rate. Excel: MP_KSVO3030",
+    "formula": "glass_cost_a * glass_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_SINGLE_AG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Single leaf, full height AG. Pricing Variables: glass_unit_cost (=glass_cost_a_8T), glass_process_cost. Uses s_lh, s_lw derived fields.",
+    "formula": "glass_unit_cost * s_lh * s_lw * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_SINGLE_DG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Single leaf, DG (8T+6T). Pricing Variables: glass_unit_cost_a (=8T), glass_unit_cost_b (=6T), glass_process_cost.",
+    "formula": "(glass_unit_cost_a + glass_unit_cost_b) * s_lh * s_lw * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_SINGLE_HG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Single leaf, half-height (HG, center rail deducted). Uses s_lh - crh for height.",
+    "formula": "glass_unit_cost * (s_lh - crh) * s_lw * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_SINGLE_V",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Single leaf, vision panel (V type, fixed 200mm height). Uses s_lh * 200.",
+    "formula": "glass_unit_cost * s_lh * 200 * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_PAIR_AG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Pair leaf, full height AG. Uses p_lw + p_s_lw for both panels.",
+    "formula": "glass_unit_cost * s_lh * p_lw * glass_rate / 1000000 + glass_unit_cost * s_lh * p_s_lw * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_DOOR_PAIR_DG",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Door glass - Pair leaf, DG (8T+6T). Uses p_lw + p_s_lw.",
+    "formula": "(glass_unit_cost_a + glass_unit_cost_b) * s_lh * p_lw * glass_rate / 1000000 + (glass_unit_cost_a + glass_unit_cost_b) * s_lh * p_s_lw * glass_rate / 1000000 + glass_process_cost"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_SLIDING_COND_DG_S",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding DG glass - conditional on (CH-LH), Single S_UW. Excel: MP_DGSDU_*",
+    "formula": null
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_SLIDING_COND_SG_S",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding SG glass - conditional on (CH-LH), Single S_UW. Excel: MP_SGSDU_*",
+    "formula": null
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_SLIDING_COND_DG_P",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding DG glass - conditional on (CH-LH), Pair P_UW. Excel: MP_DGPDU_*",
+    "formula": null
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC40_SLIDING_COND_SG_P",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Sliding SG glass - conditional on (CH-LH), Pair P_UW. Excel: MP_SGPDU_*",
+    "formula": null
+  },
+
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_CH_BASIC",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - basic CH conditional. For frame products (KDV, KSVO etc). Excel: IF ch<3: inst_cost/ch else: inst_cost*surcharge/ch",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost / (stnd_ch / 1000) * inst_rate\nelse:\n    return inst_cost * ch_surcharge_rate / (stnd_ch / 1000) * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_CH_S_UW",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - CH conditional + S_UW width scaling. For single sliding units (FSDU). Excel: inst_cost * round(S_UW/1000) / 2",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost * max(1, round(s_uw / 1000, 1)) / 2 * inst_rate\nelse:\n    return inst_cost * max(1, round(s_uw / 1000, 1)) * ch_surcharge_rate / 2 * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_CH_P_UW",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - CH conditional + P_UW width scaling. For pair units (FPDU). Excel: inst_cost * round(P_UW/1800) / 2",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost * max(1, round(p_uw / 1800, 1)) / 2 * inst_rate\nelse:\n    return inst_cost * max(1, round(p_uw / 1000, 1)) * ch_surcharge_rate / 2 * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_CH_SS_UW",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - CH conditional + S_S_UW scaling. For simple single units (C2V40, C2SG).",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost * max(1, round(s_s_uw / 1000, 1)) / 2 * inst_rate\nelse:\n    return inst_cost * max(1, round(s_s_uw / 1000, 1)) * ch_surcharge_rate / 2 * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_CH_PS_UW",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - CH conditional + P_S_UW scaling. For simple pair units (C2V40_P, C2SG_P).",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost * max(1, round(p_s_uw / 1800, 1)) / 2 * inst_rate\nelse:\n    return inst_cost * max(1, round(p_s_uw / 1000, 1)) * ch_surcharge_rate / 2 * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB20_INST_SIMPLE",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Installation cost - simple CH conditional (PC, accessory). Excel: IF ch<3: inst_cost else: inst_cost*1.15",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return inst_cost * inst_rate\nelse:\n    return inst_cost * 1.15 * inst_rate"
+  },
+
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB44_CLEANING_UW",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Cleaning cost - unit width based (sliding/pair). Pricing Variable: unit_width. Excel: 15000*UW/1000/2",
+    "formula": "if (stnd_ch / 1000) < 3:\n    return expense_rate * unit_width / 1000 / 2 * inst_rate\nelse:\n    return expense_rate * ch_surcharge_rate * unit_width / 1000 / 2 * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB44_CLEANING_CH_6",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Cleaning cost - CH divided by 6 (frame products). Excel: 200000/6/ch. 시운!L10=200000",
+    "formula": "if (stnd_ch / 1000) <= 3:\n    return expense_rate / 6 / (stnd_ch / 1000) * inst_rate\nelse:\n    return expense_rate / 6 / (stnd_ch / 1000) * ch_surcharge_rate * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC33_CAULKING_10",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Caulking cost - CH divided by 10. Excel: 300000/10/ch. 시운!L11=300000",
+    "formula": "if (stnd_ch / 1000) <= 3:\n    return expense_rate / 10 / (stnd_ch / 1000) * inst_rate\nelse:\n    return expense_rate / 10 / (stnd_ch / 1000) * ch_surcharge_rate * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AC33_CAULKING_20",
+    "formula_type": "Conditional",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Caulking cost - CH divided by 20. For doors/accessories.",
+    "formula": "if (stnd_ch / 1000) <= 3:\n    return expense_rate / 20 / (stnd_ch / 1000) * inst_rate\nelse:\n    return expense_rate / 20 / (stnd_ch / 1000) * ch_surcharge_rate * inst_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB30_TRANSP_13_HALF",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Transportation cost: expense_rate / ch / 13 / 2. For DG frames. Excel: 180000/ch/13/2. 시운!M30=180000",
+    "formula": "expense_rate / (stnd_ch / 1000) / 13 / 2"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB30_TRANSP_13",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Transportation cost: expense_rate / ch / 13. For most SG frames, doors. Excel: 180000/ch/13",
+    "formula": "expense_rate / (stnd_ch / 1000) / 13"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB30_TRANSP_8",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Transportation cost: expense_rate / ch / 8. For doors and sliding units.",
+    "formula": "expense_rate / (stnd_ch / 1000) / 8"
+  },
+
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AD43_WASTE",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Waste disposal cost: (factory + glass) * other_rate. Excel: (aa10+ac40)*other_rate. For most products.",
+    "formula": "(aa10_result + ac40_result) * other_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AD43_WASTE_HALF",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Waste disposal cost: half rate. For doors/accessories. Excel: (aa10+ac40)*other_rate/2",
+    "formula": "(aa10_result + ac40_result) * other_rate / 2"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AD41_CONTINGENCY",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Contingency cost: (factory + install + cleaning + caulking) * other_rate. Excel: (aa10+ab20+ab44+ac33)*other_rate",
+    "formula": "(aa10_result + ab20_result + ab44_result + ac33_result) * other_rate"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AD41_CONTINGENCY_HALF",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Contingency cost: half rate. For doors/accessories.",
+    "formula": "(aa10_result + ab20_result + ab44_result + ac33_result) * other_rate / 2"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "AB52_PM_RESERVE",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "PM Reserve: 7% of all cost subtotals. Excel: sum(aa10~ad41)*7%. Universal for all products.",
+    "formula": "(aa10_result + ac40_result + ab20_result + ab44_result + ac33_result + ab30_result + ac34_result + ad43_result + ad41_result) * 0.07"
+  },
+  {
+    "doctype": "Formula Library",
+    "formula_name": "SP1_ROYALTY",
+    "formula_type": "General",
+    "category": "Quotation",
+    "status": "Active",
+    "description": "Royalty: 4% of all cost subtotals. Excel: sum(aa10~ad41)*4%. Universal for all products.",
+    "formula": "(aa10_result + ac40_result + ab20_result + ab44_result + ac33_result + ab30_result + ac34_result + ad43_result + ad41_result) * 0.04"
+  }
+]

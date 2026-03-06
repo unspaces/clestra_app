@@ -282,9 +282,12 @@ function fetch_all_quotation_values(frm) {
         'Installation Rate': 'inst_rate',
         'Other Rate': 'other_rate',
         'Buffer Rate': 'buffer_rate',
+        'PM Reserve Rate': 'pm_reserve_rate',
         'CH': 'ch',
+        'LH': 'lh',
         'Standard CH': 'stnd_ch',
-        'Width': 'width'
+        'Width': 'width',
+        'Royalty Rate': 'royalty_rate'
     };
 
     // 2. 카테고리 이름들만 추출 (['Material Margin', 'Material Rate', ...])

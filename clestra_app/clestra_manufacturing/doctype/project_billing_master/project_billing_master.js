@@ -714,12 +714,22 @@ function setup_bom_conditions_buttons(frm) {
     const style = document.createElement('style');
     style.id = 'bom-conditions-icon-style';
     style.textContent = `
+        /* bom_conditions 셀 전체 및 내부를 중앙 정렬 */
+        .rows .grid-row .col[data-fieldname="bom_conditions"],
+        .rows [data-fieldname="bom_conditions"] {
+            text-align: center !important;
+        }
         /* bom_conditions 셀: static-area 텍스트를 아이콘으로 교체 */
         .rows [data-fieldname="bom_conditions"] .static-area,
         .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"] {
             font-size: 0 !important;
             line-height: 1;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
         }
         .rows [data-fieldname="bom_conditions"] .static-area::before,
         .rows [data-fieldname="bom_conditions"] button[data-fieldname="bom_conditions"]::before {

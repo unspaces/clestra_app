@@ -852,6 +852,7 @@
   {
    "fieldname": "planned_qty",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Qty"
   },
   {
@@ -870,7 +871,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-01-07 11:54:53.364821",
+ "modified": "2026-02-26 11:25:04.765460",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Sales Order Finished Items",

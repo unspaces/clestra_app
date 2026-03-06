@@ -1,0 +1,150 @@
+{
+  "_description": "Mplus 제품별 Formula Library 매핑 가이드. Quotation Pricing 설정 시 참조용.",
+  "_columns": "item_code → aa10_formula, ac40_formula, ab20_formula, ab44_formula, ac33_formula, ab30_formula, ad43_formula, ad41_formula, ab52_formula, sp1_formula + pricing_variables",
+
+  "product_groups": {
+    "1_STANDARD_FRAME": {
+      "description": "Standard Frame 제품 (40개): (item_vp*2)*vp_rate",
+      "items": ["MP_P85_ABL_W_KR", "MP_WC_A30", "MP_WC_S30", "MP_KABDV_P", "MP_KAVDV_P", "MP_RB01", "MP_RB02", "MP_RB03", "MP_RB04", "MP_RB05", "MP_RB06", "MP_RB07", "MP_RB08", "MP_RB09", "MP_RB10", "MP_RB11", "MP_3V", "MP_NL"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_FRAME_STANDARD",
+        "ac40_formula": null,
+        "ab20_formula": "AB20_INST_CH_BASIC",
+        "ab44_formula": "AB44_CLEANING_CH_6",
+        "ac33_formula": "AC33_CAULKING_20",
+        "ab30_formula": "AB30_TRANSP_13",
+        "ad43_formula": "AD43_WASTE_HALF",
+        "ad41_formula": "AD41_CONTINGENCY_HALF",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": []
+    },
+
+    "2_COMPLEX_FRAME_DG": {
+      "description": "Complex Double Glazed Frame (KDV)",
+      "items": ["MP_KDV3030"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_FRAME_COMPLEX_DG",
+        "ac40_formula": "AC40_GLASS_DG",
+        "ab20_formula": "AB20_INST_CH_BASIC",
+        "ab44_formula": "AB44_CLEANING_CH_6",
+        "ac33_formula": "AC33_CAULKING_10",
+        "ab30_formula": "AB30_TRANSP_13_HALF",
+        "ad43_formula": "AD43_WASTE",
+        "ad41_formula": "AD41_CONTINGENCY",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": [],
+      "notes": "Y=item_vp, Z=clch_vp, AA=base_vp, AC=joint_vp*2, AD=joint_vp*2 — 모두 기본 필드"
+    },
+
+    "2_COMPLEX_FRAME_SG": {
+      "description": "Complex Single Glazed Frame (KSVO, KSVC)",
+      "items": ["MP_KSVO3030", "MP_KSVC_N"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_FRAME_COMPLEX_SG",
+        "ac40_formula": "AC40_GLASS_SG",
+        "ab20_formula": "AB20_INST_CH_BASIC",
+        "ab44_formula": "AB44_CLEANING_CH_6",
+        "ac33_formula": "AC33_CAULKING_10",
+        "ab30_formula": "AB30_TRANSP_13",
+        "ad43_formula": "AD43_WASTE",
+        "ad41_formula": "AD41_CONTINGENCY",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": []
+    },
+
+    "3_DOOR": {
+      "description": "Door 제품 (31개): active + inactive leaf + OPT",
+      "items": ["MP_SDA43T", "MP_AGDA45T", "MP_DAGDA45T", "MP_HGDA45T", "MP_DGHDA45T", "MP_AVDA45T", "MP_DAVDA45T", "MP_VDA45T", "MP_DVDA45T", "MP_GOALF15_B", "MP_BFGD54NA", "MP_FGD40T"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_DOOR",
+        "ac40_formula": "(varies: AC40_DOOR_SINGLE_AG / AC40_DOOR_PAIR_DG etc.)",
+        "ab20_formula": "AB20_INST_CH_BASIC",
+        "ab44_formula": "AB44_CLEANING_UW",
+        "ac33_formula": "AC33_CAULKING_20",
+        "ab30_formula": "AB30_TRANSP_8",
+        "ad43_formula": "AD43_WASTE_HALF",
+        "ad41_formula": "AD41_CONTINGENCY_HALF",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": [
+        {"variable_name": "active_leaf_vp", "variable_label": "Active Leaf VP", "variable_source": "VP Management"},
+        {"variable_name": "inactive_leaf_vp", "variable_label": "Inactive Leaf VP", "variable_source": "VP Management"},
+        {"variable_name": "opt_cost", "variable_label": "OPT Cost (유리부착,클로저C/O 등)", "variable_source": "Manual"},
+        {"variable_name": "glass_unit_cost", "variable_label": "Glass Unit Cost (8T/6T)", "variable_source": "Estimate Glass Costing"},
+        {"variable_name": "glass_process_cost", "variable_label": "Glass Processing Cost", "variable_source": "Manual"},
+        {"variable_name": "unit_width", "variable_label": "Unit Width for cleaning (S_UW or P_UW)", "variable_source": "Manual"}
+      ]
+    },
+
+    "4_PC": {
+      "description": "Operable Wall / PC (5개)",
+      "items": ["MP_PC", "MP_PC_KR"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_PC",
+        "ac40_formula": "(custom glass formula per product)",
+        "ab20_formula": "AB20_INST_SIMPLE",
+        "ab44_formula": "AB44_CLEANING_CH_6",
+        "ac33_formula": "AC33_CAULKING_10",
+        "ab30_formula": "AB30_TRANSP_13",
+        "ad43_formula": "AD43_WASTE",
+        "ad41_formula": "AD41_CONTINGENCY",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": [
+        {"variable_name": "joint_cost", "variable_label": "Joint Cost (17*3=51 등)", "variable_source": "Manual"}
+      ]
+    },
+
+    "5_SLIDING_SINGLE": {
+      "description": "Sliding Single (FSDU, DGSDU, SGSDU 등)",
+      "items": ["MP_FSDU_C26_B", "MP_FSDU_C32_B", "MP_FSDU_C42_B", "MP_FSDU_F", "MP_FSDU_CLARIT", "MP_DGSDU_C26_B", "MP_DGSDU_C32_B", "MP_DGSDU_F", "MP_SGSDU_C26_B", "MP_SGSDU_C32_B", "MP_SGSDU_F", "MP_FGSDU_C26_B"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_SLIDING_S",
+        "ac40_formula": "(AC40_SLIDING_COND_DG_S or AC40_SLIDING_COND_SG_S)",
+        "ab20_formula": "AB20_INST_CH_S_UW",
+        "ab44_formula": "AB44_CLEANING_UW",
+        "ac33_formula": "AC33_CAULKING_20",
+        "ab30_formula": "AB30_TRANSP_8",
+        "ad43_formula": "AD43_WASTE_HALF",
+        "ad41_formula": "AD41_CONTINGENCY_HALF",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": [
+        {"variable_name": "glass_attach", "variable_label": "Glass Attachment Cost", "variable_source": "Manual"},
+        {"variable_name": "joint_cost", "variable_label": "Joint Cost (0 or 114 or 114*2)", "variable_source": "Manual"},
+        {"variable_name": "unit_width", "variable_label": "Unit Width (=s_uw)", "variable_source": "Calculated"}
+      ]
+    },
+
+    "5_SLIDING_PAIR": {
+      "description": "Sliding Pair (FPDU, DGPDU, SGPDU 등)",
+      "items": ["MP_FPDU_C26_B", "MP_FPDU_C32_B", "MP_FPDU_F", "MP_DGPDU_C26_B", "MP_DGPDU_C32_B", "MP_DGPDU_F", "MP_SGPDU_C26_B", "MP_SGPDU_C32_B", "MP_SGPDU_F", "MP_PDU_C26_B"],
+      "formula_mapping": {
+        "aa10_formula": "AA10_SLIDING_P",
+        "ac40_formula": "(AC40_SLIDING_COND_DG_P or AC40_SLIDING_COND_SG_P)",
+        "ab20_formula": "AB20_INST_CH_P_UW",
+        "ab44_formula": "AB44_CLEANING_UW",
+        "ac33_formula": "AC33_CAULKING_20",
+        "ab30_formula": "AB30_TRANSP_8",
+        "ad43_formula": "AD43_WASTE_HALF",
+        "ad41_formula": "AD41_CONTINGENCY_HALF",
+        "ab52_formula": "AB52_PM_RESERVE",
+        "sp1_formula": "SP1_ROYALTY"
+      },
+      "pricing_variables": [
+        {"variable_name": "glass_attach", "variable_label": "Glass Attachment Cost", "variable_source": "Manual"},
+        {"variable_name": "joint_cost", "variable_label": "Joint Cost (0 or 114*2)", "variable_source": "Manual"},
+        {"variable_name": "unit_width", "variable_label": "Unit Width (=p_uw)", "variable_source": "Calculated"}
+      ]
+    }
+  }
+}

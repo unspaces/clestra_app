@@ -8,11 +8,19 @@ import ast # Import Abstract Syntax Trees for basic syntax checking
 
 # Allowed variables for different formula types
 GENERAL_ALLOWED_VARS = {
-    "width", "ch", "ph", "ceiling_visible", "base_visible_h",
-    "under_cut", "panel_crh", "panel_trh", "abl_a", "abl_b", "leaf_width", "leaf_height",
-    "qty", "height", "item_vp", "leveler_vp", "vp_rate", "joint_vp", "mat_rate", "base_vp", "clch_vp", "buffer_rate"
-    # Add standard math functions or constants if needed, e.g., 'max', 'min', 'round'
-    # 'max', 'min', 'round', 'pow', 'abs'
+    # 고정 필드 (Quotation Pricing)
+    "width", "ch", "stnd_ch", "lh", "height", "unit_width", "buffer_width", "buffer_rate",
+    "item_vp", "vp_rate", "mat_rate", "glass_rate", "inst_rate", "other_rate", "mat_margin",
+    "ch_surcharge_rate", "pm_reserve_rate", "royalty_rate",
+    "glass_cost_a", "glass_cost_b",
+    "ph", "ceiling_visible", "base_visible_h", "under_cut",
+    "panel_crh", "panel_trh", "abl_a", "abl_b", "leaf_width", "leaf_height", "qty",
+    # Child Table 변수 (aa10_item)
+    "clch_vp", "base_vp", "joint_vp", "leveler_vp", "panel_vp",
+    "active_leaf_vp", "inactive_leaf_vp",
+    "glass_attach", "door_closer_cut_out", "reinforcement", "rock_wool",
+    "extend_strip", "spacer", "joint_cost",
+    "glass_unit_cost", "glass_process_cost", "horizontal_bar_qty",
 }
 CONDITIONAL_CONDITION_ALLOWED_VARS = {
     "width", "height", "ch", "ph", "ceiling_visible", "base_visible_h",

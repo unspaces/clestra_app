@@ -42,7 +42,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Variable",
-   "options": "\nclch_vp\nbase_vp\njoint_vp\nleveler_vp\npanel_vp\nactive_leaf_vp\ninactive_leaf_vp\nhor_profile_vp\nprofile_vp\nglass_attach\ndoor_closer_cut_out\nreinforcement\nrock_wool\nextend_strip\nspacer\njoint_cost\nunit_width\nglass_unit_cost\nglass_process_cost\nhor_bar_qty"
+   "options": "\nclch_vp\nbase_vp\njoint_vp\nleveler_vp\npanel_vp\nactive_leaf_vp\ninactive_leaf_vp\nhor_profile_vp\nprofile_vp\nglass_attach\ndoor_closer_cutout\nreinforcement\nrock_wool\nextend_strip\nspacer\njoint_cost\nunit_width\nglass_unit_cost\nglass_process_cost\nhor_bar_qty"
   },
   {
    "columns": 1,
@@ -62,7 +62,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-26 16:37:23.033273",
+ "modified": "2026-03-09 09:30:08.305625",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Clestra Quotation Child",

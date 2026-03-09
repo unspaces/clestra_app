@@ -22,7 +22,7 @@ class ProductColor(Document):
             "Sub Contract": "sub_contract",
             "Door Option": "hw_options"
         }
-        
+
         operator_map = {
             "=": "==",
             "Not Equal": "!=",
@@ -51,7 +51,7 @@ class ProductColor(Document):
                     frappe.msgprint("여러 개의 'Else' 규칙이 감지되었습니다. 첫 번째 규칙만 적용됩니다.", indicator="orange")
             else:
                 conditional_rules.append(rule)
-        
+
         # 우선순위(priority) 필드가 있다면 정렬
         # rules.sort(key=lambda row: row.priority)
 
@@ -63,22 +63,22 @@ class ProductColor(Document):
             if not system_field_name:
                 frappe.msgprint(f"Invalid field name in rule: {row.field_name}")
                 continue
-            
+
             condition_operator = operator_map.get(row.condition, "==")
             if not condition_operator:
                 continue
             if (condition_operator not in ("in", "not in") and system_field_name in ("sub_contract", "hw_options")):
                 frappe.msgprint(f"Invalid operator '{row.condition}' for field '{row.field_name}'.")
                 continue
-            
+
             value_for_code = repr(row.value)
             # else가 아닌 경우, 결과값은 result_color 필드를 사용합니다.
             color_for_code = repr(row.result_color) if row.result_color else '""'
-            
+
             statement = "if" if i == 0 else "elif"
-            
+
             # 여기서 doc.을 붙여줍니다. 이 코드가 실행될 환경을 고려한 것입니다.
-            
+
             if condition_operator in ("in", "not in"):
                 # 'value in doc.list' 형태로 피연산자 순서를 바꿉니다.
                 # 예: 'OPT_089' in doc.hw_options
@@ -87,7 +87,7 @@ class ProductColor(Document):
                 # 일반적인 '==' 또는 '!=' 조건
                 # 예: doc.door_frame == 'DF-01'
                 code_lines.append(f"{statement} doc.{system_field_name} {condition_operator} {value_for_code}:")
-                
+
             code_lines.append(f"    return {color_for_code}")
 
         if else_rule:
@@ -97,11 +97,62 @@ class ProductColor(Document):
             if code_lines:
                 code_lines.append("else:")
                 code_lines.append(f"    return {else_value_for_code}")
-            else: 
+            else:
                 # 조건 규칙이 하나도 없고 else만 있다면, 그냥 기본값을 반환하는 코드를 만듭니다.
                 self.formula = f"return {else_value_for_code}"
                 return
 
         self.formula = "\n".join(code_lines) if code_lines else None
 
-        self.formula = "\n".join(code_lines) if code_lines else None
+
+def _ensure_product_colors(meta, row):
+    """For a given meta and row (doc or child row), create missing Product Color docs."""
+    link_fields = [
+        df.fieldname for df in meta.fields
+        if df.fieldtype == "Link" and df.options == "Product Color"
+    ]
+    if not link_fields:
+        return
+
+    for fieldname in link_fields:
+        value = row.get(fieldname)
+        if not value:
+            continue
+        if not frappe.db.exists("Product Color", value):
+            new_color = frappe.new_doc("Product Color")
+            new_color.color = value
+            new_color.save(ignore_permissions=True)
+            frappe.msgprint(
+                f"Product Color '{value}' has been created automatically.",
+                indicator="green",
+                alert=True,
+            )
+
+
+def _create_missing_product_colors_for_doc(doc):
+    """_validate_links 이전에 호출되어, Product Color Link 필드에
+    존재하지 않는 값이 있으면 자동으로 Product Color 문서를 생성합니다."""
+    if doc.flags.ignore_links or doc.doctype == "Product Color":
+        return
+
+    meta = frappe.get_meta(doc.doctype)
+    _ensure_product_colors(meta, doc)
+
+    for table_field in meta.get_table_fields():
+        child_meta = frappe.get_meta(table_field.options)
+        for child_row in doc.get(table_field.fieldname) or []:
+            _ensure_product_colors(child_meta, child_row)
+
+
+# --- Monkey-patch Document._validate_links ---
+# Frappe의 _validate_links()는 before_validate 훅보다 먼저 실행되므로,
+# _validate_links 내부에서 Product Color 자동 생성을 먼저 수행하도록 패치합니다.
+_original_validate_links = Document._validate_links
+
+
+def _patched_validate_links(self):
+    _create_missing_product_colors_for_doc(self)
+    _original_validate_links(self)
+
+
+Document._validate_links = _patched_validate_links

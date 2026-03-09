@@ -392,12 +392,32 @@ function populate_aa10_item(frm) {
             });
 
             // 3. Add missing variables
+            const variable_defaults = {
+                'pc_cut_out': { item_code: 'OPT-054', use_vp: 1 },
+                'door_closer_cutout': { item_code: 'OPT-019', use_vp: 1 },
+                'reinforcement': { item_code: 'OPT-064', use_vp: 1 },
+                'extend_strip': { item_code: 'OPT-098', use_vp: 1 },
+                'spacer': { item_code: 'S-AC-011', use_vp: 1 },
+                'FGD_sticking': { item_code: 'OPT-083', use_vp: 1 },
+                'C2SG_sticking': { item_code: 'OPT-078', use_vp: 1 },
+                'MDF_FGD_reinf': { item_code: 'P-ET-161', use_vp: 1 },
+                'MDF_FGD_reinf_cutout': { item_code: 'P-ET-219', use_vp: 1 },
+                'MDF_FGD_rock_wool': { use_vp: 1, value: 122 },
+            };
+
             needed_vars.forEach(v => {
                 if (!seen_vars.has(v)) {
                     let row = frm.add_child('aa10_item');
                     row.variable = v;
-                    row.use_vp = v.endsWith('_vp') ? 1 : 0;
-                    row.value = 0;
+                    const defaults = variable_defaults[v];
+                    if (defaults) {
+                        if (defaults.item_code) row.item_code = defaults.item_code;
+                        row.use_vp = defaults.use_vp;
+                        row.value = defaults.value || 0;
+                    } else {
+                        row.use_vp = v.endsWith('_vp') ? 1 : 0;
+                        row.value = 0;
+                    }
                 }
             });
 

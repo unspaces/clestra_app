@@ -126,13 +126,10 @@ app_include_js = ["/assets/clestra_app/js/quick_entry_custom_v2.js"]
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+# Product Color 자동 생성은 product_color.py 모듈의 monkey-patch를 통해
+# _validate_links 이전에 실행됩니다. (doc_events before_validate는 _validate_links 이후에
+# 실행되어 Link 유효성 검사 에러를 방지할 수 없었음)
+doc_events = {}
 
 # Scheduled Tasks
 # ---------------

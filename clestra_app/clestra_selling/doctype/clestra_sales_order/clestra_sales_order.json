@@ -127,7 +127,7 @@
   "grand_total_square_m",
   "column_break_mvtw",
   "default_select",
-  "standard_vp",
+  "grand_total_vp",
   "apply_factory_discount",
   "section_break_lwwi",
   "computation",
@@ -514,12 +514,6 @@
    "fieldtype": "Link",
    "hidden": 1,
    "options": "VP Rate"
-  },
-  {
-   "fetch_from": "default_select.value",
-   "fieldname": "standard_vp",
-   "fieldtype": "Data",
-   "label": "VP"
   },
   {
    "fieldname": "product_type",
@@ -910,12 +904,14 @@
   {
    "fieldname": "grand_total_lm",
    "fieldtype": "Float",
-   "label": "LM"
+   "label": "LM",
+   "read_only": 1
   },
   {
    "fieldname": "grand_total_square_m",
    "fieldtype": "Float",
-   "label": "M\u00b2"
+   "label": "M\u00b2",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_szpd",
@@ -962,11 +958,17 @@
    "in_list_view": 1,
    "label": "Revision No",
    "length": 2
+  },
+  {
+   "fetch_from": "default_select.value",
+   "fieldname": "grand_total_vp",
+   "fieldtype": "Int",
+   "label": "VP"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-11 11:33:31.718782",
+ "modified": "2026-03-11 15:05:28.247756",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Clestra Sales Order",

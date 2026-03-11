@@ -534,7 +534,7 @@ def get_calculated_price(item_code, product_section, height=None, width=None, qt
 
         target_price = 0
         target_unit = None
-        is_vp = None
+        use_vp = None
 
         # 조건 1: product_section이 ["Door", "Leaf", "Panel"]에 포함되는 경우
         if product_section in ["Door", "Leaf", "Panel"]:
@@ -550,7 +550,7 @@ def get_calculated_price(item_code, product_section, height=None, width=None, qt
 
                     if dimension_rule == "NONE":
                         target_price = vp_table[0].vp
-                        is_vp = True
+                        use_vp = True
                     
                     else: 
                         if dimension_rule == "ALL" and not (height and width):
@@ -584,13 +584,13 @@ def get_calculated_price(item_code, product_section, height=None, width=None, qt
                             
                             if match_found:
                                 target_price = vp_row.vp
-                                is_vp = True
+                                use_vp = True
                                 break
             
         else: # 그 외 product_section
             if flt(item_doc.vp_rate) > 0:
                 target_price = item_doc.vp_rate
-                is_vp = True
+                use_vp = True
             else:
                 target_price = item_doc.standard_rate
 
@@ -605,11 +605,11 @@ def get_calculated_price(item_code, product_section, height=None, width=None, qt
         if item_doc.include_lm:
             target_unit = "/M2"
 
-        return {"price": target_price, "unit": target_unit, "is_vp": is_vp}
+        return {"price": target_price, "unit": target_unit, "use_vp": use_vp}
 
     except Exception as e:
         frappe.log_error(f"Price calculation failed for {item_code}: {e}", "VP Price Calculation")
-        return {"price": 0, "unit": None, "is_vp": False}
+        return {"price": 0, "unit": None, "use_vp": False}
     
 @frappe.whitelist()
 def get_computation_data(doc):
@@ -729,7 +729,7 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
         if view_type == "zone":
             return {"view_type": "zone", "zones": []}
         else:
-            return {"view_type": "section", "rows": [], "total": {"lm": 0, "square_m": 0, "vps": 0, "price": 0}}
+            return {"view_type": "section", "rows": [], "total": {"lm": 0, "square_m": 0, "vp_amount": 0, "price": 0}}
 
     # --- 1. 데이터 합산 (Consolidate) 로직 ---
     consolidated_map = {} # Python에서는 일반 dict 사용
@@ -761,6 +761,7 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
                 existing_row["square_m"] = flt(existing_row.get("square_m")) + flt(row.square_m)
                 existing_row["vp"] = flt(existing_row.get("vp")) + flt(row.vp)
                 existing_row["price"] = flt(existing_row.get("price")) + flt(row.price)
+            existing_row["vp_amount"] = flt(existing_row.get("vp_amount")) + flt(row.vp_amount)
     
     consolidated_items = list(consolidated_map.values())
 
@@ -768,7 +769,7 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
     # CASE A: Zone별 그룹화 (ITEMS 프린트 포맷용)
     # ==========================================================
     if view_type == "zone" or view_type == 1:
-        zones_data = defaultdict(lambda: {"items": [], "total": {"lm": 0, "square_m": 0, "vps": 0, "price": 0}, "type_totals": {}})
+        zones_data = defaultdict(lambda: {"items": [], "total": {"lm": 0, "square_m": 0, "vp_amount": 0, "price": 0}, "type_totals": {}})
         for item in consolidated_items:
             zones_data[item.get("zone_name") or "No Zone"]["items"].append(item)
 
@@ -811,7 +812,7 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
 
             # 합계 계산
             for item in sorted_zone_items:
-                lm, sm, vp, price = flt(item.get("lm")), flt(item.get("square_m")), flt(item.get("vp")), flt(item.get("price"))
+                lm, sm, vp, price = flt(item.get("lm")), flt(item.get("square_m")), flt(item.get("vp_amount")), flt(item.get("price"))
                 p_type = item.get("product_type") or "Other"
                 
                 zone_info["total"]["lm"] += lm
@@ -849,13 +850,13 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
             return 99
         consolidated_items.sort(key=lambda r: (get_sort_priority(r), r.get("idx")))
 
-        type_groups = defaultdict(lambda: {"rows": [], "total": {"lm": 0, "square_m": 0, "vps": 0, "price": 0}})
+        type_groups = defaultdict(lambda: {"rows": [], "total": {"lm": 0, "square_m": 0, "vp_amount": 0, "price": 0}})
         for item in consolidated_items:
             ptype = item.get("product_type") or "Unspecified"
             type_groups[ptype]["rows"].append(item)
             type_groups[ptype]["total"]["lm"] += flt(item.get("lm", 0))
             type_groups[ptype]["total"]["square_m"] += flt(item.get("square_m", 0))
-            type_groups[ptype]["total"]["vps"] += flt(item.get("vp", 0))
+            type_groups[ptype]["total"]["vp_amount"] += flt(item.get("vp_amount", 0))
             type_groups[ptype]["total"]["price"] += flt(item.get("price", 0))
         
         return {"by_type": type_groups}
@@ -878,11 +879,11 @@ def get_codes_sum_data(doc_dict, view_type="zone"):
         # 정렬 실행: 우선순위 -> 원래 순서(idx)
         sorted_items = sorted(consolidated_items, key=lambda r: (get_sort_priority(r), r.get("idx")))
         
-        grand_total = {"lm": 0, "square_m": 0, "vps": 0, "price": 0}
+        grand_total = {"lm": 0, "square_m": 0, "vp_amount": 0, "price": 0}
         for item in sorted_items:
             grand_total["lm"] += flt(item.get("lm", 0))
             grand_total["square_m"] += flt(item.get("square_m", 0))
-            grand_total["vps"] += flt(item.get("vp", 0))
+            grand_total["vp_amount"] += flt(item.get("vp_amount", 0))
             grand_total["price"] += flt(item.get("price", 0))
 
         return {

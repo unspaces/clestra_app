@@ -699,6 +699,7 @@ frappe.ui.form.on("Sales Order Finished Items", {
 		if (row.calc_price) {
 			frappe.model.set_value(cdt, cdn, 'price', flt(row.calc_price) * qty);
 		}
+		update_grand_total_vp(frm);
 
 		trigger_auto_save_if_complete(frm, cdt, cdn);
 		update_calculated_price(frm, cdt, cdn);
@@ -714,6 +715,7 @@ frappe.ui.form.on("Sales Order Finished Items", {
 		const row = locals[cdt][cdn];
 		const qty = flt(row.planned_qty) || 1;
 		frappe.model.set_value(cdt, cdn, 'vp_amount', flt(row.vp) * qty);
+		update_grand_total_vp(frm);
 	},
 
 	product_section: function (frm, cdt, cdn) {
@@ -3401,12 +3403,16 @@ function update_calculated_price(frm, cdt, cdn) {
 				const current_row = locals[cdt][cdn];
 				const qty = flt(current_row.planned_qty) || 1;
 
-				frappe.model.set_value(cdt, cdn, 'calc_price', price);
-				frappe.model.set_value(cdt, cdn, 'calc_price_unit', unit);
-				if (r.message.is_vp) {
+				if (r.message.use_vp) {
 					frappe.model.set_value(cdt, cdn, 'vp', price);
+					frappe.model.set_value(cdt, cdn, 'use_vp', r.message.use_vp);
 					frappe.model.set_value(cdt, cdn, 'vp_amount', flt(price) * qty);
+					frappe.model.set_value(cdt, cdn, 'calc_price', 0);
+					frappe.model.set_value(cdt, cdn, 'price', 0);
+					update_grand_total_vp(frm);
 				} else {
+					frappe.model.set_value(cdt, cdn, 'calc_price', price);
+					frappe.model.set_value(cdt, cdn, 'calc_price_unit', unit);
 					frappe.model.set_value(cdt, cdn, 'price', flt(price) * qty);
 				}
 			}
@@ -3935,8 +3941,8 @@ async function render_codes_sum(frm) {
                     <td class="text-right" style="font-weight: bold;">${format_num(row.planned_qty, 0)}</td>
                     <td class="text-right">${format_num(row.lm, 2)}</td>
                     <td class="text-right">${format_num(row.square_m, 2)}</td>
-                    <td class="text-right">${format_num(row.planned_qty > 0 ? flt(row.vp) / row.planned_qty : 0, 0)}</td>
-                    <td class="text-right">${format_num(row.vp, 0)}</td>
+                    <td class="text-right">${format_num(row.planned_qty > 0 ? flt(row.vp_amount) / row.planned_qty : 0, 0)}</td>
+                    <td class="text-right">${format_num(row.vp_amount, 0)}</td>
                     <td class="text-right">${format_num(row.planned_qty > 0 ? flt(row.price) / row.planned_qty : 0, 0)}</td>
                     <td class="text-right">${format_num(row.price, 0)}</td>
                 </tr>
@@ -3959,7 +3965,7 @@ async function render_codes_sum(frm) {
                                 <td class="text-right">${format_num(group.total.lm, 2)}</td>
                                 <td class="text-right">${format_num(group.total.square_m, 2)}</td>
                                 <td></td>
-                                <td class="text-right">${format_num(group.total.vps, 0)}</td>
+                                <td class="text-right">${format_num(group.total.vp_amount, 0)}</td>
                                 <td></td>
                                 <td class="text-right">${format_num(group.total.price, 0)}</td>
                             </tr>
@@ -4238,4 +4244,12 @@ function setup_dialog_multiselect(dialog, fieldname, target_doctype, filters = n
 			}
 		}
 	});
+}
+
+function update_grand_total_vp(frm) {
+	let total = 0;
+	(frm.doc.finished_items || []).forEach(row => {
+		total += flt(row.vp_amount);
+	});
+	frm.set_value('grand_total_vp', total);
 }

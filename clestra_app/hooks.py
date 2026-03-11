@@ -248,5 +248,6 @@ doc_events = {}
 # ]
 
 doctype_css = {
-    "Project Billing Master": "public/css/project_billing_master.css"
+    "Project Billing Master": "public/css/project_billing_master.css",
+    "QR Item Lookup": "public/css/qr_item_lookup.css"
 }

@@ -609,7 +609,7 @@ def get_calculated_price(item_code, product_section, height=None, width=None, qt
 
     except Exception as e:
         frappe.log_error(f"Price calculation failed for {item_code}: {e}", "VP Price Calculation")
-        return {"price": 0, "unit": None, is_vp: False}
+        return {"price": 0, "unit": None, "is_vp": False}
     
 @frappe.whitelist()
 def get_computation_data(doc):
@@ -636,26 +636,29 @@ def get_computation_data(doc):
 
         for row in target_items:
             original_price = flt(row.get("price"))
+            qty = flt(row.get("planned_qty"))
+            amount = original_price * qty
             cost_code = item_cost_code_map.get(row.get("item_code"))
             
             # 일반 Cost Code 합계
-            if cost_code and cost_code != 'AA10' and original_price > 0:
+            if cost_code and cost_code != 'AA10' and amount > 0:
                 dc_rate = flt(row.get("manufacturer_dc"))
-                dc_amt = original_price * (dc_rate / 100)
-                summary[cost_code]["cost"] += original_price
-                summary[cost_code]["sales"] += (original_price - dc_amt)
+                dc_amt = amount * (dc_rate / 100)
+                summary[cost_code]["cost"] += amount
+                summary[cost_code]["sales"] += (amount - dc_amt)
                 summary[cost_code]["discount"] += dc_amt
 
             # AA10 상세 내역 및 합계 (VP 기반)
             original_vp = flt(row.get("vp"))
+            vp_amount = original_vp * qty
             if original_vp > 0:
                 dc_rate = flt(row.get("manufacturer_dc"))
-                dc_amt = original_vp * (dc_rate / 100)
+                dc_amt = vp_amount * (dc_rate / 100)
                 aa10_details.append({
                     "item_code": row.get("item_code"),
                     "item_name": row.get("item_name"),
-                    "cost": original_vp,
-                    "sales": original_vp - dc_amt,
+                    "cost": vp_amount,
+                    "sales": vp_amount - dc_amt,
                     "discount": dc_amt
                 })
 

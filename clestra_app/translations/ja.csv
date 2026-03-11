@@ -1,0 +1,52 @@
+source,translated
+QR Code,QRコード
+Item Information,アイテム情報
+Zone & Location,ゾーンと位置
+Assembly & Position,組立と位置
+Position on Product,製品上の位置
+Related Items,関連アイテム
+Invalid QR Code,無効なQRコード
+No token provided. Please scan a valid QR code.,トークンがありません。有効なQRコードをスキャンしてください。
+Loading item information...,アイテム情報を読み込み中...
+QR Code Deactivated,QRコード無効化済み
+QR Code Not Found,QRコードが見つかりません
+Error,エラー
+Failed to load item information.,アイテム情報の読み込みに失敗しました。
+Project,プロジェクト
+Contract No,契約番号
+Site,現場
+Item Code,アイテムコード
+Item Name,アイテム名
+Keyword,キーワード
+Color,カラー
+Size,サイズ
+Qty,数量
+Zone,ゾーン
+Floor / Level,階 / レベル
+Drawing Ref,図面参照
+Grid Ref,グリッド参照
+Position Note,位置メモ
+Print Group,プリントグループ
+Print Order,プリント順序
+Assembly Group,組立グループ
+Sequence,順序
+Parent Item,親アイテム
+Level,レベル
+Assembly Notes,組立メモ
+Description,説明
+Door Set,ドアセット
+Open Type,開閉方式
+HW Spec,HW仕様
+Handle,ハンドル
+Hinge,ヒンジ
+Keeper,キーパー
+Closer,ドアクローザー
+Glass A,ガラスA
+Glass B,ガラスB
+Generate QR Codes,QRコード生成
+Select Items for QR,QR対象アイテム選択
+Print QR Labels,QRラベル印刷
+Deactivate All QR,全QR無効化
+Activate All QR,全QR有効化
+QR code not found.,QRコードが見つかりません。
+This QR code has been deactivated.,このQRコードは無効化されています。

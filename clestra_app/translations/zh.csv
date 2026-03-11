@@ -1,0 +1,52 @@
+source,translated
+QR Code,二维码
+Item Information,物品信息
+Zone & Location,区域与位置
+Assembly & Position,组装与位置
+Position on Product,产品上的位置
+Related Items,相关物品
+Invalid QR Code,无效的二维码
+No token provided. Please scan a valid QR code.,未提供令牌。请扫描有效的二维码。
+Loading item information...,正在加载物品信息...
+QR Code Deactivated,二维码已停用
+QR Code Not Found,未找到二维码
+Error,错误
+Failed to load item information.,加载物品信息失败。
+Project,项目
+Contract No,合同编号
+Site,现场
+Item Code,物品编码
+Item Name,物品名称
+Keyword,关键字
+Color,颜色
+Size,尺寸
+Qty,数量
+Zone,区域
+Floor / Level,楼层 / 层级
+Drawing Ref,图纸参考
+Grid Ref,网格参考
+Position Note,位置备注
+Print Group,打印组
+Print Order,打印顺序
+Assembly Group,组装组
+Sequence,顺序
+Parent Item,父物品
+Level,层级
+Assembly Notes,组装说明
+Description,描述
+Door Set,门套
+Open Type,开启方式
+HW Spec,五金规格
+Handle,把手
+Hinge,铰链
+Keeper,门扣
+Closer,闭门器
+Glass A,玻璃A
+Glass B,玻璃B
+Generate QR Codes,生成二维码
+Select Items for QR,选择二维码物品
+Print QR Labels,打印二维码标签
+Deactivate All QR,停用全部二维码
+Activate All QR,启用全部二维码
+QR code not found.,未找到二维码。
+This QR code has been deactivated.,此二维码已被停用。

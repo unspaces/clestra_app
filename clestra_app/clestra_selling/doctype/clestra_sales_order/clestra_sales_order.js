@@ -606,6 +606,14 @@ frappe.ui.form.on("Sales Order Zone", {
 
 frappe.ui.form.on("Sales Order Finished Items", {
 	item_code: function (frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (row.item_code && !row.product_section) {
+			frappe.db.get_value("Item", row.item_code, "product_section", (r) => {
+				if (r && r.product_section) {
+					frappe.model.set_value(cdt, cdn, 'product_section', r.product_section);
+				}
+			});
+		}
 		update_calculated_price(frm, cdt, cdn);
 		// trigger_auto_save_if_complete(frm, cdt, cdn);
 	},
@@ -682,8 +690,30 @@ frappe.ui.form.on("Sales Order Finished Items", {
 		} else {
 
 		}
+		// planned_qty 변경 시 vp_amount과 price 재계산
+		const row = locals[cdt][cdn];
+		const qty = flt(row.planned_qty) || 1;
+		if (row.vp) {
+			frappe.model.set_value(cdt, cdn, 'vp_amount', flt(row.vp) * qty);
+		}
+		if (row.calc_price) {
+			frappe.model.set_value(cdt, cdn, 'price', flt(row.calc_price) * qty);
+		}
+
 		trigger_auto_save_if_complete(frm, cdt, cdn);
 		update_calculated_price(frm, cdt, cdn);
+	},
+
+	calc_price: function (frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const qty = flt(row.planned_qty) || 1;
+		frappe.model.set_value(cdt, cdn, 'price', flt(row.calc_price) * qty);
+	},
+
+	vp: function (frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const qty = flt(row.planned_qty) || 1;
+		frappe.model.set_value(cdt, cdn, 'vp_amount', flt(row.vp) * qty);
 	},
 
 	product_section: function (frm, cdt, cdn) {
@@ -863,7 +893,7 @@ frappe.ui.form.on("Sales Order Finished Items", {
 function toggle_planned_qty_field(grid_row, product_section) {
 	if (!grid_row || !grid_row.row) return;
 	
-	const allowed_sections = ['Door', 'Leaf', 'Panel'];
+	const allowed_sections = ['Door', 'Leaf', 'Panel', ''];
 	const should_show = allowed_sections.includes(product_section);
 	
 	// planned_qty 필드를 찾아서 표시/숨김 처리
@@ -2272,12 +2302,11 @@ function setup_finished_items_grid(frm) {
 			});
 
 			const COL_RESIZE_CONFIG = {
+				'item_code': '15%',
 				'item_name': '32%',
 				'height': '7%',
 				'width': '7%',
-				'planned_qty': '5%',
-				'lm': '5%',
-				'square_m': '5%'
+				'planned_qty': '5%'
 			};
 			const CHECK_COL_WIDTH = "8%";
 
@@ -3367,20 +3396,19 @@ function update_calculated_price(frm, cdt, cdn) {
 		},
 		callback: function (r) {
 			if (r.message) {
-				// 서버로부터 받은 객체(r.message)에서 price와 unit 값을 추출합니다.
 				const price = r.message.price;
 				const unit = r.message.unit;
+				const current_row = locals[cdt][cdn];
+				const qty = flt(current_row.planned_qty) || 1;
 
-				// console.log(`Calculated Price: ${price}, Unit: ${unit}`);
-
-				// 추출한 값으로 필드를 업데이트합니다.
 				frappe.model.set_value(cdt, cdn, 'calc_price', price);
 				frappe.model.set_value(cdt, cdn, 'calc_price_unit', unit);
 				if (r.message.is_vp) {
 					frappe.model.set_value(cdt, cdn, 'vp', price);
+					frappe.model.set_value(cdt, cdn, 'vp_amount', flt(price) * qty);
+				} else {
+					frappe.model.set_value(cdt, cdn, 'price', flt(price) * qty);
 				}
-				else
-					frappe.model.set_value(cdt, cdn, 'price', price);
 			}
 		}
 	});

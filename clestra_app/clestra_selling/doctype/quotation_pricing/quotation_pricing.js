@@ -37,6 +37,9 @@ frappe.ui.form.on("Quotation Pricing", {
     },
     item_code: function (frm) {
         update_vp(frm, 'item_code', 'item_vp');
+    },
+
+    inst_type: function (frm) {
         update_installation_cost(frm);
     },
 
@@ -339,7 +342,7 @@ function update_installation_cost(frm) {
 
     // 3. Estimate Installation Cost 문서에서 매칭되는 아이템의 단가 가져오기
     frappe.db.get_value('Estimate Installation Cost',
-        { 'item_code': frm.doc.item_code },
+        { 'item_code': frm.doc.door_set_type || frm.doc.item_code },
         target_column,
         (r) => {
             if (r && r[target_column] !== undefined) {

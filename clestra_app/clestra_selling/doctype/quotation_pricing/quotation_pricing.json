@@ -1,7 +1,8 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "format:QP-{item_code}-{YY}{MM}",
+ "allow_rename": 1,
+ "autoname": "format:QP-{id_code}-{YY}{MM}",
  "creation": "2026-01-21 08:14:47.277985",
  "doctype": "DocType",
  "document_type": "Setup",
@@ -9,7 +10,9 @@
  "field_order": [
   "production_item_tab",
   "item_code",
-  "model_code",
+  "product_section",
+  "door_set_type",
+  "id_code",
   "uom",
   "item_vp",
   "column_break_njlr",
@@ -41,12 +44,15 @@
   "stnd_ch",
   "ch",
   "lh",
+  "crh",
+  "trh",
+  "column_break_vwzk",
   "width",
   "buffer_width",
+  "unit_width",
   "section_break_fhcx",
   "unit_type",
   "column_break_yxal",
-  "unit_width",
   "section_break_amgd",
   "height_type",
   "column_break_itzf",
@@ -157,11 +163,6 @@
    "options": "Item",
    "reqd": 1,
    "search_index": 1
-  },
-  {
-   "fieldname": "model_code",
-   "fieldtype": "Data",
-   "label": "Model Code"
   },
   {
    "fieldname": "uom",
@@ -733,6 +734,7 @@
   {
    "fieldname": "unit_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Door Unit Type",
    "link_filters": "[[\"Quotation Value Settings\",\"category\",\"in\",[\"LW\",\"PC UW\",\"UW\",null]]]",
    "options": "Quotation Value Settings"
@@ -742,9 +744,8 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "unit_type.value",
    "fieldname": "unit_width",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Door Unit Width",
    "precision": "0"
   },
@@ -760,6 +761,7 @@
   {
    "fieldname": "height_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Height Type",
    "link_filters": "[[\"Quotation Value Settings\",\"category\",\"in\",[\"CRH\",\"TRH\",\"UPAS H\",null]]]",
    "options": "Quotation Value Settings"
@@ -772,12 +774,13 @@
    "fetch_from": "height_type.value",
    "fieldname": "height",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Height",
    "precision": "0"
   },
   {
    "fieldname": "buffer_width",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Buffer Width"
   },
   {
@@ -905,10 +908,43 @@
    "fieldname": "sp1_calc",
    "fieldtype": "Button",
    "label": "Calc"
+  },
+  {
+   "fieldname": "column_break_vwzk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crh",
+   "fieldtype": "Int",
+   "label": "CRH"
+  },
+  {
+   "fieldname": "trh",
+   "fieldtype": "Int",
+   "label": "TRH"
+  },
+  {
+   "fetch_from": "item_code.product_section",
+   "fieldname": "product_section",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Product Section"
+  },
+  {
+   "depends_on": "eval:doc.product_section == \"Leaf\"",
+   "fieldname": "door_set_type",
+   "fieldtype": "Select",
+   "label": "Door Set Type",
+   "options": "\nSingle Door\nPair Door"
+  },
+  {
+   "fieldname": "id_code",
+   "fieldtype": "Data",
+   "label": "ID Code"
   }
  ],
  "links": [],
- "modified": "2026-02-25 14:24:05.286261",
+ "modified": "2026-03-10 10:04:19.888300",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Quotation Pricing",

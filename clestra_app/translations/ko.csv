@@ -1,0 +1,72 @@
+source,translated
+QR Code,QR 코드
+Item Information,아이템 정보
+Zone & Location,Zone 및 위치
+Assembly & Position,조립 및 위치
+Position on Product,제품 상의 위치
+Related Items,관련 아이템
+Invalid QR Code,유효하지 않은 QR 코드
+No token provided. Please scan a valid QR code.,토큰이 없습니다. 유효한 QR 코드를 스캔해 주세요.
+Loading item information...,아이템 정보 로딩 중...
+QR Code Deactivated,QR 코드 비활성화됨
+QR Code Not Found,QR 코드를 찾을 수 없음
+Error,오류
+Failed to load item information.,아이템 정보 로딩 실패
+Project,프로젝트
+Contract No,계약 번호
+Site,현장
+Item Code,아이템 코드
+Item Name,아이템명
+Keyword,키워드
+Color,색상
+Size,사이즈
+Qty,수량
+Zone,Zone
+Floor / Level,층 / 레벨
+Drawing Ref,도면 참조
+Grid Ref,그리드 참조
+Position Note,위치 메모
+Print Group,프린트 그룹
+Print Order,프린트 순서
+Assembly Group,조립 그룹
+Sequence,순서
+Parent Item,상위 아이템
+Level,레벨
+Assembly Notes,조립 메모
+Description,설명
+Door Set,도어 세트
+Open Type,개방 방식
+HW Spec,HW 사양
+Handle,핸들
+Hinge,힌지
+Keeper,키퍼
+Closer,도어 클로저
+Glass A,유리 A
+Glass B,유리 B
+Generate QR Codes,QR 코드 생성
+Select Items for QR,QR 대상 아이템 선택
+Print QR Labels,QR 라벨 인쇄
+Deactivate All QR,전체 QR 비활성화
+Activate All QR,전체 QR 활성화
+QR code not found.,QR 코드를 찾을 수 없습니다.
+This QR code has been deactivated.,이 QR 코드는 비활성화되었습니다.
+No items selected for QR code generation. Check the QR checkbox on the items you want.,QR 코드 생성 대상이 선택되지 않았습니다. 원하는 아이템의 QR 체크박스를 선택해 주세요.
+Select All,전체 선택
+By Zone,Zone별
+By Product Section,Product Section별
+Top Level Only (indent=0),최상위만 (indent=0)
+Clear All,전체 해제
+Selection Mode,선택 모드
+Filter Value (Zone name or Section),필터 값 (Zone 이름 또는 Section)
+Apply Filter,필터 적용
+Selection Summary,선택 요약
+Apply Selection,선택 적용
+Total items,전체 아이템
+Selected for QR,QR 선택됨
+Already have QR,QR 생성 완료
+New QR to generate,새로 생성할 QR
+Filter by Zone,Zone 필터
+Filter by Product Section,Product Section 필터
+Label Size,라벨 사이즈
+Print Labels,라벨 인쇄
+No QR labels found for the selected filters.,선택한 필터에 해당하는 QR 라벨이 없습니다.

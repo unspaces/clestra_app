@@ -210,6 +210,9 @@
   "actual_qty",
   "column_break_zxjr",
   "projected_qty",
+  "qr_section",
+  "generate_qr",
+  "qr_token",
   "section_break_bhnb",
   "remark",
   "description",
@@ -1569,6 +1572,22 @@
    "in_list_view": 1,
    "label": "Door HW Spec",
    "options": "Door Hardware Spec"
+  },
+  {
+   "fieldname": "qr_section",
+   "fieldtype": "Section Break",
+   "label": "QR Code"
+  },
+  {
+   "fieldname": "generate_qr",
+   "fieldtype": "Button",
+   "label": "QR"
+  },
+  {
+   "fieldname": "qr_token",
+   "fieldtype": "Data",
+   "label": "QR Token",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,

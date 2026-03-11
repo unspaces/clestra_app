@@ -166,6 +166,11 @@ frappe.ui.form.on('Project Billing Master', {
                 return false; // Prevent query if no item code
             }
         });
+
+        // === QR Code: inject QR buttons into grid rows ===
+        if (!frm.is_new()) {
+            setTimeout(() => setup_qr_row_buttons(frm), 600);
+        }
     },
 
     update_grid_qty_js_string(frm) {
@@ -313,6 +318,36 @@ frappe.ui.form.on('Project Billing Master', {
                 frappe.msgprint(__("Error generating billing data."));
             }
         });
+    },
+
+    generate_qr: function (frm) {
+        // PBM-level "Generate QR" button — generates QR for ALL items that don't have one yet
+        const items = (frm.doc.detail_bom_items || []).filter(r => r.item_code && !r.qr_token);
+        if (!items.length) {
+            frappe.msgprint(__('All items already have QR codes, or no items exist.'));
+            return;
+        }
+
+        frappe.confirm(
+            __('Generate QR codes for {0} items (all items without QR)?', [items.length]),
+            () => {
+                frappe.call({
+                    method: 'clestra_app.clestra_manufacturing.qr_code_api.generate_qr_codes',
+                    args: {
+                        pbm_name: frm.doc.name,
+                        child_row_names: JSON.stringify(items.map(r => r.name))
+                    },
+                    freeze: true,
+                    freeze_message: __('Generating QR codes...'),
+                    callback: (r) => {
+                        if (r.message) {
+                            frappe.msgprint(r.message.message);
+                            frm.reload_doc();
+                        }
+                    }
+                });
+            }
+        );
     },
 
     sales_order: function (frm) {
@@ -2686,4 +2721,260 @@ function toggle_add_item_button_visibility(frm) {
 
     // 버튼을 항상 보이게 하고, 조건에 따라 disabled 속성만 변경
     button.show();
+}
+
+// ===================================================================
+// QR Code Functions
+// ===================================================================
+
+function setup_qr_row_buttons(frm) {
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (!grid) return;
+
+    const rows = Object.values(grid.grid_rows_by_docname || {});
+    rows.forEach(grid_row => {
+        if (!grid_row.doc || !grid_row.wrapper) return;
+        if (!grid_row.doc.item_code) return;
+
+        const $row = $(grid_row.wrapper);
+        // Skip if QR button already injected
+        if ($row.find('.qr-row-btn').length) return;
+
+        // Find the .col that contains .btn-open-row (edit button)
+        const $editCol = $row.find('.btn-open-row').closest('.col');
+        if (!$editCol.length) return;
+
+        const hasQR = !!grid_row.doc.qr_token;
+        const btnTitle = hasQR
+            ? __('QR Generated — click to view/edit position')
+            : __('Set position & generate QR');
+        const iconColor = hasQR ? '#38a169' : '#718096';
+
+        const $qrBtn = $(`
+            <div class="qr-row-btn ${hasQR ? 'qr-done' : ''}" title="${btnTitle}">
+                <a>
+                    <svg class="icon icon-xs" width="14" height="14" viewBox="0 0 24 24"
+                         fill="${hasQR ? iconColor : 'none'}" stroke="${iconColor}" stroke-width="2"
+                         style="vertical-align: middle;">
+                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1" fill="none"></rect>
+                        ${hasQR ? '<circle cx="6.5" cy="17.5" r="1.5" fill="#38a169" stroke="none"></circle>' : ''}
+                    </svg>
+                </a>
+            </div>
+        `);
+
+        $qrBtn.on('click', (e) => {
+            e.stopPropagation();
+            show_qr_position_dialog(frm, grid_row.doc);
+        });
+
+        // Insert before .btn-open-row inside the same .col
+        $editCol.find('.btn-open-row').before($qrBtn);
+    });
+}
+
+// --- QR Position Dialog (shown when clicking QR icon on each row) ---
+function show_qr_position_dialog(frm, row_doc) {
+    // Position options for the rectangular product diagram
+    const POSITIONS = [
+        { id: 'top-left',     label: 'Top Left',     row: 0, col: 0 },
+        { id: 'top',          label: 'Top',           row: 0, col: 1 },
+        { id: 'top-right',    label: 'Top Right',     row: 0, col: 2 },
+        { id: 'left',         label: 'Left',          row: 1, col: 0 },
+        { id: 'center',       label: 'Center',        row: 1, col: 1 },
+        { id: 'right',        label: 'Right',         row: 1, col: 2 },
+        { id: 'bottom-left',  label: 'Bottom Left',   row: 2, col: 0 },
+        { id: 'bottom',       label: 'Bottom',        row: 2, col: 1 },
+        { id: 'bottom-right', label: 'Bottom Right',  row: 2, col: 2 },
+    ];
+
+    // Load existing position data from qr_token lookup
+    let existingPosition = '';
+    let existingNote = '';
+    let existingDrawingRef = '';
+    let existingFloorLevel = '';
+    let existingGridRef = '';
+
+    const hasQR = !!row_doc.qr_token;
+
+    const d = new frappe.ui.Dialog({
+        title: `${__('QR Code')} — ${row_doc.item_code || ''} ${row_doc.item_name || ''}`,
+        size: 'large',
+        fields: [
+            {
+                fieldname: 'position_diagram',
+                fieldtype: 'HTML',
+                label: __('Position on Product'),
+            },
+            { fieldtype: 'Section Break', label: __('Drawing Location') },
+            {
+                fieldname: 'drawing_ref',
+                fieldtype: 'Data',
+                label: __('Drawing Reference'),
+                default: existingDrawingRef,
+            },
+            { fieldtype: 'Column Break' },
+            {
+                fieldname: 'floor_level',
+                fieldtype: 'Data',
+                label: __('Floor / Level'),
+                default: existingFloorLevel,
+            },
+            { fieldtype: 'Column Break' },
+            {
+                fieldname: 'grid_ref',
+                fieldtype: 'Data',
+                label: __('Grid Reference'),
+                default: existingGridRef,
+            },
+            { fieldtype: 'Section Break' },
+            {
+                fieldname: 'position_note',
+                fieldtype: 'Small Text',
+                label: __('Position Note'),
+                default: existingNote,
+            },
+            { fieldtype: 'Section Break', label: __('Status') },
+            {
+                fieldname: 'status_html',
+                fieldtype: 'HTML',
+            },
+        ],
+        primary_action_label: hasQR ? __('Update QR') : __('Generate QR'),
+        primary_action: function() {
+            const selectedPos = d.$wrapper.find('.pos-cell.selected').data('pos') || '';
+            const values = d.get_values();
+
+            frappe.call({
+                method: 'clestra_app.clestra_manufacturing.qr_code_api.generate_qr_codes',
+                args: {
+                    pbm_name: frm.doc.name,
+                    child_row_names: JSON.stringify([row_doc.name]),
+                    position_data: JSON.stringify({
+                        position: selectedPos,
+                        drawing_ref: values.drawing_ref || '',
+                        floor_level: values.floor_level || '',
+                        grid_ref: values.grid_ref || '',
+                        position_note: values.position_note || '',
+                    })
+                },
+                freeze: true,
+                freeze_message: __('Generating QR code...'),
+                callback: (r) => {
+                    if (r.message) {
+                        frappe.show_alert({message: r.message.message, indicator: 'green'});
+                        frm.reload_doc();
+                    }
+                }
+            });
+            d.hide();
+        },
+    });
+
+    // Build the 3x3 position grid diagram
+    const diagramHtml = build_position_diagram(POSITIONS, existingPosition, row_doc);
+    d.fields_dict.position_diagram.$wrapper.html(diagramHtml);
+
+    // Position cell click handler
+    d.$wrapper.on('click', '.pos-cell', function() {
+        d.$wrapper.find('.pos-cell').removeClass('selected');
+        $(this).addClass('selected');
+    });
+
+    // Status info
+    let statusHtml = '';
+    if (hasQR) {
+        const qrUrl = `${window.location.origin}/qr_item?token=${row_doc.qr_token}`;
+        statusHtml = `
+            <div style="padding:4px 0;">
+                <span style="color:#38a169;">&#9679;</span> ${__('QR Generated')}
+                — <a href="${qrUrl}" target="_blank">${__('View scan page')}</a>
+                <br><small class="text-muted">Token: ${row_doc.qr_token}</small>
+            </div>`;
+    } else {
+        statusHtml = `<div style="padding:4px 0; color:#718096;">${__('QR not yet generated for this item.')}</div>`;
+    }
+    d.fields_dict.status_html.$wrapper.html(statusHtml);
+
+    // If QR exists, load existing position data from QR Item Detail child table
+    if (hasQR) {
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'QR Item Detail',
+                filters: { qr_token: row_doc.qr_token },
+                fields: ['product_position_desc', 'drawing_ref', 'floor_level', 'grid_ref', 'position_note'],
+                limit: 1,
+            },
+            async: false,
+            callback: (r) => {
+                if (r.message && r.message.length) {
+                    const data = r.message[0];
+                    if (data.product_position_desc) {
+                        d.$wrapper.find(`.pos-cell[data-pos="${data.product_position_desc}"]`).addClass('selected');
+                    }
+                    if (data.drawing_ref) d.set_value('drawing_ref', data.drawing_ref);
+                    if (data.floor_level) d.set_value('floor_level', data.floor_level);
+                    if (data.grid_ref) d.set_value('grid_ref', data.grid_ref);
+                    if (data.position_note) d.set_value('position_note', data.position_note);
+                }
+            }
+        });
+    }
+
+    // Auto-position suggestion
+    if (!hasQR && row_doc.item_code) {
+        frappe.call({
+            method: 'clestra_app.clestra_manufacturing.qr_code_api.get_position_suggestions',
+            args: { item_code: row_doc.item_code, product_section: row_doc.product_section || '' },
+            callback: (r) => {
+                if (r.message) {
+                    const s = r.message;
+                    if (s.position_descriptions && s.position_descriptions.length) {
+                        // Auto-select the most common position
+                        const suggested = s.position_descriptions[0];
+                        const $cell = d.$wrapper.find(`.pos-cell[data-pos="${suggested}"]`);
+                        if ($cell.length && !d.$wrapper.find('.pos-cell.selected').length) {
+                            $cell.addClass('selected suggested');
+                        }
+                    }
+                    if (s.drawing_refs && s.drawing_refs.length && !d.get_value('drawing_ref')) {
+                        d.set_value('drawing_ref', s.drawing_refs[0]);
+                    }
+                }
+            }
+        });
+    }
+
+    d.show();
+}
+
+function build_position_diagram(positions, selectedPos, row_doc) {
+    const sectionLabel = row_doc.product_section || 'Product';
+    const sizeLabel = row_doc.size || '';
+
+    let cells = '';
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+            const pos = positions.find(p => p.row === r && p.col === c);
+            const sel = pos && pos.id === selectedPos ? ' selected' : '';
+            cells += `<div class="pos-cell${sel}" data-pos="${pos.id}" title="${pos.label}">
+                <span class="pos-label">${pos.label}</span>
+            </div>`;
+        }
+    }
+
+    return `
+        <div class="qr-position-container">
+            <div class="qr-position-title">${__('Click to select item position on product')}</div>
+            <div class="qr-product-diagram">
+                <div class="qr-product-header">${sectionLabel} ${sizeLabel}</div>
+                <div class="qr-position-grid">${cells}</div>
+            </div>
+            <div class="qr-position-hint">${__('Suggested positions are highlighted in blue')}</div>
+        </div>
+    `;
 }

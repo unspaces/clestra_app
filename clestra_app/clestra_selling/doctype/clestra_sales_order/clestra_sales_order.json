@@ -116,8 +116,6 @@
   "section_break_xidf",
   "column_break_mrxb",
   "finished_items",
-  "section_break_voui",
-  "sub_assembly_items",
   "computation_tab",
   "section_break_lzuk",
   "column_break_eoak",
@@ -448,12 +446,6 @@
    "width": "30%"
   },
   {
-   "fieldname": "sub_assembly_items",
-   "fieldtype": "Table",
-   "label": "Sub Items",
-   "options": "Sub Assembly"
-  },
-  {
    "fieldname": "column_break_vkak",
    "fieldtype": "Column Break"
   },
@@ -462,11 +454,6 @@
    "fieldtype": "Table",
    "label": "Order Details",
    "options": "Sales Order Finished Items"
-  },
-  {
-   "fieldname": "section_break_voui",
-   "fieldtype": "Section Break",
-   "hidden": 1
   },
   {
    "fieldname": "column_break_shcf",
@@ -979,7 +966,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-26 10:23:39.467901",
+ "modified": "2026-03-11 11:33:31.718782",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Clestra Sales Order",

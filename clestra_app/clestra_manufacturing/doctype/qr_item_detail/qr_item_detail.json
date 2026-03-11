@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "creation": "2026-03-10 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "qr_token",
+  "pbm_child_name",
+  "item_code",
+  "item_name",
+  "product_section",
+  "product_type",
+  "zone",
+  "color",
+  "size",
+  "qty",
+  "product_position_desc",
+  "drawing_ref",
+  "floor_level",
+  "grid_ref",
+  "position_note",
+  "assembly_sequence",
+  "assembly_group",
+  "assembly_notes",
+  "qr_image",
+  "print_count",
+  "last_printed",
+  "auto_position_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "qr_token",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "QR Token",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "pbm_child_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "PBM Child Row Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "product_section",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Section",
+   "read_only": 1
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Data",
+   "label": "Product Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Color",
+   "read_only": 1
+  },
+  {
+   "fieldname": "size",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Size",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "product_position_desc",
+   "fieldtype": "Data",
+   "label": "Position"
+  },
+  {
+   "fieldname": "drawing_ref",
+   "fieldtype": "Data",
+   "label": "Drawing Reference"
+  },
+  {
+   "fieldname": "floor_level",
+   "fieldtype": "Data",
+   "label": "Floor / Level"
+  },
+  {
+   "fieldname": "grid_ref",
+   "fieldtype": "Data",
+   "label": "Grid Reference"
+  },
+  {
+   "fieldname": "position_note",
+   "fieldtype": "Small Text",
+   "label": "Position Note"
+  },
+  {
+   "fieldname": "assembly_sequence",
+   "fieldtype": "Int",
+   "label": "Assembly Sequence"
+  },
+  {
+   "fieldname": "assembly_group",
+   "fieldtype": "Data",
+   "label": "Assembly Group"
+  },
+  {
+   "fieldname": "assembly_notes",
+   "fieldtype": "Small Text",
+   "label": "Assembly Notes"
+  },
+  {
+   "fieldname": "qr_image",
+   "fieldtype": "Attach Image",
+   "label": "QR Code Image"
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Print Count",
+   "default": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_printed",
+   "fieldtype": "Datetime",
+   "label": "Last Printed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "auto_position_data",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Auto Position Data"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-10 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "QR Item Detail",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 0
+}

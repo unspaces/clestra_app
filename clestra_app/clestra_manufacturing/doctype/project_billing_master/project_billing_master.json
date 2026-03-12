@@ -70,17 +70,15 @@
   "section_break_ohhb",
   "billing",
   "summary_section",
+  "total_qty",
   "prod_summary",
   "panel_cover_page_section",
   "panel_cover",
   "door_master_page_section",
   "door_cover",
   "sub_item_section",
-  "sub_items",
-  "panel_section",
-  "panel_items",
-  "etc_section",
-  "etc_items"
+  "update_sorting",
+  "sub_items"
  ],
  "fields": [
   {
@@ -103,30 +101,6 @@
    "hidden": 1,
    "label": "Get Items From",
    "options": "\nSales Order"
-  },
-  {
-   "fieldname": "panel_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Panel Sub Items"
-  },
-  {
-   "fieldname": "panel_items",
-   "fieldtype": "Table",
-   "label": "Panel Items",
-   "options": "Project Billing Master Sub Item"
-  },
-  {
-   "fieldname": "etc_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Etc."
-  },
-  {
-   "fieldname": "etc_items",
-   "fieldtype": "Table",
-   "label": "Etc Items",
-   "options": "Project Billing Master Sub Item"
   },
   {
    "fieldname": "items_to_manufacture_section",
@@ -509,7 +483,7 @@
    "fieldname": "country",
    "fieldtype": "Link",
    "label": "Site Location",
-   "link_filters": "[]",
+   "link_filters": "[[\"Country\",\"is_clestra\",\"=\",1]]",
    "options": "Country"
   },
   {
@@ -521,11 +495,20 @@
    "fieldname": "generate_qr",
    "fieldtype": "Button",
    "label": "Generate QR"
+  },
+  {
+   "fieldname": "total_qty",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "update_sorting",
+   "fieldtype": "Button",
+   "label": "Update Sorting"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-10 14:56:49.648183",
+ "modified": "2026-03-12 15:07:21.864874",
  "modified_by": "Administrator",
  "module": "Clestra Manufacturing",
  "name": "Project Billing Master",

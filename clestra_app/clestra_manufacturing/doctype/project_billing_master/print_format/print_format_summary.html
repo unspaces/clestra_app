@@ -1,0 +1,52 @@
+<style>
+    .font-10pt-table th, .font-10pt-table td {
+        font-size: 10pt !important;
+    }
+</style>
+<h4>Summary</h4>
+
+<div style="text-align: right; font-weight: bold; font-size: 10pt; margin-top: -22px; margin-bottom: 4px;">
+    Total Quantity: {{ "{:g}".format(doc.prod_summary | sum(attribute='lm')) }} LM
+</div>
+<table class="table table-bordered table-condensed font-10pt-table" style="margin:0px 0px 10px !important; border: 1px solid black;">
+    <thead>
+        <tr>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" rowspan="3">No.</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" rowspan="3">Zone</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" rowspan="3">Product</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" rowspan="3">LM</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" colspan="4">Ceiling</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" colspan="2">Base</th>
+            <th style="text-align: center; vertical-align: middle !important; border: 1px solid black;" rowspan="4">Color</th>
+        </tr>
+        <tr>
+            <th style="text-align: center; border: 1px solid black;" rowspan="2">Height</th>
+            <th style="text-align: center; border: 1px solid black;" rowspan="2">Type</th>
+            <th style="text-align: center; border: 1px solid black;" colspan="2">Visible Height</th>
+            <th style="text-align: center; border: 1px solid black;" rowspan="2">Type</th>
+            <th style="text-align: center; border: 1px solid black;" rowspan="2">Visible Heigtht</th>
+        </tr>
+        <tr>
+            <th style="text-align: center; border: 1px solid black;">Panel</th>
+            <th style="text-align: center; border: 1px solid black;">Door</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in doc.prod_summary %}
+        <tr>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ row.idx }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ row.zone }}</td>
+            <!-- h5 태그를 제거하고 font-weight로 강조 효과를 줍니다 -->
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black; font-weight: bold;">{{ row.product }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ "{:g}".format(row.lm) }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ "{:g}".format(row.cl_h) }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ row.ceiling_type }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ "{:g}".format(row.cl_vh) }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ "{:g}".format(row.cl_vh_door) }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ row.base_type }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ "{:g}".format(row.base_vh) }}</td>
+            <td style="text-align: center; vertical-align: middle !important; border: 1px solid black;">{{ row.color }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

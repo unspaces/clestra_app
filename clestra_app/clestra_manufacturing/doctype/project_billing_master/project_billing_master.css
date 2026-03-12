@@ -175,3 +175,16 @@
     color: #a0aec0;
     margin-top: 6px;
 }
+
+/* detail_bom_items 체크박스 선택 시 하이라이트 */
+[data-fieldname="detail_bom_items"] .highlight-row {
+    background-color: #d9f7be !important;
+}
+
+[data-fieldname="detail_bom_items"] .highlight-row:last-child,
+[data-fieldname="detail_bom_items"] .highlight-row:not(:has(+ .highlight-row)) {
+    border-bottom-left-radius: var(--border-radius) !important;
+    border-bottom-right-radius: var(--border-radius) !important;
+    overflow: hidden !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}

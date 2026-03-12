@@ -84,6 +84,7 @@ frappe.ui.form.on('Project Billing Master', {
                 detail_bom_items_grid.refresh();
                 setTimeout(() => {
                     setup_detail_bom_grid(frm);
+                    setup_group_selection_and_highlight(frm);
 
                     update_grid_qty_view(frm);
                     setup_qty_field(frm);
@@ -109,6 +110,7 @@ frappe.ui.form.on('Project Billing Master', {
         }
 
         setup_po_items_grid(frm);
+        update_prod_summary_total_lm(frm);
 
         // 초기 로드 시 버튼 상태 설정
         toggle_duplicate_button(frm);
@@ -320,6 +322,20 @@ frappe.ui.form.on('Project Billing Master', {
         });
     },
 
+    update_sorting: function (frm) {
+        frappe.call({
+            method: "update_sorting",
+            doc: frm.doc,
+            freeze: true,
+            freeze_message: __('Sorting sub_items...'),
+            callback: function (r) {
+                frm.refresh_fields();
+                frm.dirty();
+                frappe.show_alert({ message: __('Sub Items sorted successfully.'), indicator: 'green' });
+            }
+        });
+    },
+
     generate_qr: function (frm) {
         // PBM-level "Generate QR" button — generates QR for ALL items that don't have one yet
         const items = (frm.doc.detail_bom_items || []).filter(r => r.item_code && !r.qr_token);
@@ -348,6 +364,17 @@ frappe.ui.form.on('Project Billing Master', {
                 });
             }
         );
+    },
+
+    country: function (frm) {
+        if (!frm.doc.country) return;
+        frappe.db.get_value('Country', frm.doc.country, 'code').then(r => {
+            const country_code = (r.message?.code || '').toUpperCase();
+            (frm.doc.po_items || []).forEach(row => {
+                frappe.model.set_value(row.doctype, row.name, 'app_country', country_code);
+            });
+            frm.refresh_field('po_items');
+        });
     },
 
     sales_order: function (frm) {
@@ -634,6 +661,34 @@ frappe.ui.form.on("Project Billing Master Item", {
         setup_dialog_link_queries(frm, dialog, data);
 
         dialog.show();
+    },
+
+    door_hw_spec(frm, cdt, cdn) {
+        const row = locals[cdt][cdn];
+        if (row?.parenttype !== 'Project Billing Master' || row.parentfield !== 'po_items') return;
+
+        if (row.door_hw_spec) {
+            frappe.db.get_value("Door Hardware Spec", row.door_hw_spec,
+                ["door_closer", "fgd_info", "tape_seal_color", "fix_screw_cap", "key_cylinder"]
+            ).then(r => {
+                if (r.message) {
+                    const d = r.message;
+                    frappe.model.set_value(cdt, cdn, "door_closer", d.door_closer || "");
+                    frappe.model.set_value(cdt, cdn, "fgd_info", d.fgd_info || "");
+                    frappe.model.set_value(cdt, cdn, "tape_seal_color", d.tape_seal_color || "");
+                    frappe.model.set_value(cdt, cdn, "fix_screw_cap", d.fix_screw_cap || "");
+                    // key_cylinder: N/No → "N", 그 외 → "Y"
+                    const kc = (d.key_cylinder || "").trim().toUpperCase();
+                    frappe.model.set_value(cdt, cdn, "key_cylinder", (kc === "N" || kc === "NO") ? "N" : "Y");
+                }
+            });
+        } else {
+            frappe.model.set_value(cdt, cdn, "door_closer", "");
+            frappe.model.set_value(cdt, cdn, "fgd_info", "");
+            frappe.model.set_value(cdt, cdn, "tape_seal_color", "");
+            frappe.model.set_value(cdt, cdn, "fix_screw_cap", "");
+            frappe.model.set_value(cdt, cdn, "key_cylinder", "");
+        }
     },
 });
 
@@ -1732,6 +1787,32 @@ function get_bom_conditions_dialog_fields(frm, data) {
                         project: frm.doc.project,
                     }
                 };
+            },
+            onchange: function () {
+                const hw_spec = this.value;
+                const dialog = this.dialog || cur_dialog;
+                if (hw_spec) {
+                    frappe.db.get_value("Door Hardware Spec", hw_spec,
+                        ["door_closer", "fgd_info", "tape_seal_color", "fix_screw_cap", "key_cylinder"]
+                    ).then(r => {
+                        if (r.message) {
+                            const d = r.message;
+                            dialog.set_value("door_closer", d.door_closer || "");
+                            dialog.set_value("fgd_info", d.fgd_info || "");
+                            dialog.set_value("tape_seal_color", d.tape_seal_color || "");
+                            dialog.set_value("fix_screw_cap", d.fix_screw_cap || "");
+                            // key_cylinder: N/No → "N", 그 외 → "Y"
+                            const kc = (d.key_cylinder || "").trim().toUpperCase();
+                            dialog.set_value("key_cylinder", (kc === "N" || kc === "NO") ? "N" : "Y");
+                        }
+                    });
+                } else {
+                    dialog.set_value("door_closer", "");
+                    dialog.set_value("fgd_info", "");
+                    dialog.set_value("tape_seal_color", "");
+                    dialog.set_value("fix_screw_cap", "");
+                    dialog.set_value("key_cylinder", "");
+                }
             }
         },
         { label: __("Door Closer"), fieldname: "door_closer", fieldtype: "Link", default: data.door_closer, options: "Selection Library" },
@@ -2559,12 +2640,19 @@ function setup_add_item_button(frm) {
         // modified_doc.rate = 0;
         // modified_doc.amount = 0;
 
+        // old_idx: "{parent_row_no}-{child_counter+1}" 형식으로 설정
+        const parent_row_no = expanded_parent.old_idx || expanded_parent.idx;
+        const child_counter = children_rows.length;
+        modified_doc.old_idx = `${parent_row_no}-${child_counter + 1}`;
+
         // is_duplicate=false로 해야 새 __newname이 할당됨.
         // true로 하면 name까지 복사되어 중복 에러 발생.
-        const new_row = grid.add_new_row(insert_at_idx, null, true, modified_doc, false);
+        const new_row = grid.add_new_row(insert_at_idx, null, false, modified_doc, false);
 
-        // 새 행이 보이도록 스크롤
-        // $(new_row.wrapper).find('[data-fieldtype="Data"]').first().focus();
+        // 편집창이 열리지 않도록 toggle_editable_row 호출 방지
+        if (new_row) {
+            new_row.toggle_editable_row(false);
+        }
     });
     // 생성된 버튼 객체를 grid 객체에 저장하여 나중에 참조할 수 있도록 함
     if (!grid.custom_buttons) {
@@ -2899,20 +2987,15 @@ function show_qr_position_dialog(frm, row_doc) {
     }
     d.fields_dict.status_html.$wrapper.html(statusHtml);
 
-    // If QR exists, load existing position data from QR Item Detail child table
+    // If QR exists, load existing position data via whitelisted API
     if (hasQR) {
         frappe.call({
-            method: 'frappe.client.get_list',
-            args: {
-                doctype: 'QR Item Detail',
-                filters: { qr_token: row_doc.qr_token },
-                fields: ['product_position_desc', 'drawing_ref', 'floor_level', 'grid_ref', 'position_note'],
-                limit: 1,
-            },
+            method: 'clestra_app.clestra_manufacturing.qr_code_api.get_qr_position_data',
+            args: { qr_token: row_doc.qr_token },
             async: false,
             callback: (r) => {
-                if (r.message && r.message.length) {
-                    const data = r.message[0];
+                if (r.message) {
+                    const data = r.message;
                     if (data.product_position_desc) {
                         d.$wrapper.find(`.pos-cell[data-pos="${data.product_position_desc}"]`).addClass('selected');
                     }
@@ -2978,3 +3061,131 @@ function build_position_diagram(positions, selectedPos, row_doc) {
         </div>
     `;
 }
+
+// ============================================================
+// detail_bom_items 그리드: 그룹 체크 선택 + 하이라이트 기능
+// - indent_level == 0 클릭 시 하위 자녀 아이템도 함께 선택/해제
+// - indent_level > 0 클릭 시 해당 행만 선택 (하이라이트만 적용)
+// ============================================================
+function setup_group_selection_and_highlight(frm) {
+    const table_fieldname = 'detail_bom_items';
+    const grid = frm.fields_dict[table_fieldname]?.grid;
+
+    if (!grid || grid._is_group_selection_setup) return;
+
+    // [1] 하이라이트 적용 함수
+    const apply_highlight = function (frm, fieldname) {
+        const grid_obj = frm.fields_dict[fieldname]?.grid;
+        if (!grid_obj) return;
+
+        grid_obj.grid_rows.forEach(grid_row => {
+            const doc = grid_row.doc;
+            const $row = $(grid_row.row);
+
+            if (doc.__checked) {
+                $row.addClass('highlight-row');
+            } else {
+                $row.removeClass('highlight-row');
+            }
+        });
+    };
+
+    // [2] 부모인지 판단하는 헬퍼
+    const is_parent_row = function (row_doc) {
+        return row_doc.indent_level === 0 ||
+            (row_doc.indent_level == 1 && row_doc.product_section === "Leaf");
+    };
+
+    // [3] 부모의 자녀 행들을 찾는 헬퍼 (위치 기반)
+    const get_children_of_parent = function (all_rows, parent_idx) {
+        const children = [];
+        for (let i = parent_idx + 1; i < all_rows.length; i++) {
+            if (is_parent_row(all_rows[i])) break;
+            children.push(all_rows[i]);
+        }
+        return children;
+    };
+
+    // [4] 클릭 이벤트 핸들러
+    grid.wrapper.on('click', '.grid-row-check', function () {
+        const $checkbox = $(this);
+        const row_name = $checkbox.closest('.grid-row').data('name');
+        const is_checked = $checkbox.is(':checked');
+
+        const all_rows = frm.doc[table_fieldname] || [];
+        const clicked_row_doc = all_rows.find(d => d.name === row_name);
+
+        if (!clicked_row_doc) return;
+
+        if (is_parent_row(clicked_row_doc)) {
+            // 부모 아이템 클릭: 자녀도 함께 선택/해제
+            clicked_row_doc.__checked = is_checked ? 1 : 0;
+
+            const parent_idx = all_rows.indexOf(clicked_row_doc);
+            const children = get_children_of_parent(all_rows, parent_idx);
+
+            children.forEach(child_doc => {
+                child_doc.__checked = is_checked ? 1 : 0;
+                const grid_row = grid.get_row(child_doc.name);
+                if (grid_row) {
+                    $(grid_row.row).find('.grid-row-check').prop('checked', is_checked);
+                }
+            });
+        } else {
+            // 자녀 아이템 클릭: 해당 행만 선택 (그룹 체크 비활성화)
+            clicked_row_doc.__checked = is_checked ? 1 : 0;
+        }
+
+        // 후처리: 헤더 체크박스 상태 갱신
+        if (grid.header_row && grid.header_row.global_checkbox) {
+            const visible_rows = grid.grid_rows.filter(r => $(r.row).is(':visible'));
+            const all_checked = visible_rows.length > 0 && visible_rows.every(r => r.doc.__checked);
+            grid.header_row.global_checkbox.prop('checked', all_checked);
+        }
+        apply_highlight(frm, table_fieldname);
+    });
+
+    // [5] Grid Refresh 오버라이드 - 하이라이트 잔상 제거
+    const orig_refresh = grid.refresh;
+    const wrapped_refresh = function () {
+        orig_refresh.apply(this, arguments);
+        setTimeout(() => {
+            apply_highlight(frm, table_fieldname);
+        }, 50);
+    };
+    // grid.refresh가 이미 몽키패치 되어 있을 수 있으므로 현재 값을 래핑
+    grid.refresh = wrapped_refresh;
+
+    // [6] 중복 실행 방지
+    grid._is_group_selection_setup = true;
+}
+
+// ============================================================
+// prod_summary 테이블: Total LM 실시간 표시 (total_qty HTML 필드 사용)
+// ============================================================
+function update_prod_summary_total_lm(frm) {
+    const rows = frm.doc.prod_summary || [];
+    const total_lm = rows.reduce((sum, row) => sum + flt(row.lm), 0);
+
+    const $wrapper = frm.fields_dict['total_qty']?.$wrapper;
+    if (!$wrapper) return;
+
+    $wrapper.html(
+        `<div class="total-lm-label" style="font-weight: 600; font-size: 12px; color: var(--text-muted); text-align: right; padding: 4px 15px 0;">
+            Total Quantity: ${total_lm.toFixed(1)} LM
+        </div>`
+    );
+}
+
+// prod_summary (Product Cover) 테이블의 lm 변경 시 실시간 갱신
+frappe.ui.form.on("Product Cover", {
+    lm(frm) {
+        update_prod_summary_total_lm(frm);
+    },
+    prod_summary_add(frm) {
+        update_prod_summary_total_lm(frm);
+    },
+    prod_summary_remove(frm) {
+        update_prod_summary_total_lm(frm);
+    }
+});

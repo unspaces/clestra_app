@@ -51,10 +51,9 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "LM",
-   "precision": "1"
+   "precision": "2"
   },
   {
-   "columns": 1,
    "fieldname": "unit_height",
    "fieldtype": "Float",
    "label": "Unit Height",
@@ -94,7 +93,6 @@
    "columns": 1,
    "fieldname": "top",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Top",
    "precision": "0"
   },
@@ -102,7 +100,6 @@
    "columns": 1,
    "fieldname": "base",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Base",
    "precision": "0"
   },
@@ -165,14 +162,14 @@
    "fieldname": "ceiling_type",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "CL Type"
+   "label": "CL/CH Type"
   },
   {
    "columns": 1,
    "fieldname": "cl_vh",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Panel CL VH"
+   "label": "Panel CL/CH VH"
   },
   {
    "columns": 1,
@@ -189,11 +186,11 @@
    "label": "Base VH"
   },
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "cl_h",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "CL H",
+   "label": "CH",
    "precision": "0"
   },
   {
@@ -212,13 +209,13 @@
    "fieldname": "cl_vh_door",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Door CL VH"
+   "label": "Door CL/CH VH"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-08-14 11:54:24.866470",
+ "modified": "2026-03-12 14:49:29.997330",
  "modified_by": "Administrator",
  "module": "Clestra Manufacturing",
  "name": "Product Cover",

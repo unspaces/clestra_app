@@ -431,6 +431,22 @@ def get_position_suggestions(item_code, product_section):
 
 
 @frappe.whitelist()
+def get_qr_position_data(qr_token):
+	"""Get position data for a QR Item Detail by token."""
+	if not qr_token:
+		return None
+
+	data = frappe.db.sql("""
+		SELECT product_position_desc, drawing_ref, floor_level, grid_ref, position_note
+		FROM `tabQR Item Detail`
+		WHERE qr_token = %(qr_token)s
+		LIMIT 1
+	""", {"qr_token": qr_token}, as_dict=True)
+
+	return data[0] if data else None
+
+
+@frappe.whitelist()
 def increment_print_count(qr_lookup_name, child_row_name):
 	"""Increment print count for a single QR item."""
 	qr_lookup = frappe.get_doc("QR Item Lookup", qr_lookup_name)

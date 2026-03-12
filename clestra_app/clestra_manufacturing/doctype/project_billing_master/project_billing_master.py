@@ -315,7 +315,7 @@ class ProjectBillingMaster(Document):
 		if item_codes_in_bom:
 			fetched_items = frappe.get_all("Item", 
 				filters={"name": ["in", list(item_codes_in_bom)]}, 
-				fields=["name", "print_hide", "print_group", "print_order", "image_caption", "use_multiple_print_groups", "door_set_type", "door_open_type", "product_keyword"],
+				fields=["name", "print_hide", "print_group", "print_order", "image_caption", "image_caption_kr", "image_caption_cn", "use_multiple_print_groups", "door_set_type", "door_open_type", "product_keyword"],
 				limit=None # <--- CRITICAL FIX: Limit removed
 			)
 			item_details_map = {item['name']: item for item in fetched_items}
@@ -359,7 +359,7 @@ class ProjectBillingMaster(Document):
 						"handle_direct", "rh_qty", "lhr_qty", "lh_qty", "rhr_qty",
 						"leaf_glass_a", "leaf_glass_b", "leaf_material", "is_pair_door", "hinge", "hinge_type", "hinge_num"]
 		panel_specific_fields = ["product_keyword"]
-		sub_item_specific_fields = ["abl_a", "abl_b", "print_hide", "print_group", "print_order", "qty_prefix", "qty_suffix", "image_caption", "show_qty_bracket"]
+		sub_item_specific_fields = ["abl_a", "abl_b", "depth", "print_hide", "print_group", "print_order", "qty_prefix", "qty_suffix", "image_caption", "show_qty_bracket"]
 
 		fields_for_door_cover = list(set(common_fields + size_fields + door_specific_fields))
 		fields_for_panel_cover = list(set(common_fields + size_fields + panel_specific_fields))
@@ -452,6 +452,12 @@ class ProjectBillingMaster(Document):
 
 				temp_print_group = item_master_data.get("print_group")
 				temp_print_order = item_master_data.get("print_order")
+				company = cstr(self.company).strip()
+			if company == "Clestra Korea":
+				row.image_caption = item_master_data.get("image_caption_kr") or item_master_data.get("image_caption", "")
+			elif company in ("Taicang Factory", "Clestra Shanghai"):
+				row.image_caption = item_master_data.get("image_caption_cn") or item_master_data.get("image_caption", "")
+			else:
 				row.image_caption = item_master_data.get("image_caption", "")
 				use_multiple = cint(item_master_data.get("use_multiple_print_groups"))
 
@@ -753,7 +759,130 @@ class ProjectBillingMaster(Document):
 		# self.save(ignore_permissions=True)
 		return {"status": "success", "processed": processed_count, "skipped": skipped_count + skipped_for_print_hide}
 
+	@frappe.whitelist()
+	def update_sorting(self):
+		"""sub_items 테이블을 generate_billing과 동일한 aggregation + 정렬 기준으로 재집계/재정렬"""
+		if not self.sub_items:
+			return {"status": "success", "message": "No sub_items to sort."}
 
+		# --- Step 1: Zone Mapping (generate_billing과 동일) ---
+		all_unique_zones = set()
+		for row in self.detail_bom_items:
+			z = cstr(getattr(row, "zone", "")).strip()
+			q = cint(getattr(row, "qty", 0))
+			if z and q > 0:
+				all_unique_zones.add(z)
+
+		sorted_zones = sorted(list(all_unique_zones))
+		MAX_VIRTUAL_FIELDS = 20
+		global_zone_to_virtual_field_map = {}
+		for i, zone_name in enumerate(sorted_zones):
+			if i < MAX_VIRTUAL_FIELDS:
+				global_zone_to_virtual_field_map[zone_name] = f"zone_{i + 1}"
+			else:
+				break
+
+		# --- Step 2: Aggregation (generate_billing과 동일한 combine_key) ---
+		aggregated = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "zone_qty": defaultdict(int)})
+
+		for row in self.sub_items:
+			row_data = row.as_dict()
+			current_qty = cint(row_data.get("qty", 0))
+
+			# combine_key 생성
+			combine_key_fields = ["item_code", "print_group", "color", "size", "abl_a", "abl_b", "depth", "print_hide", "show_qty_bracket", "qty_prefix", "qty_suffix"]
+			key_parts = []
+			for k in combine_key_fields:
+				field_value = cstr(row_data.get(k, ""))
+				if k == "size":
+					current_size_val = field_value.strip()
+					normalized = current_size_val
+					if "," not in current_size_val and ":" in current_size_val:
+						parts = current_size_val.split(":", 1)
+						if len(parts) == 2:
+							prefix = parts[0].strip().upper() + ":"
+							numeric_part = parts[1].strip()
+							if prefix in ["W:", "CH:", "LW:", "LH:", "PW:", "PH:"] and numeric_part.replace('.', '', 1).isdigit():
+								normalized = f"NUMERIC_PART_FOR_KEY:{numeric_part}"
+					key_parts.append(normalized)
+				else:
+					key_parts.append(field_value)
+
+			key_tuple = tuple(key_parts)
+
+			if key_tuple not in aggregated:
+				new_row = frappe._dict()
+				for f in row_data:
+					if f in ("idx", "name", "parent", "parenttype", "parentfield", "doctype", "docstatus", "creation", "modified", "modified_by", "owner"):
+						continue
+					if f == "qty":
+						new_row[f] = 0
+					elif f == "zone_qty":
+						new_row[f] = {}
+					else:
+						new_row[f] = row_data.get(f)
+				aggregated[key_tuple]["data"] = new_row
+
+			aggregated[key_tuple]["qty"] += current_qty
+
+			# zone_qty 집계
+			zone_qty_existing = row_data.get("zone_qty")
+			if zone_qty_existing:
+				try:
+					zq = json.loads(zone_qty_existing) if isinstance(zone_qty_existing, str) else zone_qty_existing
+					for zone_name, zone_info in zq.items():
+						if isinstance(zone_info, dict):
+							aggregated[key_tuple]["zone_qty"][zone_name] += cint(zone_info.get("qty", 0))
+						else:
+							aggregated[key_tuple]["zone_qty"][zone_name] += cint(zone_info)
+				except (json.JSONDecodeError, TypeError):
+					pass
+
+		# --- Step 3: Finalize ---
+		sub_items_final_list = []
+		for key, agg_data in aggregated.items():
+			final_row = agg_data["data"]
+			final_row.qty = cint(agg_data["qty"])
+
+			zone_qty_json = {}
+			for zone_name, qty in agg_data.get("zone_qty", {}).items():
+				virtual_field = global_zone_to_virtual_field_map.get(zone_name)
+				if virtual_field:
+					zone_qty_json[zone_name] = {"field": virtual_field, "qty": qty}
+
+			final_row.zone_qty = json.dumps(zone_qty_json)
+			sub_items_final_list.append(final_row)
+
+		# --- Step 4: Sort (generate_billing과 동일) ---
+		def get_sub_item_sort_key(item):
+			product_type = cstr(item.get("product_type", ""))
+			print_group = cstr(item.get("print_group", ""))
+			print_order = cint(item.get("print_order", 0))
+			color = cstr(item.get("color", ""))
+			size_str = cstr(item.get("size", ""))
+			item_code = cstr(item.get("item_code", ""))
+
+			sortable_numeric_size = 0
+			if size_str and "," not in size_str:
+				parts = size_str.split(":", 1)
+				if len(parts) == 2:
+					try:
+						sortable_numeric_size = -flt(parts[1].strip())
+					except ValueError:
+						sortable_numeric_size = 0
+
+			return (product_type, print_group, print_order, color, sortable_numeric_size, item_code)
+
+		sorted_sub_items = sorted(sub_items_final_list, key=get_sub_item_sort_key)
+
+		# --- Step 5: Rebuild table ---
+		self.sub_items = []
+		for row_data in sorted_sub_items:
+			if 'idx' in row_data:
+				del row_data['idx']
+			self.append("sub_items", row_data)
+
+		return {"status": "success", "sorted": len(sorted_sub_items)}
 
 	def set_sub_assembly_items_based_on_level(self, row, bom_data, manufacturing_type=None):
 		"Modify bom_data, set additional details."

@@ -75,16 +75,10 @@
   "blind_section",
   "blind",
   "fgd_information_section",
-  "fgd_type",
+  "fgd_info",
   "column_break_efex",
-  "3m_tape_and_form_seal_color",
-  "tape_seal_color_gray",
-  "tape_seal_color_white",
-  "tape_seal_color_black",
-  "fixing_screw_cap_color",
-  "fix_screw_gray",
-  "fix_screw_white",
-  "fix_screw_black",
+  "tape_seal_color",
+  "fix_screw_cap",
   "back_painted_border",
   "back_painted_no",
   "back_painted_yes",
@@ -173,7 +167,6 @@
    "allow_in_quick_entry": 1,
    "fieldname": "door_open_type",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Door Open Type",
    "options": "\nSwing\nSliding"
   },
@@ -200,7 +193,6 @@
    "allow_in_quick_entry": 1,
    "fieldname": "door_set_type",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Door Set Type",
    "options": "\nSingle\nPair"
   },
@@ -255,7 +247,6 @@
    "fieldname": "mortise",
    "fieldtype": "Data",
    "in_filter": 1,
-   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Mortise (Lockset)"
   },
@@ -263,7 +254,6 @@
    "allow_in_quick_entry": 1,
    "fieldname": "handle",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Handle"
   },
   {
@@ -277,7 +267,6 @@
    "allow_in_quick_entry": 1,
    "fieldname": "lockset_h",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Lockset H",
    "options": "\n900\n950\n1000\n1050\n1100\nCustom"
   },
@@ -346,8 +335,11 @@
   },
   {
    "allow_in_quick_entry": 1,
+   "default": "N",
    "fieldname": "key_cylinder",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Key Cylinder"
   },
   {
@@ -374,10 +366,10 @@
    "allow_in_quick_entry": 1,
    "default": "N",
    "fieldname": "door_closer",
-   "fieldtype": "Select",
-   "in_list_view": 1,
+   "fieldtype": "Link",
    "label": "Door Closer",
-   "options": "N\nY"
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"YesNo\"],[\"Selection Library\",\"opt_name\",\"=\",\"Door Closer\"]]",
+   "options": "Selection Library"
   },
   {
    "allow_in_quick_entry": 1,
@@ -399,7 +391,6 @@
    "description": "for 40T, 44T",
    "fieldname": "al_strip",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Al. Strip",
    "options": "N\nY"
   },
@@ -414,7 +405,6 @@
    "description": "L: min. 300mm",
    "fieldname": "auto_drop_seal",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Auto Drop Seal",
    "options": "\nCDCM\nAthmer M1B\nOther"
   },
@@ -461,7 +451,6 @@
    "allow_in_quick_entry": 1,
    "fieldname": "hinge_type",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Hinge Type",
    "options": "\nButt\nPivot\nOther"
   },
@@ -521,6 +510,8 @@
    "default": "N",
    "fieldname": "flush_bolt",
    "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Flush Bolt",
    "options": "N\nY"
   },
@@ -559,69 +550,8 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "fieldname": "fgd_type",
-   "fieldtype": "Select",
-   "label": "FGD Type",
-   "options": "\n3M Tape + Screw (Std.)\n3M Tape + 3M Tape"
-  },
-  {
-   "allow_in_quick_entry": 1,
    "fieldname": "column_break_efex",
    "fieldtype": "Column Break"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "3m_tape_and_form_seal_color",
-   "fieldtype": "Heading",
-   "label": "3M Tape and Form Seal Color"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "tape_seal_color_gray",
-   "fieldtype": "Check",
-   "label": "Standard (Gray)"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "tape_seal_color_white",
-   "fieldtype": "Check",
-   "label": "White"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "tape_seal_color_black",
-   "fieldtype": "Check",
-   "label": "Black"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "fieldname": "fixing_screw_cap_color",
-   "fieldtype": "Heading",
-   "label": "Fixing Screw Cap Color"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "fix_screw_gray",
-   "fieldtype": "Check",
-   "label": "Standard (Gray)"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "fix_screw_white",
-   "fieldtype": "Check",
-   "label": "White"
-  },
-  {
-   "allow_in_quick_entry": 1,
-   "default": "0",
-   "fieldname": "fix_screw_black",
-   "fieldtype": "Check",
-   "label": "Black"
   },
   {
    "allow_in_quick_entry": 1,
@@ -662,11 +592,35 @@
   {
    "fieldname": "column_break_xyll",
    "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "fgd_info",
+   "fieldtype": "Link",
+   "label": "FGD Info",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"FGD\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "tape_seal_color",
+   "fieldtype": "Link",
+   "label": "Tape & Seal Color",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Tape & Seal Color\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "fix_screw_cap",
+   "fieldtype": "Link",
+   "label": "Fixing Screw Cap",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Fixing Screw Cap\"]]",
+   "options": "Selection Library"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-06 16:50:07.615172",
+ "modified": "2026-03-12 14:02:37.741289",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Door Hardware Spec",

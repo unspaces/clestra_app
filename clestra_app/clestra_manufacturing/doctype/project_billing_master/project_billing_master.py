@@ -453,12 +453,13 @@ class ProjectBillingMaster(Document):
 				temp_print_group = item_master_data.get("print_group")
 				temp_print_order = item_master_data.get("print_order")
 				company = cstr(self.company).strip()
-			if company == "Clestra Korea":
-				row.image_caption = item_master_data.get("image_caption_kr") or item_master_data.get("image_caption", "")
-			elif company in ("Taicang Factory", "Clestra Shanghai"):
-				row.image_caption = item_master_data.get("image_caption_cn") or item_master_data.get("image_caption", "")
-			else:
-				row.image_caption = item_master_data.get("image_caption", "")
+				if company == "Clestra Korea":
+					row.image_caption = item_master_data.get("image_caption_kr")
+				elif company in ("Taicang Factory", "Clestra Shanghai"):
+					row.image_caption = item_master_data.get("image_caption_cn") or item_master_data.get("image_caption", "")
+				else:
+					row.image_caption = item_master_data.get("image_caption", "")
+
 				use_multiple = cint(item_master_data.get("use_multiple_print_groups"))
 
 				if use_multiple == 1 and product_type:

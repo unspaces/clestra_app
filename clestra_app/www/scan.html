@@ -1,0 +1,266 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div id="scan-page">
+	<!-- Step 1: Select/scan pallet -->
+	<div id="step-pallet" style="display:none;">
+		<div class="scan-header">
+			<h4>Step 1: Select Pallet</h4>
+			<p class="text-muted">Scan a Pallet QR or enter the Pallet ID</p>
+		</div>
+		<div class="scan-input-row">
+			<input type="text" id="pallet-input" class="form-control" placeholder="Pallet ID (e.g. PLT-00001)">
+			<button id="btn-set-pallet" class="btn btn-primary">Set</button>
+		</div>
+		<div class="text-center my-3 text-muted">— or scan pallet QR —</div>
+		<div id="pallet-scanner" class="scanner-box"></div>
+	</div>
+
+	<!-- Step 2: Scan items -->
+	<div id="step-items" style="display:none;">
+		<div class="scan-header">
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<h4>Scan Items</h4>
+					<div class="pallet-badge" id="current-pallet"></div>
+				</div>
+				<button id="btn-done" class="btn btn-success btn-sm">Done</button>
+			</div>
+		</div>
+
+		<div id="item-scanner" class="scanner-box"></div>
+
+		<!-- Toast area -->
+		<div id="scan-toast" class="scan-toast" style="display:none;"></div>
+
+		<!-- Scanned item list -->
+		<div class="scanned-header">
+			<span>Scanned Items</span>
+			<span class="badge badge-primary" id="scan-count">0</span>
+		</div>
+		<div id="scanned-list"></div>
+	</div>
+</div>
+
+<style>
+#scan-page {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 10px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.scan-header { margin-bottom: 12px; }
+.scan-header h4 { margin: 0; font-size: 1.1rem; }
+
+.scan-input-row {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.scan-input-row input {
+	flex: 1;
+	min-height: 48px;
+	font-size: 16px;
+}
+
+.scan-input-row button {
+	min-height: 48px;
+	min-width: 80px;
+	font-size: 16px;
+}
+
+.scanner-box {
+	border: 2px dashed #cbd5e0;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 12px;
+	min-height: 250px;
+}
+
+.pallet-badge {
+	display: inline-block;
+	background: #ebf8ff;
+	color: #2b6cb0;
+	padding: 4px 12px;
+	border-radius: 12px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.scan-toast {
+	padding: 12px 16px;
+	border-radius: 8px;
+	margin-bottom: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	animation: fadeIn 0.2s;
+}
+
+.toast-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
+.toast-warning { background: #fefcbf; color: #744210; border: 1px solid #f6e05e; }
+.toast-error { background: #fed7d7; color: #c53030; border: 1px solid #feb2b2; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.scanned-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
+	font-weight: 600;
+	font-size: 0.9rem;
+	border-bottom: 1px solid #e2e8f0;
+	margin-bottom: 4px;
+}
+
+.scanned-item {
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 0.85rem;
+	display: flex;
+	justify-content: space-between;
+}
+
+.scanned-item-code { font-weight: 600; }
+.scanned-item-status { font-size: 0.75rem; }
+</style>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	let currentPallet = "{{ pallet_id }}";
+	let scannedItems = [];
+	let itemScanner = null;
+	let lastScannedCode = "";
+	let lastScanTime = 0;
+
+	if (currentPallet) {
+		startItemScanning(currentPallet);
+	} else {
+		document.getElementById("step-pallet").style.display = "block";
+		initPalletStep();
+	}
+
+	function initPalletStep() {
+		document.getElementById("btn-set-pallet").addEventListener("click", function() {
+			const val = document.getElementById("pallet-input").value.trim();
+			if (val) startItemScanning(val);
+		});
+
+		// Optional: pallet scanner
+		try {
+			const palletScanner = new Html5Qrcode("pallet-scanner");
+			palletScanner.start(
+				{ facingMode: "environment" },
+				{ fps: 10, qrbox: { width: 200, height: 200 } },
+				(decodedText) => {
+					palletScanner.stop();
+					// Extract pallet ID from URL if needed
+					let palletId = decodedText;
+					const match = decodedText.match(/[?&]id=([^&]+)/);
+					if (match) palletId = match[1];
+					startItemScanning(palletId);
+				}
+			).catch(() => {});
+		} catch(e) {}
+	}
+
+	function startItemScanning(palletId) {
+		currentPallet = palletId;
+		document.getElementById("step-pallet").style.display = "none";
+		document.getElementById("step-items").style.display = "block";
+		document.getElementById("current-pallet").textContent = palletId;
+
+		document.getElementById("btn-done").addEventListener("click", function() {
+			if (itemScanner) itemScanner.stop().catch(() => {});
+			window.location.href = "/pallet?id=" + palletId;
+		});
+
+		try {
+			itemScanner = new Html5Qrcode("item-scanner");
+			itemScanner.start(
+				{ facingMode: "environment" },
+				{ fps: 10, qrbox: { width: 200, height: 200 } },
+				onItemScanned
+			).catch(() => {
+				showToast("Camera access denied. Use manual input.", "error");
+			});
+		} catch(e) {
+			showToast("Camera not supported.", "error");
+		}
+	}
+
+	function onItemScanned(decodedText) {
+		// Debounce: prevent scanning the same code within 3 seconds
+		const now = Date.now();
+		if (decodedText === lastScannedCode && now - lastScanTime < 3000) return;
+		lastScannedCode = decodedText;
+		lastScanTime = now;
+
+		// Extract item QR code from URL if needed
+		let itemQrCode = decodedText;
+		const match = decodedText.match(/[?&]id=([^&]+)/);
+		if (match) itemQrCode = match[1];
+
+		// Call API to add item
+		fetch("/api/method/clestra_app.api.add_item_to_pallet", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-Frappe-CSRF-Token": frappe?.csrf_token || "{{ frappe.session.csrf_token or '' }}"
+			},
+			body: JSON.stringify({
+				pallet_name: currentPallet,
+				item_qr_code: itemQrCode
+			})
+		})
+		.then(r => r.json())
+		.then(resp => {
+			const data = resp.message;
+			if (data.status === "success") {
+				showToast(itemQrCode + " — Added!", "success");
+				addToList(itemQrCode, "success", "Added");
+			} else if (data.status === "duplicate") {
+				showToast(itemQrCode + " — Already in this pallet", "warning");
+				addToList(itemQrCode, "warning", "Duplicate");
+			} else if (data.status === "conflict") {
+				showToast(data.message, "warning");
+				addToList(itemQrCode, "warning", "Conflict: " + data.current_pallet);
+			} else {
+				showToast("Error: " + (data.message || "Unknown"), "error");
+			}
+		})
+		.catch(() => {
+			showToast("Network error", "error");
+		});
+	}
+
+	function showToast(msg, type) {
+		const el = document.getElementById("scan-toast");
+		el.textContent = msg;
+		el.className = "scan-toast toast-" + type;
+		el.style.display = "block";
+		setTimeout(() => { el.style.display = "none"; }, 3000);
+	}
+
+	function addToList(code, type, statusText) {
+		scannedItems.unshift({code, type, statusText});
+		document.getElementById("scan-count").textContent = scannedItems.length;
+
+		const listEl = document.getElementById("scanned-list");
+		const colors = {success: "#276749", warning: "#744210", error: "#c53030"};
+
+		let html = "";
+		scannedItems.forEach(item => {
+			html += `<div class="scanned-item">
+				<span class="scanned-item-code">${item.code}</span>
+				<span class="scanned-item-status" style="color:${colors[item.type] || '#333'}">${item.statusText}</span>
+			</div>`;
+		});
+		listEl.innerHTML = html;
+	}
+});
+</script>
+{% endblock %}

@@ -1,0 +1,439 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-02 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_qggg",
+  "product_section",
+  "item_code",
+  "item_name",
+  "column_break_gedb",
+  "general_information_section",
+  "project",
+  "zone_name",
+  "column_break_roxn",
+  "product_type",
+  "column_break_uwcd",
+  "section_break_idix",
+  "column_break_zhyh",
+  "height",
+  "ch",
+  "ph",
+  "column_break_adgv",
+  "width",
+  "under_cut",
+  "column_break_pesf",
+  "section_break_rbku",
+  "planned_qty",
+  "column_break_ttwc",
+  "stock_uom",
+  "section_break_ohcy",
+  "lm",
+  "column_break_mmly",
+  "square_m",
+  "section_break_dwwm",
+  "calc_price",
+  "calc_price_unit",
+  "price",
+  "column_break_eyhm",
+  "vp",
+  "vp_amount",
+  "use_vp",
+  "column_break_jpyt",
+  "manufacturer_dc",
+  "color_configuration_section_1",
+  "main_color",
+  "color",
+  "column_break_snsi",
+  "door_colors",
+  "color_frame",
+  "color_transom",
+  "leaf_colors",
+  "color_leaf",
+  "color_lipseal",
+  "column_break_jttn",
+  "panel_colors",
+  "color_panel",
+  "sub_colors",
+  "color_clch",
+  "color_base",
+  "color_junction",
+  "section_break_fckr",
+  "indent_level",
+  "column_break_fddf",
+  "parent_row_no",
+  "fg_reference_id",
+  "remark_section",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_qggg",
+   "fieldtype": "Section Break",
+   "label": "Item Information"
+  },
+  {
+   "columns": 1,
+   "fieldname": "product_section",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "\nDoor\nLeaf\nPanel\nOption\nPrice Study\nSub Contract",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "columns": 2,
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "column_break_gedb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "general_information_section",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "zone_name",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Zone"
+  },
+  {
+   "fieldname": "column_break_roxn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "product_type",
+   "fieldtype": "Link",
+   "label": "Product Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Product Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "fieldname": "column_break_uwcd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_idix",
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Size"
+  },
+  {
+   "fieldname": "column_break_zhyh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "height",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "H"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ch",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "CH"
+  },
+  {
+   "columns": 1,
+   "fieldname": "ph",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "PH"
+  },
+  {
+   "fieldname": "column_break_adgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "W"
+  },
+  {
+   "columns": 1,
+   "fieldname": "under_cut",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "UW"
+  },
+  {
+   "fieldname": "column_break_pesf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_rbku",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "planned_qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "column_break_ttwc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "item_code.stock_uom",
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Unit of Measure",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "section_break_ohcy",
+   "fieldtype": "Section Break",
+   "label": "Amount"
+  },
+  {
+   "columns": 1,
+   "fieldname": "lm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "L/M",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_mmly",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "square_m",
+   "fieldtype": "Float",
+   "label": "M²",
+   "precision": "2"
+  },
+  {
+   "fieldname": "section_break_dwwm",
+   "fieldtype": "Section Break",
+   "label": "VP and Price"
+  },
+  {
+   "fieldname": "calc_price",
+   "fieldtype": "Float",
+   "label": "Unit Price",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calc_price_unit",
+   "fieldtype": "Select",
+   "label": "Price Unit",
+   "options": "/EA\n/M2"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "label": "Price Amount",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eyhm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vp",
+   "fieldtype": "Float",
+   "label": "VP",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vp_amount",
+   "fieldtype": "Float",
+   "label": "VP Amount",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "use_vp",
+   "fieldtype": "Check",
+   "label": "Use VP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jpyt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manufacturer_dc",
+   "fieldtype": "Percent",
+   "label": "Manufacturer Discount"
+  },
+  {
+   "fieldname": "color_configuration_section_1",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "main_color",
+   "fieldtype": "Heading",
+   "label": "Main Color"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Link",
+   "label": "Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_snsi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "door_colors",
+   "fieldtype": "Heading",
+   "label": "Door Colors"
+  },
+  {
+   "fieldname": "color_frame",
+   "fieldtype": "Link",
+   "label": "Frame Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_transom",
+   "fieldtype": "Link",
+   "label": "Transom Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "leaf_colors",
+   "fieldtype": "Heading",
+   "label": "Leaf Colors"
+  },
+  {
+   "fieldname": "color_leaf",
+   "fieldtype": "Link",
+   "label": "Leaf Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_lipseal",
+   "fieldtype": "Link",
+   "label": "Lip Seal Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_jttn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "panel_colors",
+   "fieldtype": "Heading",
+   "label": "Panel Colors"
+  },
+  {
+   "fieldname": "color_panel",
+   "fieldtype": "Link",
+   "label": "Panel Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "sub_colors",
+   "fieldtype": "Heading",
+   "label": "Sub Colors"
+  },
+  {
+   "fieldname": "color_clch",
+   "fieldtype": "Link",
+   "label": "CL/CH",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_base",
+   "fieldtype": "Link",
+   "label": "Base",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "color_junction",
+   "fieldtype": "Link",
+   "label": "Junction",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "section_break_fckr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "indent_level",
+   "fieldtype": "Int",
+   "label": "Indent Level",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fddf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "parent_row_no",
+   "fieldtype": "Int",
+   "label": "Parent Row No"
+  },
+  {
+   "fieldname": "fg_reference_id",
+   "fieldtype": "Data",
+   "label": "Finished Goods Reference"
+  },
+  {
+   "fieldname": "remark_section",
+   "fieldtype": "Section Break",
+   "label": "Remark"
+  },
+  {
+   "columns": 1,
+   "description": "Instructions for production and printing.",
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remark"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-02 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Sales Order Finished Items New",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

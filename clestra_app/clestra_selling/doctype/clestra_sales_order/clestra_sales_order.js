@@ -3315,10 +3315,120 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
         $(color_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
         $(cl_base_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '13%' });
     } else if (is_panel) {
-        // Panel일 때는 컬러 컨트롤만 크게 표시하거나 기본 너비 유지
         $(color_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
 		$(cl_base_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '13%' });
     }
+
+	// ============================================================
+	// Tab 키 브릿지: 그리드 행 ↔ custom-subrow 간 연결
+	// 메모리 참조: feedback_frappe_grid_dom.md
+	// - grid_row.row는 jQuery/.data-row, data-name은 .parent()로 추출
+	// - capture phase 필수, visibleInputs 기준, data-fieldname 폴백
+	// ============================================================
+	const $parentRow = $(grid_row.row);
+	const parentRowEl = $parentRow[0];
+	const $subRow = $parentRow.next('.custom-subrow');
+	const subRowEl = $subRow[0];
+
+	// 1) 그리드 remark에서 Tab → subrow 첫 input
+	if (parentRowEl && !parentRowEl._remarkTabSet) {
+		parentRowEl._remarkTabSet = true;
+		parentRowEl.addEventListener('keydown', function (e) {
+			if (!(e.key === 'Tab' && !e.shiftKey)) return;
+			const active = document.activeElement;
+			if (!active) return;
+			if (!active.hasAttribute('data-last-input') && !active.closest('[data-fieldname="remark"]')) return;
+
+			const $mySubRow = $(this).next('.custom-subrow');
+			if (!$mySubRow.length) return;
+			const firstInput = $mySubRow[0].querySelector('input');
+			if (!firstInput) return;
+
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			firstInput.focus();
+		}, true);
+	}
+
+	// 2) subrow 내 키 처리 + 3) Shift+Tab → 같은 행 remark
+	if (subRowEl && !subRowEl._subRowTabSet) {
+		subRowEl._subRowTabSet = true;
+		subRowEl.addEventListener('keydown', function (e) {
+			// Tab 이외: 그리드 전파만 차단 (backspace, enter 등 정상 동작)
+			if (e.key !== 'Tab') {
+				e.stopPropagation();
+				return;
+			}
+
+			const active = document.activeElement;
+			if (!active || !this.contains(active)) return;
+
+			const allInputs = Array.from(this.querySelectorAll('input'));
+			const visibleInputs = allInputs.filter(el => el.offsetParent !== null);
+			if (!visibleInputs.length) return;
+
+			// data-fieldname 폴백 매칭
+			let effectiveIdx = visibleInputs.indexOf(active);
+			if (effectiveIdx === -1) {
+				const fn = active.getAttribute('data-fieldname');
+				if (fn) effectiveIdx = visibleInputs.findIndex(el => el.getAttribute('data-fieldname') === fn);
+			}
+			if (effectiveIdx === -1) return;
+
+			const isOnLast = (effectiveIdx === visibleInputs.length - 1);
+			const isOnFirst = (effectiveIdx === 0);
+
+			// DOM에서 data-name 추출: $(subrow).prev() → .data-row, .parent() → .grid-row[data-name]
+			const $prevDataRow = $(this).prev();
+			const myDocName = $prevDataRow.closest('.grid-row').attr('data-name') || $prevDataRow.parent().attr('data-name');
+			const grid = frm.fields_dict['finished_items']?.grid;
+			if (!grid || !myDocName) return;
+			const myGridRowObj = grid.grid_rows_by_docname[myDocName];
+			if (!myGridRowObj) return;
+			const myIdx = myGridRowObj.doc.idx; // 1-based
+
+			// Tab on last → 다음 그리드 행
+			if (!e.shiftKey && isOnLast) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+
+				const next_grid_row = grid.grid_rows[myIdx]; // 0-based next
+				if (next_grid_row) {
+					next_grid_row.toggle_editable_row(true);
+					grid.set_focus_on_row(myIdx);
+				} else {
+					grid.add_new_row(null, null, true);
+					grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
+					grid.set_focus_on_row();
+				}
+			}
+
+			// Shift+Tab on first → 같은 행 remark
+			if (e.shiftKey && isOnFirst) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+
+				if (controls['door_hw_spec'] && controls['door_hw_spec'].awesomplete) {
+					controls['door_hw_spec'].awesomplete.close();
+				}
+
+				// 같은 행 remark 셀 클릭으로 편집 활성화
+				const $remarkCol = $prevDataRow.find('.col[data-fieldname="remark"]');
+				if ($remarkCol.length) {
+					let $inp = $remarkCol.find('.field-area input, .field-area textarea');
+					if ($inp.length) {
+						$inp.focus();
+					} else if (myGridRowObj) {
+						myGridRowObj.toggle_editable_row(true);
+						requestAnimationFrame(() => {
+							$inp = $remarkCol.find('.field-area input, .field-area textarea');
+							if ($inp.length) $inp.focus();
+						});
+					}
+				}
+			}
+		}, true);
+	}
 }
 
 
@@ -3523,9 +3633,8 @@ function render_hw_spec_summary(frm) {
             "name", "hw_spec_code", "door_leaf_thk", "lockset_h", "handle", "mortise",
             "security_access_control", "wiring", "key_cylinder", "master_key",
             "auto_drop_seal", "door_closer", "al_strip", "for_lockset", "for_door_closer",
-            "flush_bolt", "butt", "pivot", "blind", "fgd_type",
-            "tape_seal_color_gray", "tape_seal_color_white", "tape_seal_color_black",
-            "fix_screw_gray", "fix_screw_white", "fix_screw_black",
+            "flush_bolt", "butt", "pivot", "blind",
+            "tape_seal_color", "fix_screw_cap",
             "back_painted_no", "back_painted_yes",
         ],
         order_by: "creation asc",
@@ -3635,18 +3744,11 @@ function render_hw_spec_summary(frm) {
 
         // 데이터 가공 (processed_specs 생성)
         let processed_specs = filtered_specs.map(spec => {
-            const tape_colors = [];
-            if (spec.tape_seal_color_gray) tape_colors.push('STD(Gray)');
-            if (spec.tape_seal_color_white) tape_colors.push('White');
-            if (spec.tape_seal_color_black) tape_colors.push('Black');
-            const tape_seal_value = tape_colors.join(' || ') || '-';
-
-            const screw_colors = [];
-            if (spec.fix_screw_gray) screw_colors.push('STD(Gray)');
-            if (spec.fix_screw_white) screw_colors.push('White');
-            if (spec.fix_screw_black) screw_colors.push('Black');
-            const fix_screw_value = screw_colors.join(' || ') || '-';
-
+            const tape_seal_value = spec.tape_seal_color || '-';
+            let fix_screw_value = '-';
+            if (spec.fix_screw_cap) {
+                fix_screw_value = (spec.fix_screw_cap === 'Gray') ? 'Standard' : '#PAINT';
+            }
             const back_painted_value = spec.back_painted_yes ? 'Yes' : (spec.back_painted_no ? 'No' : '-');
 
             return {
@@ -3667,7 +3769,6 @@ function render_hw_spec_summary(frm) {
                 'Flush Bolt': spec.flush_bolt,
                 'Hinge': spec.butt || spec.pivot,
                 'Door Blind': spec.blind,
-                'FGD Info': spec.fgd_type,
                 '3M Tape and Foam Seal': tape_seal_value,
                 'Fixing Screw Cap': fix_screw_value,
                 'Back Painted Boarder': back_painted_value,

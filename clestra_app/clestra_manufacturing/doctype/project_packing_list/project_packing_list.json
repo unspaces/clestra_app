@@ -1,0 +1,225 @@
+{
+ "actions": [],
+ "autoname": "format:PPL-{project}-{####}",
+ "creation": "2026-03-30 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "info_section",
+  "project",
+  "project_name",
+  "customer",
+  "column_break_info",
+  "packing_date",
+  "status",
+  "pbm_section",
+  "pbm_items",
+  "pallet_section",
+  "pallet_prefix",
+  "column_break_pallet",
+  "pallet_count",
+  "pallet_qr_list",
+  "items_section",
+  "items_toolbar",
+  "items",
+  "summary_section",
+  "total_pallets",
+  "column_break_summary",
+  "total_items",
+  "pallet_qr_tokens",
+  "remarks_section",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "info_section",
+   "fieldtype": "Section Break",
+   "label": "Project Information"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "packing_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Packing Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nIn Progress\nPacked\nShipped\nDelivered"
+  },
+  {
+   "fieldname": "pbm_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Masters"
+  },
+  {
+   "fieldname": "pbm_items",
+   "fieldtype": "Table",
+   "label": "Project Billing Masters",
+   "options": "Packing List PBM Item"
+  },
+  {
+   "fieldname": "pallet_section",
+   "fieldtype": "Section Break",
+   "label": "Pallets"
+  },
+  {
+   "fieldname": "pallet_prefix",
+   "fieldtype": "Data",
+   "label": "Pallet Serial No",
+   "description": "e.g. #KR-PG- → pallets will be #KR-PG-1, #KR-PG-2, ..."
+  },
+  {
+   "fieldname": "column_break_pallet",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "pallet_count",
+   "fieldtype": "Int",
+   "label": "Pre-generate Pallet QR (count)"
+  },
+  {
+   "fieldname": "pallet_qr_list",
+   "fieldtype": "HTML",
+   "label": "Pallet QR Codes"
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Packing Items"
+  },
+  {
+   "fieldname": "items_toolbar",
+   "fieldtype": "HTML",
+   "label": "Items Toolbar"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Packing List Detail"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_pallets",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Pallets",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_items",
+   "fieldtype": "Int",
+   "label": "Total Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pallet_qr_tokens",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Pallet QR Tokens"
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-03-31 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Project Packing List",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "project_name",
+ "track_changes": 1
+}

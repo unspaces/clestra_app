@@ -1,0 +1,211 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div id="pallet-page">
+	<div id="pallet-loading" class="text-center py-5">
+		<div class="spinner-border text-primary" role="status"></div>
+		<p class="mt-2 text-muted">Loading pallet information...</p>
+	</div>
+
+	<div id="pallet-error" class="text-center py-5" style="display:none;">
+		<h4 id="pallet-error-title"></h4>
+		<p class="text-muted" id="pallet-error-message"></p>
+	</div>
+
+	<div id="pallet-content" style="display:none;">
+		<!-- Header -->
+		<div class="pallet-header">
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<div class="pallet-id" id="pallet-name"></div>
+					<div class="pallet-label-text" id="pallet-label"></div>
+				</div>
+				<span class="status-badge" id="pallet-status"></span>
+			</div>
+			<div class="pallet-project" id="pallet-project"></div>
+		</div>
+
+		<!-- Item count -->
+		<div class="item-count-bar">
+			<span id="item-count"></span>
+		</div>
+
+		<!-- Item list -->
+		<div id="item-list"></div>
+
+		<!-- Bottom actions -->
+		<div class="bottom-actions">
+			<a id="btn-scan-add" class="action-btn action-btn-primary">
+				<span>&#43;</span> Add Item (Scan)
+			</a>
+		</div>
+	</div>
+</div>
+
+<style>
+#pallet-page {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 10px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	padding-bottom: 80px;
+}
+
+.pallet-header {
+	background: linear-gradient(135deg, #1a365d 0%, #2d4a7a 100%);
+	color: #fff;
+	padding: 16px;
+	border-radius: 8px;
+	margin-bottom: 12px;
+}
+
+.pallet-id { font-size: 1.2rem; font-weight: 700; }
+.pallet-label-text { font-size: 0.9rem; opacity: 0.8; }
+.pallet-project { font-size: 0.8rem; margin-top: 8px; opacity: 0.7; }
+
+.status-badge {
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.status-open { background: #bee3f8; color: #2a4365; }
+.status-packed { background: #c6f6d5; color: #276749; }
+.status-shipped { background: #fefcbf; color: #744210; }
+.status-delivered { background: #e9d8fd; color: #553c9a; }
+
+.item-count-bar {
+	background: #f7fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 8px 16px;
+	margin-bottom: 8px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #2d3748;
+}
+
+.item-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 12px 16px;
+	margin-bottom: 8px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.item-card-left { flex: 1; min-width: 0; }
+.item-card-code { font-weight: 700; font-size: 0.9rem; color: #1a365d; }
+.item-card-name { font-size: 0.78rem; color: #718096; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-card-meta { font-size: 0.72rem; color: #a0aec0; margin-top: 2px; }
+.item-card-meta span { margin-right: 8px; }
+.item-card-qty { font-weight: 700; font-size: 1rem; color: #2d3748; min-width: 40px; text-align: right; }
+
+.bottom-actions {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border-top: 1px solid #e2e8f0;
+	padding: 12px 16px;
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+	z-index: 10;
+}
+
+.action-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding: 0 24px;
+	border-radius: 8px;
+	font-size: 16px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	border: none;
+}
+
+.action-btn-primary {
+	background: #2b6cb0;
+	color: #fff;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	const pplId = "{{ ppl_id }}";
+	const palletNo = "{{ pallet_no }}";
+	if (!pplId || !palletNo) {
+		showError("Invalid QR Code", "Missing packing list or pallet number.");
+		return;
+	}
+
+	fetch("/api/method/clestra_app.api.pallet_lookup", {
+		method: "POST",
+		headers: {"Content-Type": "application/json", "X-Frappe-CSRF-Token": "{{ frappe.session.csrf_token or '' }}"},
+		body: JSON.stringify({id: pplId, pallet: palletNo})
+	})
+	.then(r => r.json())
+	.then(resp => {
+		const data = resp.message;
+		document.getElementById("pallet-loading").style.display = "none";
+
+		if (data.error) {
+			showError("Pallet Not Found", data.message);
+			return;
+		}
+
+		document.getElementById("pallet-content").style.display = "block";
+		document.getElementById("pallet-name").textContent = data.pallet;
+		document.getElementById("pallet-label").textContent = data.pallet_label || "";
+		document.getElementById("pallet-project").textContent = "Project: " + (data.project || "-");
+
+		const statusEl = document.getElementById("pallet-status");
+		statusEl.textContent = data.status;
+		statusEl.className = "status-badge status-" + (data.status || "open").toLowerCase();
+
+		document.getElementById("item-count").textContent = (data.items?.length || 0) + " item(s)";
+		document.getElementById("btn-scan-add").href = "/scan?ppl=" + pplId + "&pallet=" + palletNo;
+
+		// Render items
+		const listEl = document.getElementById("item-list");
+		if (!data.items || !data.items.length) {
+			listEl.innerHTML = '<div class="text-center py-4 text-muted">No items in this pallet yet.</div>';
+			return;
+		}
+
+		let html = "";
+		data.items.forEach(item => {
+			html += `<div class="item-card">
+				<div class="item-card-left">
+					<div class="item-card-code">${item.item_code || ""}</div>
+					<div class="item-card-name">${item.item_name || ""}</div>
+					<div class="item-card-meta">
+						${item.zone ? "<span>Zone: " + item.zone + "</span>" : ""}
+						${item.parent_product_code ? "<span>FG: " + item.parent_product_code + "</span>" : ""}
+					</div>
+				</div>
+				<div class="item-card-qty">x${item.qty || 1}</div>
+			</div>`;
+		});
+		listEl.innerHTML = html;
+	})
+	.catch(() => showError("Error", "Failed to load pallet information."));
+
+	function showError(title, msg) {
+		document.getElementById("pallet-loading").style.display = "none";
+		document.getElementById("pallet-error").style.display = "block";
+		document.getElementById("pallet-error-title").textContent = title;
+		document.getElementById("pallet-error-message").textContent = msg;
+	}
+});
+</script>
+{% endblock %}

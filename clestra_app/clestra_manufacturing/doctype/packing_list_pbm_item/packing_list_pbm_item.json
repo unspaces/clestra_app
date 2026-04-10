@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "creation": "2026-03-30 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project_billing_master",
+  "pbm_name",
+  "door_count",
+  "leaf_count",
+  "panel_count",
+  "sub_items_count",
+  "assigned_count",
+  "unassigned_count"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_billing_master",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project Billing Master",
+   "options": "Project Billing Master",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pbm_name",
+   "fieldtype": "Data",
+   "label": "PBM Name",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "door_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Door",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "leaf_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Leaf",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "panel_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Panel",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sub_items_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sub Items",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "assigned_count",
+   "fieldtype": "Int",
+   "label": "Assigned",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "unassigned_count",
+   "fieldtype": "Int",
+   "label": "Unassigned",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-01 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Packing List PBM Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 0
+}

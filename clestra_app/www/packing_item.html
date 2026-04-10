@@ -1,0 +1,141 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div id="item-page">
+	<div id="item-loading" class="text-center py-5">
+		<div class="spinner-border text-primary" role="status"></div>
+		<p class="mt-2 text-muted">Loading item information...</p>
+	</div>
+
+	<div id="item-error" class="text-center py-5" style="display:none;">
+		<h4 id="item-error-title"></h4>
+		<p class="text-muted" id="item-error-message"></p>
+	</div>
+
+	<div id="item-content" style="display:none;">
+		<div class="item-header">
+			<div class="item-code-big" id="i-item-code"></div>
+			<div class="item-name-sub" id="i-item-name"></div>
+		</div>
+
+		<div class="info-grid">
+			<div class="info-card">
+				<div class="info-label">Project</div>
+				<div class="info-value" id="i-project"></div>
+			</div>
+			<div class="info-card">
+				<div class="info-label">Zone</div>
+				<div class="info-value" id="i-zone"></div>
+			</div>
+			<div class="info-card">
+				<div class="info-label">Qty</div>
+				<div class="info-value" id="i-qty"></div>
+			</div>
+			<div class="info-card">
+				<div class="info-label">Parent Product</div>
+				<div class="info-value" id="i-parent-product"></div>
+			</div>
+		</div>
+
+		<div class="pallet-info-card">
+			<div class="info-label">Pallet</div>
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<span class="info-value" id="i-pallet"></span>
+					<span class="text-muted" id="i-pallet-label"></span>
+				</div>
+				<a id="i-pallet-link" class="btn btn-sm btn-outline-primary">View Pallet</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+#item-page {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 10px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.item-header {
+	background: linear-gradient(135deg, #276749 0%, #38a169 100%);
+	color: #fff;
+	padding: 16px;
+	border-radius: 8px;
+	margin-bottom: 12px;
+}
+
+.item-code-big { font-size: 1.3rem; font-weight: 700; }
+.item-name-sub { font-size: 0.85rem; opacity: 0.8; }
+
+.info-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.info-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 12px;
+}
+
+.info-label { font-size: 0.7rem; color: #718096; text-transform: uppercase; letter-spacing: 0.3px; }
+.info-value { font-size: 0.95rem; font-weight: 600; color: #2d3748; }
+
+.pallet-info-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 12px 16px;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	const itemId = "{{ item_id }}";
+	if (!itemId) {
+		showError("Invalid QR Code", "No item ID provided.");
+		return;
+	}
+
+	fetch("/api/method/clestra_app.api.item_lookup", {
+		method: "POST",
+		headers: {"Content-Type": "application/json", "X-Frappe-CSRF-Token": "{{ frappe.session.csrf_token or '' }}"},
+		body: JSON.stringify({id: itemId})
+	})
+	.then(r => r.json())
+	.then(resp => {
+		const data = resp.message;
+		document.getElementById("item-loading").style.display = "none";
+
+		if (data.error) {
+			showError("Item Not Found", data.message);
+			return;
+		}
+
+		document.getElementById("item-content").style.display = "block";
+		document.getElementById("i-item-code").textContent = data.item_code || "-";
+		document.getElementById("i-item-name").textContent = data.item_name || "";
+		document.getElementById("i-project").textContent = data.project || "-";
+		document.getElementById("i-zone").textContent = data.zone || "-";
+		document.getElementById("i-qty").textContent = data.qty || "-";
+		document.getElementById("i-parent-product").textContent = data.parent_product_code || "-";
+		document.getElementById("i-pallet").textContent = data.pallet || "-";
+		document.getElementById("i-pallet-label").textContent = data.pallet_label ? "(" + data.pallet_label + ")" : "";
+		document.getElementById("i-pallet-link").href = "/pallet?id=" + (data.pallet || "");
+	})
+	.catch(() => showError("Error", "Failed to load item information."));
+
+	function showError(title, msg) {
+		document.getElementById("item-loading").style.display = "none";
+		document.getElementById("item-error").style.display = "block";
+		document.getElementById("item-error-title").textContent = title;
+		document.getElementById("item-error-message").textContent = msg;
+	}
+});
+</script>
+{% endblock %}

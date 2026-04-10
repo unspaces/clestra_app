@@ -1,0 +1,217 @@
+/* ========================================
+   Project Packing List
+   ======================================== */
+
+/* --- Toolbar container --- */
+.ppl-toolbar {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    background: #fff;
+}
+
+/* --- Action bar (top) --- */
+.ppl-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 14px !important;
+    background: #f7fafc;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.ppl-actions > .btn,
+.ppl-actions > button {
+    display: inline-flex !important;
+    align-items: center;
+    white-space: nowrap;
+    margin: 0 !important;
+    flex-shrink: 0;
+}
+
+/* PBM filter dropdown */
+.ppl-pbm-filter-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ppl-pbm-filter-wrap label {
+    font-size: 11px;
+    color: #718096;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.ppl-pbm-filter-wrap .ppl-pbm-filter {
+    width: auto;
+    height: 30px;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    background: #fff;
+}
+
+/* --- Filter bar (bottom) --- */
+.ppl-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #fff;
+    overflow-x: auto;
+}
+
+.ppl-filter-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ppl-filter-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.ppl-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    transition: all 0.15s;
+    line-height: 1;
+}
+
+.ppl-tab:hover {
+    border-color: #90cdf4;
+    background: #ebf8ff;
+    color: #2b6cb0;
+}
+
+.ppl-tab.active {
+    background: #2b6cb0;
+    color: #fff;
+    border-color: #2b6cb0;
+    font-weight: 600;
+}
+
+.ppl-tab em {
+    font-style: normal;
+    font-size: 10px;
+    background: rgba(0,0,0,0.06);
+    padding: 1px 6px;
+    border-radius: 8px;
+    line-height: 14px;
+}
+
+.ppl-tab.active em {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+}
+
+/* Unassigned tab */
+.ppl-tab-warn {
+    color: #c05621;
+    border-color: #fbd38d;
+}
+
+.ppl-tab-warn:hover {
+    background: #fffaf0;
+    border-color: #f6ad55;
+}
+
+.ppl-tab-warn.active {
+    background: #dd6b20;
+    color: #fff;
+    border-color: #dd6b20;
+}
+
+.ppl-tab-warn em {
+    background: rgba(221,107,32,0.1);
+    color: #c05621;
+}
+
+.ppl-tab-warn.active em {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+}
+
+/* --- Pallet QR chips (Pallets section) --- */
+.ppl-pallet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.ppl-pallet-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f7fafc;
+    font-size: 12px;
+    font-weight: 500;
+    color: #a0aec0;
+    cursor: default;
+    transition: all 0.15s;
+}
+
+.ppl-pallet-chip.has-qr {
+    border-color: #bee3f8;
+    background: #ebf8ff;
+    color: #2b6cb0;
+    cursor: pointer;
+}
+
+.ppl-pallet-chip.has-qr:hover {
+    background: #bee3f8;
+    border-color: #90cdf4;
+    box-shadow: 0 1px 3px rgba(43,108,176,0.15);
+}
+
+.ppl-chip-icon {
+    display: flex;
+    align-items: center;
+}
+
+.ppl-chip-label {
+    line-height: 1;
+}
+
+/* --- Grid: hide row index --- */
+[data-fieldname="items"] .grid-body .rows .row-index,
+[data-fieldname="items"] .grid-heading-row .grid-row>.col-xs-1:first-child {
+    display: none;
+}
+
+/* --- Pallet QR button in checkbox area --- */
+.pallet-qr-btn {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.pallet-qr-btn:hover {
+    opacity: 1;
+}

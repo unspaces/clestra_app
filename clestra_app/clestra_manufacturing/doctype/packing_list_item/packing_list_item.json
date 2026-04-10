@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "creation": "2026-03-30 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "project_billing_master",
+  "zone",
+  "parent_product_code",
+  "qty",
+  "item_qr_code",
+  "item_qr_image",
+  "qr_printed",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_billing_master",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project Billing Master",
+   "options": "Project Billing Master"
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Zone"
+  },
+  {
+   "fieldname": "parent_product_code",
+   "fieldtype": "Data",
+   "label": "Parent Product Code"
+  },
+  {
+   "default": "1",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "item_qr_code",
+   "fieldtype": "Data",
+   "label": "Item QR Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_qr_image",
+   "fieldtype": "Attach Image",
+   "label": "Item QR Image",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "qr_printed",
+   "fieldtype": "Check",
+   "label": "QR Printed"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-30 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Manufacturing",
+ "name": "Packing List Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 0
+}

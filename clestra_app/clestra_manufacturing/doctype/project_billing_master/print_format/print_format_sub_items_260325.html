@@ -1,0 +1,236 @@
+
+<style>
+    /* 이 프린트 포맷의 모든 요소를 감싸는 래퍼에 대한 스타일 */
+    .sub-items-print-wrapper {
+        font-family: sans-serif; /* 폰트 일관성 확보 (선택 사항) */
+    }
+    .sub-items-print-wrapper th,
+    .sub-items-print-wrapper td,
+    .sub-items-print-wrapper div,
+    .sub-items-print-wrapper span {
+        font-size: 10pt !important;
+        vertical-align: middle !important; /* 테이블 셀 수직 중앙 정렬 */
+    }
+
+    /* h4, h5 태그를 대체할 제목 스타일 */
+    .sub-items-print-wrapper .main-title {
+        font-size: 11pt !important;
+        font-weight: bold;
+        display: inline; /* 기존 h5 태그의 동작 유지 */
+        margin: 0;
+    }
+    .sub-items-print-wrapper .group-title {
+        font-size: 10pt !important;
+        font-weight: bold;
+        margin: 0;
+    }
+    .sub-items-print-wrapper .image-caption-text {
+        font-size: 10pt !important; /* 이미지 캡션은 약간 작게 설정 */
+    }
+</style>
+
+<div class="sub-items-print-wrapper">
+{# ===================================================================================== #}
+{# 1. 사전 처리: 모든 행을 스캔하여 고유한 Zone 키 목록을 생성.                  #}
+{# ===================================================================================== #}
+{%- set zone_keys_set = namespace(value=set()) -%}
+{%- for row in doc.sub_items -%}
+    {# row.zone_qty가 비어있지 않은 문자열일 경우에만 처리합니다. #}
+    {%- if not row.print_hide and row.zone_qty and row.zone_qty is string -%}
+        {# ★★★★★ frappe.parse_json 대신 표준 json.loads 사용 ★★★★★ #}
+        {%- set zones = json.loads(row.zone_qty) -%}
+        {# 변환된 딕셔너리가 존재하고, 비어있지 않다면 키를 추출합니다. #}
+        {%- if zones and zones is mapping -%}
+            {%- for key in zones -%}
+                {%- set _ = zone_keys_set.value.add(key) -%}
+            {%- endfor -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{# 세트를 정렬된 리스트로 변환하여 항상 일관된 순서를 보장합니다. #}
+{%- set zone_keys = zone_keys_set.value | list | sort -%}
+
+
+{# ===================================================================================== #}
+{# 2. 수정된 매크로: Zone 키 목록을 인자로 받아 동적으로 헤더를 생성.            #}
+{# ===================================================================================== #}
+{%- macro render_table_header(product_type, group_name, zone_keys) -%}
+{# 원본 7개 열 + 추가된 Zone 열의 개수를 더해 전체 colspan을 계산합니다. #}
+{%- set total_colspan = 7 + (zone_keys|length) -%}
+<thead>
+    <tr>
+        <td colspan="{{ total_colspan }}" style="border-color: transparent !important;"> 
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="flex-basis: 33.33%; text-align: left;">
+                    <span class="main-title">{{ product_type }}</span>
+                </div>
+                <div style="flex-basis: 33.33%; text-align: Center;">
+                    Project: <span class="main-title" style="margin-left: 5px;">{{ doc.project_name }}</span>
+                </div>
+                <div style="flex-basis: 33.33%; text-align: right;"></div>
+            </div>
+    </tr>
+    <tr>
+        <th colspan="{{ total_colspan }}" style="text-align: left; padding-left: 10px; border-color: transparent !important; background: transparent !important;">
+            <span class="group-title">Group: {{ group_name }}</span>
+        </th>
+    </tr>
+    <tr>
+        <th style="border: 1px solid black; text-align: center; width: 5%;">No</th>
+        <th style="border: 1px solid black; text-align: center; width: 17%;">Image</th>
+        <th style="border: 1px solid black; text-align: center; width: 30%;">Description</th>
+        <th style="border: 1px solid black; text-align: center; width: 12%;">Size</th>
+        {# === 동적 Zone 헤더 열 생성 === #}
+        {%- for key in zone_keys -%}
+        <th style="border: 1px solid black; text-align: center;">{{ key }}</th>
+        {%- endfor -%}
+        {# =============================== #}
+        <th style="border: 1px solid black; text-align: center; width: 10%;">Qty</th>
+        <th style="border: 1px solid black; text-align: center; width: 12%;">Color</th>
+        <th style="border: 1px solid black; text-align: center; width: 12%;">Remark</th>
+    </tr>
+</thead>
+{%- endmacro -%}
+
+
+{# ===================================================================================== #}
+{# 3. 메인 렌더링 로직: 수정된 매크로를 호출하고 동적 데이터 셀을 추가.         #}
+{# ===================================================================================== #}
+{# 이전 행의 그룹 이름을 추적하기 위한 변수 #}
+{%- set previous_group = namespace(value=None) -%}
+{# 그룹 내에서의 행 번호를 추적하기 위한 변수 #}
+{%- set group_row_index = namespace(value=0) -%}
+
+{# 이전 행의 item_code를 추적하기 위한 변수 #}
+{%- set previous_item = namespace(code=None) -%}
+
+{%- for row in doc.sub_items -%}
+    {%- if not row.print_hide -%}
+    
+        {# 1. 그룹이 변경되는 시점 또는 첫 번째 행인지 확인 #}
+        {%- if (row.product_type or '') ~ '-' ~ (row.print_group or '') != previous_group.value -%}
+        
+            {# 이전 그룹에 대한 테이블을 닫습니다. (첫 번째 그룹 시작 시에는 실행되지 않음) #}
+            {%- if not loop.first and previous_group.value is not none -%}
+                </tbody>
+            </table>
+            
+            {# 페이지 나누기를 삽입합니다. #}
+            <div style="page-break-before: always;"></div>
+            {%- endif -%}
+
+            {# 그룹 내 행 번호를 1로 리셋합니다. #}
+            {%- set group_row_index.value = 1 -%}
+            
+            {# 새 테이블을 시작하고 헤더를 출력합니다. (zone_keys를 전달) #}
+            <table class="table table-bordered table-condensed" style="width: 100%; margin:0px 0px 10px !important; border-top-color: transparent;">
+                {{ render_table_header(row.product_type, row.print_group, zone_keys) }}
+                <tbody>
+        {%- else -%}
+            {# 같은 그룹 내에서는 행 번호를 1 증가시킵니다. #}
+            {%- set group_row_index.value = group_row_index.value + 1 -%}
+        {%- endif -%}
+
+        {# 2. 현재 행의 데이터를 테이블에 출력합니다. #}
+        <tr>
+            <td style="border: 1px solid black; text-align: center;">{{ group_row_index.value }}</td>
+            <td style="border: 1px solid black; text-align: center;">
+                {%- if row.item_code != previous_item.code -%}
+                    {%- set image_path = None -%}
+                    {%- if row.item_code -%}
+                        {%- set item_doc = frappe.get_doc("Item", row.item_code) -%}
+                        {%- if item_doc and item_doc.image -%}
+                            {%- set image_path = item_doc.image -%}
+                        {%- endif -%}
+                    {%- endif -%}
+
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        {%- if image_path -%}
+                            <img src="{{ image_path }}" style="max-width: 100%; height: auto; box-sizing: content-box;" onerror="this.style.display='none';" />
+                        {%- endif -%}
+                        {%- if row.image_caption -%}<span class="image-caption-text">&lt;{{ row.image_caption }}&gt;</span>{%- endif -%}
+                    </div>
+                {%- endif -%}
+                {%- set previous_item.code = row.item_code -%}
+            </td>
+            <td style="border: 1px solid black;">{{ row.item_name.replace(" - (", "<br> - (") | safe }}
+                {%- if row.depth and row.depth > 0 -%}
+                    (D={{ row.depth }})
+                {%- elif row.abl_a and row.abl_a > 0 and row.abl_b and row.abl_b > 0 -%}
+                    ({{ row.abl_a }} + {{ row.abl_b }})
+                {%- elif row.abl_a and row.abl_a > 0 -%}
+                    (ABL A: {{ row.abl_a }})
+                {%- elif row.abl_b and row.abl_b > 0 -%}
+                    (ABL B: {{ row.abl_b }})
+                {%- endif -%}</td>
+            <td style="border: 1px solid black; text-align: center;">
+                {%- set size_values = [] -%}
+                {%- if row.width and row.ph -%}
+                    {%- set _ = size_values.append("{:g}".format(row.width) + " x " + "{:g}".format(row.ph)) -%}
+                {%- elif row.ch -%}
+                    {%- set _ = size_values.append("{:g}".format(row.ch)) -%}
+                {%- elif row.width -%}
+                    {%- set _ = size_values.append("{:g}".format(row.width)) -%}
+                {%- elif row.pw -%}
+                    {%- set _ = size_values.append("{:g}".format(row.pw)) -%}
+                {%- elif row.ph -%}
+                    {%- set _ = size_values.append("{:g}".format(row.ph)) -%}
+                {%- elif row.leaf_width -%}
+                    {%- set _ = size_values.append("{:g}".format(row.leaf_width)) -%}
+                {%- elif row.leaf_height -%}
+                    {%- set _ = size_values.append("{:g}".format(row.leaf_height)) -%}
+                {%- endif -%}
+
+                {%- if size_values -%}
+                    {{ size_values[0] }}
+                {%- endif -%}
+            </td>
+
+            {# === 동적 Zone 데이터 셀 생성 === #}
+            {# ★★★★★ frappe.parse_json 대신 표준 json.loads 사용 ★★★★★ #}
+            {%- set zones = json.loads(row.zone_qty) if row.zone_qty and row.zone_qty is string else {} -%}
+            {%- for key in zone_keys -%}
+            <td style="border: 1px solid black; text-align: center;">
+                {# 파싱된 딕셔너리에서 값을 찾습니다. #}
+                {%- if zones and key in zones and zones[key].qty -%}
+                    {{ zones[key].qty }}
+                {%- endif -%}
+            </td>
+            {%- endfor -%}
+            {# =============================== #}
+            
+            <td style="border: 1px solid black; text-align: center;">
+                {% if row.qty_prefix %}
+                    {{ row.qty_prefix }}
+                {% endif %}
+                {% if row.show_qty_bracket %}
+                    ({{ row.qty }})
+                {% else %}
+                    {{ row.qty }}
+                {% endif %}
+                {% if row.qty_suffix %}
+                    {{ row.qty_suffix }}
+                {% endif %}
+            </td>
+            <td style="border: 1px solid black; text-align: center;">{% if row.color and row.color.lower() != "none" %}
+                {{ row.color }}
+                {% endif %}</td>
+            <td style="border: 1px solid black;">
+                {% if row.product_memo %}
+                    {{ row.product_memo }}
+                {% endif %}
+            </td>
+        </tr>
+        
+        {# 3. 현재 그룹 이름을 다음 반복을 위해 저장합니다. #}
+        {%- set previous_group.value = (row.product_type or '') ~ '-' ~ (row.print_group or '') -%}
+
+    {%- endif -%}
+{%- endfor -%}
+
+{# 루프가 끝난 후 마지막 테이블을 닫아줍니다. #}
+{%- if doc.sub_items and doc.sub_items | selectattr('print_hide', 'ne', 1) | list -%}
+            </tbody>
+        </table>
+{%- endif -%}
+</div>

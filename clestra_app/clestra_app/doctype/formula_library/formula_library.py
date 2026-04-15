@@ -8,7 +8,7 @@ import ast # Import Abstract Syntax Trees for basic syntax checking
 
 # Allowed variables for different formula types
 GENERAL_ALLOWED_VARS = {
-    # 고정 필드 (Quotation Pricing)
+    # 고정 필드 (Quotation Master)
     "width", "ch", "stnd_ch", "lh", "height", "unit_width", "buffer_width", "buffer_rate",
     "item_vp", "vp_rate", "mat_rate", "glass_rate", "inst_rate", "other_rate", "mat_margin",
     "ch_surcharge_rate", "pm_reserve_rate", "royalty_rate",

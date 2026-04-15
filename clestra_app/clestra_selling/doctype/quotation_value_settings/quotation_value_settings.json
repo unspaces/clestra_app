@@ -10,12 +10,13 @@
   "door_open_type",
   "category",
   "value",
+  "description_template",
   "valid_from",
   "valid_up_to",
   "is_active",
   "is_default",
   "note",
-  "column_break_wada",
+  "column_break_biil",
   "company"
  ],
  "fields": [
@@ -25,9 +26,10 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Category",
-   "options": "\nMaterial Margin\nMaterial Rate\nGlass Rate\nInstallation Rate\nPM Reserve Rate\nRoyalty Rate\nBuffer Rate\nOther Rate\nWidth\nCH\nStandard CH\nLH\nPC UW\nTRH\nCRH\nTRH-CRH\nUW\nLH\nLW\nUPAS H"
+   "options": "\nMaterial Margin\nMaterial Rate\nGlass Rate\nInstallation Rate\nPM Reserve Rate\nRoyalty Rate\nBuffer Rate\nOther Rate\nWidth\nCH\nStandard CH\nLH\nPC UW\nTRH\nCRH\nTRH-CRH\nUW\nLH\nLW\nUPAS H\nDescription - Door\nDescription - Panel\nDescription - Leaf"
   },
   {
+   "depends_on": "eval:!doc.category || !doc.category.startsWith('Description')",
    "fieldname": "value",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -66,8 +68,10 @@
    "label": "Note"
   },
   {
-   "fieldname": "column_break_wada",
-   "fieldtype": "Column Break"
+   "depends_on": "eval:doc.category && doc.category.startsWith('Description')",
+   "fieldname": "description_template",
+   "fieldtype": "Text Editor",
+   "label": "Description Template"
   },
   {
    "fieldname": "company",
@@ -92,11 +96,15 @@
    "in_standard_filter": 1,
    "label": "Door Set Type",
    "options": "\nSingle-\nPair-"
+  },
+  {
+   "fieldname": "column_break_biil",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-15 11:20:10.749575",
+ "modified": "2026-04-13 10:48:41.993687",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Quotation Value Settings",

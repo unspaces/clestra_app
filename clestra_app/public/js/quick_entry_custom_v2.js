@@ -29,11 +29,11 @@ if (frappe.ui.form.QuickEntryForm) {
                 // jQuery를 사용하여 입력값 변경을 감지합니다.
                 field.$input.on("change", () => {
                     let values = dialog.get_values();
-                    
+
                     if (values && values.door_open_type && values.door_set_type) {
                         let open_code = (values.door_open_type === "Swing") ? "SW" : "SL";
                         let set_code = (values.door_set_type === "Single") ? "S" : "P";
-                        
+
                         // 결과값을 hw_spec_code 필드에 주입합니다.
                         dialog.set_value("hw_spec_code", `${open_code}-${set_code}-`);
                     }

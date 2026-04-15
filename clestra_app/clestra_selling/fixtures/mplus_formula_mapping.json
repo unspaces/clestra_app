@@ -1,5 +1,5 @@
 {
-  "_description": "Mplus 제품별 Formula Library 매핑 가이드. Quotation Pricing 설정 시 참조용.",
+  "_description": "Mplus 제품별 Formula Library 매핑 가이드. Quotation Master 설정 시 참조용.",
   "_columns": "item_code → aa10_formula, ac40_formula, ab20_formula, ab44_formula, ac33_formula, ab30_formula, ad43_formula, ad41_formula, ab52_formula, sp1_formula + pricing_variables",
 
   "product_groups": {

@@ -112,6 +112,7 @@
   "column_break_yxke",
   "square_m_link",
   "section_break_wysu",
+  "zone_summary_new_html",
   "zone_summary",
   "section_break_xidf",
   "column_break_mrxb",
@@ -164,6 +165,7 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Project",
    "options": "Project"
   },
@@ -215,6 +217,7 @@
    "fetch_from": "created_by.full_name_region",
    "fieldname": "created_by_name",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "Created By (Name)"
   },
   {
@@ -238,6 +241,7 @@
    "fieldname": "job_id",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Job ID"
   },
   {
@@ -376,6 +380,7 @@
    "fieldname": "country",
    "fieldtype": "Link",
    "label": "Country",
+   "link_filters": "[[\"Country\",\"is_clestra\",\"=\",1]]",
    "options": "Country",
    "reqd": 1
   },
@@ -877,8 +882,13 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "zone_summary_new_html",
+   "fieldtype": "HTML"
+  },
+  {
    "fieldname": "zone_summary",
    "fieldtype": "Table",
+   "hidden": 1,
    "options": "Sales Order Zone"
   },
   {
@@ -968,7 +978,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-11 15:05:28.247756",
+ "modified": "2026-04-14 10:20:05.473629",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Clestra Sales Order",

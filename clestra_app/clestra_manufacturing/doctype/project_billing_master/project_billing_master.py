@@ -40,6 +40,37 @@ IMPORTED_VALUES_FROM_SO = [
 
 NO_FILTER_FIELDS = ["color"]
 
+def get_item_company(pbm_company):
+	"""PBM의 company 값에 따라 Item 조회 시 사용할 company를 반환"""
+	if pbm_company == "Taicang Factory":
+		return "Taicang Factory"
+	return "Clestra Korea"
+
+def get_item_value(item_code, fields, company=None, as_dict=False, cache=None):
+	"""item_code + company 기반으로 Item 값을 조회 (캐시 지원)"""
+	if not item_code:
+		return {} if as_dict else None
+
+	cache_key = f"{item_code}:{company}"
+	if cache is not None and cache_key in cache:
+		cached = cache[cache_key]
+		if as_dict:
+			return cached
+		if isinstance(fields, str):
+			return cached.get(fields) if cached else None
+		return cached
+
+	filters = {"item_code": item_code}
+	if company:
+		filters["company"] = company
+
+	result = frappe.db.get_value("Item", filters, fields, as_dict=as_dict)
+
+	if cache is not None and as_dict and result:
+		cache[cache_key] = result
+
+	return result
+
 PARENT_FIELDS = [
 	"color", "glass_a", "glass_b", "door_open_type", "door_set_type", "door_frame", "app_country", 
 	"handle_direct", "door_closer", "hw_options", "sub_contract", "price_study", "keeper", "keeper_glass_a", "keeper_glass_b",
@@ -1117,14 +1148,16 @@ def get_sub_assembly_items(
 
 	# Get the parent item details
 	parent_item_code = frappe.get_cached_value("BOM", bom_no, "item")
+	item_company = get_item_company(company)
 
-	if parent_item_code in global_cache["item_info"]:
-		parent_item_info = global_cache["item_info"][parent_item_code]
+	item_info_cache_key = f"{parent_item_code}:{item_company}"
+	if item_info_cache_key in global_cache["item_info"]:
+		parent_item_info = global_cache["item_info"][item_info_cache_key]
 	else:
-		parent_item_info = frappe.get_cached_value("Item", parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword", "color", "default_bom"], as_dict=True)
-		global_cache["item_info"][parent_item_code] = parent_item_info
+		parent_item_info = get_item_value(parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword", "color", "default_bom"], company=item_company, as_dict=True) or {}
+		global_cache["item_info"][item_info_cache_key] = parent_item_info
 
-	finished_product_section = frappe.get_cached_value("Item", finished_item_code, "product_section") if finished_item_code else None
+	finished_product_section = get_item_value(finished_item_code, "product_section", company=item_company) if finished_item_code else None
 
 	# parent_item_info_from_item = frappe.get_cached_value("Item", parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword"], as_dict=True) if parent_item_code else None
 	current_product_section = parent_item_info.get("product_section")
@@ -1182,7 +1215,7 @@ def get_sub_assembly_items(
 		return billing_color if billing_color else color_code
 
 	# ▼▼▼▼▼▼▼▼▼▼ final_parent_color 로직 ▼▼▼▼▼▼▼▼▼▼
-	parent_color_from_item = frappe.get_cached_value("Item", parent_item_code, "color") if parent_item_code else None
+	parent_color_from_item = get_item_value(parent_item_code, "color", company=item_company) if parent_item_code else None
 	parent_color_from_bom = frappe.db.get_value("BOM", bom_no, "color")
 	color_from_so = parent_values_from_so.get("color", None)
 	use_billing_color_flag = parent_values_from_so.get("use_billing_color", 0)
@@ -1382,11 +1415,12 @@ def get_sub_assembly_items(
 				context_for_children["door_frame"] = parent_item_code
 			elif current_product_section == "Leaf":
 				if context_for_children.get("door_frame"):
-					if context_for_children["door_frame"] not in global_cache["item_info"]:
-						frame_details = frappe.get_cached_value("Item", context_for_children["door_frame"], ["door_set_type", "door_open_type"], as_dict=True) or {}
-						global_cache["item_info"][context_for_children["door_frame"]] = frame_details
+					frame_cache_key = f"{context_for_children['door_frame']}:{item_company}"
+					if frame_cache_key not in global_cache["item_info"]:
+						frame_details = get_item_value(context_for_children["door_frame"], ["door_set_type", "door_open_type"], company=item_company, as_dict=True) or {}
+						global_cache["item_info"][frame_cache_key] = frame_details
 					else:
-						frame_details = global_cache["item_info"][context_for_children["door_frame"]]
+						frame_details = global_cache["item_info"][frame_cache_key]
 
 					final_door_set_type = frame_details.get("door_set_type") or parent_item_dict.get("door_set_type")
 					final_door_open_type = frame_details.get("door_open_type") or parent_item_dict.get("door_open_type")
@@ -1422,11 +1456,12 @@ def get_sub_assembly_items(
 				item_codes_to_process.append(value_from_dict)  # 단일 값인 경우 그대로 추가
 
 			for item_code_for_bom in item_codes_to_process:
-				if item_code_for_bom in global_cache["item_info"]:
-					sub_item_info = global_cache["item_info"][item_code_for_bom]
+				sub_info_cache_key = f"{item_code_for_bom}:{item_company}"
+				if sub_info_cache_key in global_cache["item_info"]:
+					sub_item_info = global_cache["item_info"][sub_info_cache_key]
 				else:
-					sub_item_info = frappe.get_cached_value("Item", item_code_for_bom, ["default_bom", "product_section"], as_dict=True)
-					global_cache["item_info"][item_code_for_bom] = sub_item_info
+					sub_item_info = get_item_value(item_code_for_bom, ["default_bom", "product_section"], company=item_company, as_dict=True) or {}
+					global_cache["item_info"][sub_info_cache_key] = sub_item_info
 
 				sub_assy_default_bom = sub_item_info.get("default_bom")
 				sub_assembly_product_section = sub_item_info.get("product_section")
@@ -1622,7 +1657,7 @@ def get_sub_assembly_items(
 			continue
 
 		# ▼▼▼▼▼▼▼▼▼▼ final_child_color 로직 ▼▼▼▼▼▼▼▼▼▼
-		child_color_from_item = frappe.get_cached_value("Item", d.item_code, "color")
+		child_color_from_item = get_item_value(d.item_code, "color", company=item_company)
 		child_color_from_bom = bom_item.get("color") if bom_item.get("color") not in [None, ""] else None
 		use_billing_color_flag = cint(bom_item.get("use_billing_color"))
 		color_from_so = parent_values_from_so.get("color", None)

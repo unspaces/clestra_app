@@ -1,25 +1,35 @@
 {
  "actions": [],
- "creation": "2026-04-02 12:00:00.000000",
+ "creation": "2026-04-02 12:00:00",
  "doctype": "DocType",
+ "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "cost_code",
+  "label",
   "formula",
   "result"
  ],
  "fields": [
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "cost_code",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Cost Code",
-   "options": "\nAB44\nAC33\nAB30\nAC34\nAD43\nAD41\nAB52\nSP1",
+   "options": "\nAB44\nAC33\nAC35\nAC36\nAB30\nAC34\nAD37\nAD43\nAD41\nAD71\nAB52\nSP1",
    "reqd": 1
   },
   {
-   "columns": 5,
+   "columns": 3,
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label",
+   "read_only": 1
+  },
+  {
+   "columns": 4,
    "fieldname": "formula",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -37,7 +47,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-04-02 12:00:00.000000",
+ "modified": "2026-04-14 08:10:40.042696",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Quotation Cost Code Item",

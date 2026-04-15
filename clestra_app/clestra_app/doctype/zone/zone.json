@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{zone_name}-{project_name}-{product_type}",
+ "autoname": "format:{zone_name}-{project_name}-{product_type}-{so_ref}",
  "creation": "2025-07-01 09:38:48.100295",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -9,11 +9,39 @@
   "naming_series",
   "project",
   "project_name",
+  "sales_order",
+  "so_ref",
   "zone_name",
   "product_type",
+  "section_break_amounts",
   "lm",
+  "column_break_amt1",
   "square_m",
-  "manufacturer_dc"
+  "column_break_amt2",
+  "manufacturer_dc",
+  "section_break_size",
+  "ch",
+  "column_break_size1",
+  "ph",
+  "section_break_clbase",
+  "clch_type",
+  "ceiling_visible",
+  "column_break_clbase1",
+  "base_type",
+  "base_visible_h",
+  "section_break_color",
+  "zone_overall_color",
+  "section_break_detail_colors",
+  "zone_color_frame",
+  "zone_color_transom",
+  "column_break_color1",
+  "zone_color_leaf",
+  "zone_color_lipseal",
+  "column_break_color2",
+  "zone_color_panel",
+  "zone_color_clch",
+  "zone_color_base",
+  "zone_color_junction"
  ],
  "fields": [
   {
@@ -66,11 +94,161 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Clestra Sales Order"
+  },
+  {
+   "fieldname": "so_ref",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "SO Ref"
+  },
+  {
+   "fieldname": "section_break_amounts",
+   "fieldtype": "Section Break",
+   "label": "Amounts"
+  },
+  {
+   "fieldname": "column_break_amt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_amt2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_size",
+   "fieldtype": "Section Break",
+   "label": "Size"
+  },
+  {
+   "fieldname": "ch",
+   "fieldtype": "Data",
+   "label": "CH"
+  },
+  {
+   "fieldname": "column_break_size1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ph",
+   "fieldtype": "Data",
+   "label": "PH"
+  },
+  {
+   "fieldname": "section_break_clbase",
+   "fieldtype": "Section Break",
+   "label": "CL & Base"
+  },
+  {
+   "fieldname": "clch_type",
+   "fieldtype": "Link",
+   "label": "CL/CH Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"CL CH Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ceiling_visible",
+   "fieldtype": "Int",
+   "label": "CL Visible"
+  },
+  {
+   "fieldname": "column_break_clbase1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_type",
+   "fieldtype": "Link",
+   "label": "Base Type",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Base Type\"]]",
+   "options": "Selection Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "base_visible_h",
+   "fieldtype": "Int",
+   "label": "Base Visible"
+  },
+  {
+   "fieldname": "section_break_color",
+   "fieldtype": "Section Break",
+   "label": "Color"
+  },
+  {
+   "fieldname": "zone_overall_color",
+   "fieldtype": "Data",
+   "label": "Color"
+  },
+  {
+   "fieldname": "section_break_detail_colors",
+   "fieldtype": "Section Break",
+   "label": "Detail Colors"
+  },
+  {
+   "fieldname": "zone_color_frame",
+   "fieldtype": "Link",
+   "label": "Frame Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_transom",
+   "fieldtype": "Link",
+   "label": "Transom Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_color1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_color_leaf",
+   "fieldtype": "Link",
+   "label": "Leaf Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_lipseal",
+   "fieldtype": "Link",
+   "label": "Lip Seal Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "column_break_color2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zone_color_panel",
+   "fieldtype": "Link",
+   "label": "Panel Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_clch",
+   "fieldtype": "Link",
+   "label": "CL/CH Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_base",
+   "fieldtype": "Link",
+   "label": "Base Color",
+   "options": "Product Color"
+  },
+  {
+   "fieldname": "zone_color_junction",
+   "fieldtype": "Link",
+   "label": "Junction Color",
+   "options": "Product Color"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-03 14:33:28.032040",
+ "modified": "2026-04-07 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Clestra App",
  "name": "Zone",

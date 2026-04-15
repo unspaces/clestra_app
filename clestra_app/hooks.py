@@ -15,7 +15,10 @@ app_include_css = "/assets/clestra_app/css/clestra_app_v1.css"
     # "/assets/clestra_app/js/global_onload.js"
 # ]
 # app_include_js = "/assets/clestra_app/js/clestra_app.js"
-app_include_js = ["/assets/clestra_app/js/quick_entry_custom_v2.js"]
+app_include_js = [
+    "/assets/clestra_app/js/quick_entry_custom_v5.js",
+    "/assets/clestra_app/js/list_filter_patch_v1.js",
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/clestra_app/css/clestra_app.css"

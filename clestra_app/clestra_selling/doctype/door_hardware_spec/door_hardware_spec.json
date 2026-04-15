@@ -1,11 +1,17 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{project_name}-{hw_spec_code}-{##}",
+ "autoname": "format:{project}-{hw_spec_code}-{##}",
  "creation": "2024-11-13 11:50:47.998527",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "template_section",
+  "column_break_enba",
+  "is_template",
+  "template_name",
+  "column_break_tpl",
+  "load_from_template",
   "project_section",
   "project_column",
   "project",
@@ -88,6 +94,43 @@
  "fields": [
   {
    "allow_in_quick_entry": 1,
+   "fieldname": "template_section",
+   "fieldtype": "Section Break",
+   "label": "Template"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "fieldname": "is_template",
+   "fieldtype": "Check",
+   "label": "Is Template"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:doc.is_template",
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "mandatory_depends_on": "eval:doc.is_template"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "column_break_tpl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:!doc.is_template",
+   "fieldname": "load_from_template",
+   "fieldtype": "Link",
+   "label": "Load From Template",
+   "link_filters": "[[\"Door Hardware Spec\",\"is_template\",\"=\",1]]",
+   "options": "Door Hardware Spec"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:!doc.is_template",
    "fieldname": "project_section",
    "fieldtype": "Section Break",
    "label": "Project"
@@ -99,13 +142,14 @@
   },
   {
    "allow_in_quick_entry": 1,
+   "depends_on": "eval:!doc.is_template",
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Project",
-   "options": "Project",
-   "reqd": 1
+   "mandatory_depends_on": "eval:!doc.is_template",
+   "options": "Project"
   },
   {
    "allow_in_quick_entry": 1,
@@ -368,7 +412,7 @@
    "fieldname": "door_closer",
    "fieldtype": "Link",
    "label": "Door Closer",
-   "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"YesNo\"],[\"Selection Library\",\"opt_name\",\"=\",\"Door Closer\"]]",
+   "link_filters": "[[\"Selection Library\", \"opt_name\", \"in\", [\"Door Closer\", \"YesNo\"]]]",
    "options": "Selection Library"
   },
   {
@@ -616,11 +660,16 @@
    "label": "Fixing Screw Cap",
    "link_filters": "[[\"Selection Library\",\"opt_name\",\"=\",\"Fixing Screw Cap\"]]",
    "options": "Selection Library"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "column_break_enba",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-12 14:02:37.741289",
+ "modified": "2026-04-15 11:28:32.334481",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Door Hardware Spec",

@@ -226,7 +226,8 @@ frappe.ui.form.on("Clestra Sales Order", {
 		})
 
 		// ================== 4. 그리드 설정 ==================
-		setup_zone_summary_grid(frm);
+		// setup_zone_summary_grid(frm); // zone_summary_new_html로 대체
+		render_new_zone_summary(frm);
 		setup_finished_items_grid(frm);
 		setup_group_selection_for_grid(frm);
 		apply_visibility_rules(frm);
@@ -506,95 +507,28 @@ function update_zone_summary_table(frm) {
 		}
 	});
 
-	let summary_rows_to_remove = [];
-	const processed_zones = new Set();
+	// Zone doctype에 직접 업데이트
+	for (const [zone_id, data] of Object.entries(zone_summary_map)) {
+		let update = {
+			lm: data.lm,
+			square_m: data.square_m,
+			zone_overall_color: Array.from(data.colors).join(', '),
+			ch: Array.from(data.ch_set).join(', '),
+			ph: Array.from(data.ph_set).join(', ')
+		};
+		Object.assign(update, data.detail_colors);
+		cl_base_fields.forEach(f => {
+			let val = data[f];
+			if ((f === 'ceiling_visible' || f === 'base_visible_h') && (val === null || val === undefined)) val = 0;
+			update[f] = val;
+		});
 
-	// 3-1. 기존 'zone_summary' 행들을 순회하며 업데이트하거나, 삭제 목록에 추가합니다.
-	(frm.doc.zone_summary || []).forEach(summary_row => {
-		const zone_name = summary_row.zone_name;
-		
-		if (zone_summary_map[zone_name]) {
-			// [업데이트] 이 Zone이 계산 결과(map)에 존재하면, 값을 업데이트합니다.
-			const summary = zone_summary_map[zone_name];
-			const color_summary = Array.from(summary.colors).join(', ');
-			const ch_summary = Array.from(summary.ch_set).join(', ');
-			const ph_summary = Array.from(summary.ph_set).join(', ');
-			
-			let update_dict = {
-                'total_lm': summary.lm,
-                'total_square_m': summary.square_m,
-                'zone_color': color_summary,
-				'ch': ch_summary,
-				'ph': ph_summary
-            };
-
-            // 상세 컬러 값 병합
-            Object.assign(update_dict, summary.detail_colors);
-
-			cl_base_fields.forEach(field => {
-                update_dict[field] = summary[field];
-            });
-
-            // 값이 하나라도 변경되었는지 확인
-            let is_changed = false;
-			
-			if (summary_row.total_lm !== summary.lm || 
-                summary_row.total_square_m !== summary.square_m ||
-                summary_row.zone_color !== color_summary ||
-				summary_row.height !== ch_summary ||
-				summary_row.ph !== ph_summary) {
-                is_changed = true;
-            }
-
-            // 2. 상세 컬러 필드 변경 확인
-            if (!is_changed) {
-                for (const [key, value] of Object.entries(summary.detail_colors)) {
-                    if (summary_row[key] !== value) {
-                        is_changed = true;
-                        break;
-                    }
-                }
-            }
-
-			if (!is_changed) {
-                for (const field of cl_base_fields) {
-                    if (summary_row[field] !== summary[field]) {
-                        is_changed = true;
-                        break;
-                    }
-                }
-            }
-
-            // 변경된 경우에만 set_value 호출
-            if (is_changed) {
-                frappe.model.set_value(summary_row.doctype, summary_row.name, update_dict);
-            }
-            
-            processed_zones.add(zone_name);
-        } else {
-            summary_rows_to_remove.push(summary_row);
-        }
-    });
-
-	// 3-2. 'zone_summary'에 없는 새로운 Zone들을 추가합니다.
-	// for (const zone_name in zone_summary_map) {
-	//     if (!processed_zones.has(zone_name)) {
-	//         // [추가] 처리된 Zone 목록에 없는 Zone은 새로 추가합니다.
-	//         const summary = zone_summary_map[zone_name];
-	//         frm.add_child('zone_summary', {
-	//             zone: zone_name,
-	//             total_lm: summary.lm,
-	//             total_square_m: summary.square_m,
-	//             product_color: Array.from(summary.colors).join(', ')
-	//         });
-	//     }
-	// }
-	
-	// 3-3. 삭제 대상으로 표시된 행들을 실제로 제거합니다.
-	// if (summary_rows_to_remove.length > 0) {
-	//     // grid.remove_rows()를 사용하는 것이 frm.clear_table()보다 안전합니다.
-	//     frm.get_field('zone_summary').grid.remove_rows(summary_rows_to_remove);
-	// }
+		frappe.call({
+			method: 'frappe.client.set_value',
+			args: { doctype: 'Zone', name: zone_id, fieldname: update },
+			async: false
+		});
+	}
 }
 
 frappe.ui.form.on("Sales Order Zone", {
@@ -1717,24 +1651,11 @@ function open_add_zone_dialog(frm, source_zone) {
 					args: {
 						project: values.project,
 						zone_name: values.zone_name,
-						product_type: values.product_type
+						product_type: values.product_type,
+						sales_order: frm.doc.name
 					},
 					callback: function (r) {
 						if (r.message) {
-							// 서버로부터 성공적으로 생성된 Zone의 정보를 받습니다.
-							const new_zone_data = r.message;
-
-							// 'zone_summary' 테이블에 새 행을 추가합니다.
-							const new_row = frm.add_child('zone_summary', {
-								project: values.project,
-								zone_name: new_zone_data.name, // 새로 생성된 Zone의 name (ID)
-								zone:new_zone_data.zone_name,
-								product_type: new_zone_data.product_type,
-								total_lm: 0, // 초기값
-								total_square_m: 0 // 초기값
-							});
-							frm.refresh_field('zone_summary');
-
 							dialog.hide();
 							frappe.show_alert({ message: __('New Zone added successfully.'), indicator: 'green' });
 						}
@@ -1771,17 +1692,9 @@ async function duplicate_zone_and_items(frm, source_zone, new_zone_name, new_pro
 		throw new Error(data ? data.error : __('Failed to receive new Zone data from server.'));
 	}
 	
-	// 2. Zone Summary에 새 행 추가
-	const new_zone_id = data.new_zone_name_id; // 서버에서 생성된 Zone의 고유 ID
+	// 2. Zone은 서버에서 이미 생성됨
+	const new_zone_id = data.new_zone_name_id;
 
-	frm.add_child('zone_summary', {
-		project: frm.doc.project,
-		zone_name: new_zone_id, // 표시될 Zone 이름
-		product_type: new_product_type,
-		total_lm: 0, 
-		total_square_m: 0 
-	});
-	
 	// 3. Finished Items 복제 결과를 클라이언트측 Finished Items 테이블에 반영
 	if (data.duplicated_items_data && data.duplicated_items_data.length > 0) {
 		
@@ -2522,6 +2435,7 @@ function setup_finished_items_grid(frm) {
 			setup_grid_column_interaction(frm, 'finished_items', ['remark'], true);
 			apply_visibility_rules(frm);
 
+
 			// 나. 선택된 부모 행 스타일 유지
 			const add_sub_button = grid_wrapper.find('.btn-add-sub-item');
 			if (frm.custom_state.selected_item) {
@@ -2571,6 +2485,90 @@ function setup_finished_items_grid(frm) {
 
 		observer.observe(grid_body, { childList: true, subtree: true });
 		grid.is_observer_attached = true; 
+	}
+
+	// 그리드 전체 Tab/Shift+Tab 핸들러
+	// - Tab on last input: 다음 행 편집 모드 전환 (Frappe 기본 동작 보강)
+	// - Shift+Tab on first input: 이전 행의 remark로 이동
+	if (!grid._gridTabHandlerSet) {
+		grid._gridTabHandlerSet = true;
+		const gridBodyEl = grid.wrapper.find('.grid-body')[0];
+		if (gridBodyEl) {
+			gridBodyEl.addEventListener('keydown', function (e) {
+				if (e.key !== 'Tab') return;
+
+				const active = document.activeElement;
+				if (!active) return;
+
+				// 현재 포커스가 어느 grid-row에 있는지 찾기
+				const $gridRow = $(active).closest('.grid-row');
+				if (!$gridRow.length) return;
+				const docName = $gridRow.attr('data-name');
+				if (!docName) return;
+
+				const currentGridRow = grid.grid_rows_by_docname[docName];
+				if (!currentGridRow) return;
+				const $currentRow = $(currentGridRow.row);
+				const currentIdx = currentGridRow.doc.idx; // 1-based
+
+				// ---- Tab (forward) ----
+				if (!e.shiftKey) {
+					const isLastInput = active.hasAttribute('data-last-input') || !!active.closest('[data-fieldname="remark"]');
+					if (!isLastInput) return; // 마지막 input이 아니면 기본 동작
+
+					// 다음 행으로 이동
+					const nextGridRow = grid.grid_rows[currentIdx]; // 0-based next
+					if (nextGridRow && $(nextGridRow.row).is(':visible')) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						nextGridRow.toggle_editable_row(true);
+						setTimeout(() => {
+							const $nextRow = $(nextGridRow.row);
+							let $inp = $nextRow.find('.col[data-fieldname="item_code"] .field-area input:visible');
+							if (!$inp.length) {
+								$inp = $nextRow.find('.field-area input:visible, .field-area textarea:visible, .field-area select:visible').first();
+							}
+							if ($inp.length) $inp.first().focus();
+						}, 200);
+					} else if (!nextGridRow) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						grid.add_new_row(null, null, true);
+						grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
+						grid.set_focus_on_row();
+					}
+					return;
+				}
+
+				// ---- Shift+Tab (backward) ----
+				const firstInput = $currentRow.find('.field-area input:visible, .field-area textarea:visible, .field-area select:visible').first()[0];
+				if (active !== firstInput) return; // 첫 input이 아니면 Frappe 기본 동작
+
+				const prevIdx = currentIdx - 2; // 1-based → 0-based 이전 행
+				if (prevIdx < 0) return; // 첫 행이면 기본 동작 (그리드 밖으로)
+
+				const prevGridRow = grid.grid_rows[prevIdx];
+				if (!prevGridRow) return;
+				if (!$(prevGridRow.row).is(':visible')) return;
+
+				e.preventDefault();
+				e.stopImmediatePropagation();
+
+				// 이전 행의 remark로 이동
+				const $prevRowEl = $(prevGridRow.row);
+				$prevRowEl.attr('tabindex', '-1').focus();
+
+				prevGridRow.toggle_editable_row(true);
+				setTimeout(() => {
+					let $inp = $prevRowEl.find('.col[data-fieldname="remark"] .field-area input, .col[data-fieldname="remark"] .field-area textarea');
+					if (!$inp.length) {
+						$inp = $prevRowEl.find('.field-area input:visible, .field-area textarea:visible').last();
+					}
+					if ($inp.length) $inp.first().focus();
+					$prevRowEl.removeAttr('tabindex');
+				}, 200);
+			}, true);
+		}
 	}
 
 	// 초기 실행
@@ -2651,7 +2649,7 @@ function apply_visibility_rules(frm) {
 
 	$(fi_grid.wrapper).find('.grid-empty').toggle(visible_count === 0);
 	fi_grid.refresh_check_html();
-	// fi_grid.refresh();
+
 }
 
 function customize_select_all_for_grid(frm, table_fieldname) {
@@ -2939,496 +2937,361 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
 	const cdn = doc.name;
 
 	const is_panel = doc.product_section === 'Panel';
-    const is_door = doc.product_section === 'Door';
+	const is_door = doc.product_section === 'Door';
 
-	// $wrap.empty();
+	// ============================================================
+	// HTML 디스플레이 방식: focusable input 없이 span으로 표시, 클릭 시 Dialog
+	// ============================================================
 	const cached_doc_name = $wrap.data('docname');
-	let controls = $wrap.data('controls');
-
-	if (cached_doc_name !== cdn || !controls) {
-		// 새로 생성 또는 문서 변경 시 컨트롤 재생성
-		$wrap.empty();
-		controls = {};
-		$wrap.data('docname', cdn);
-		$wrap.data('controls', controls);
+	if (cached_doc_name === cdn && $wrap.children().length) {
+		// 같은 문서 — 값만 갱신
+		_update_subrow_display($wrap, doc, is_door, is_panel);
+		return;
 	}
 
-	const manage_control = (key, df_options) => {
-		let ctrl;
+	// 새로 생성 또는 문서 변경 시 전체 재렌더링
+	$wrap.empty();
+	$wrap.data('docname', cdn);
 
-		if (controls[key]) {
-			ctrl = controls[key];
+	const cell_style = 'cursor:pointer; padding:4px 8px; border:1px solid var(--border-color, #d1d8dd); border-radius:var(--border-radius, 4px); background:var(--control-bg, #fff); min-height:28px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+	const label_style = 'font-size:9px; color:var(--text-muted, #8d99a6); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+	const val_style = 'font-size:var(--text-sm, 12px); color:var(--text-color, #36414C); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+	const placeholder_style = 'font-size:var(--text-sm, 12px); color:var(--text-light, #b8c2cc);';
 
-			if (ctrl.$input && ctrl.$input.is(':focus')) {
-				return ctrl;
-			}
-			const currentVal = doc[df_options.fieldname];
-			if (ctrl.get_value() !== currentVal) {
-				ctrl.set_value(currentVal);
-			}
-
-			if (currentVal && ctrl.$input && !ctrl.$input.val()) {
-				ctrl.$input.val(currentVal);
-			}
-
-			return ctrl;
-		}
-
-		// const existing_el = $wrap.find(`[data-fieldname="${df_options.fieldname}"]`);
-		// if (existing_el.length > 0) {
-		// 	existing_el.closest('.frappe-control').remove();
-		// }
-		
-		ctrl = frappe.ui.form.make_control({
-			df: df_options,
-			parent: $wrap,
-			render_input: true,
-		});
-
-		ctrl.refresh();
-
-		const val = doc[df_options.fieldname];
-		if (val) {
-			ctrl.set_value(val);
-			
-			// [추가 안전장치] Link 필드 등이 set_value로 UI 갱신이 늦을 경우를 대비해 input에 직접 값 주입
-			// (특히 Awesomeplete가 초기화되기 전에 값을 넣으면 비어 보일 수 있음)
-			if (ctrl.$input && !ctrl.$input.val()) {
-				ctrl.$input.val(val);
-			}
-		}
-
-		controls[key] = ctrl;
-
-		// ctrl.refresh();
-		return ctrl;
+	const make_cell = (label, field, basis, visible, link_doctype) => {
+		const val = doc[field] || '';
+		const display = visible ? '' : 'display:none;';
+		const dt_attr = link_doctype ? ` data-link-doctype="${link_doctype}"` : '';
+		return `<div class="hw-cell" data-hw-field="${field}"${dt_attr} style="flex:0 0 ${basis}; ${display}">
+			<div style="${label_style}">${label}</div>
+			<div class="hw-val" style="${cell_style}">
+				${val ? `<span style="${val_style}">${frappe.utils.escape_html(val)}</span>` : `<span style="${placeholder_style}">${label}</span>`}
+			</div>
+		</div>`;
 	};
 
-	// Door Hardware Spec
-	const door_hw_spec_control = manage_control('door_hw_spec', {
-		fieldname: 'door_hw_spec', fieldtype: 'Link', options: 'Door Hardware Spec', placeholder: 'HW Spec',
-		get_query: () => { let filters = { project: frm.doc.project };
-			// 1. 저장된 매핑 정보 파싱
-			let mapping = {};
-			try {
-				mapping = JSON.parse(frm.doc.hw_spec_mapping || '{}');
-			} catch (e) {
-				mapping = {};
-			}
+	// CL & Base 는 고정 텍스트
+	const cl_base_val = [doc.clch_type, doc.base_type].filter(Boolean).join(' / ') || '';
+	const cl_base_display = (is_door || is_panel) ? '' : 'display:none;';
+	const cl_base_cell = `<div class="hw-cell" data-hw-field="cl_base" style="flex:0 0 13%; ${cl_base_display}">
+		<div style="${label_style}">CL &amp; Base</div>
+		<div class="hw-val" style="${cell_style}">
+			${cl_base_val ? `<span style="${val_style}">${frappe.utils.escape_html(cl_base_val)}</span>` : `<span style="${placeholder_style}">CL &amp; Base</span>`}
+		</div>
+	</div>`;
 
-			// 2. 체크된 Spec ID 수집
-			const allowed_specs = [];
-			// mapping: { "hw_check_1": "SPEC-ID-001", ... }
-			Object.keys(mapping).forEach(check_field => {
-				// 해당 체크박스 필드 값이 1(True)인지 확인
-				if (frm.doc[check_field]) {
-					allowed_specs.push(mapping[check_field]);
-				}
+	const html = [
+		make_cell('HW Spec', 'door_hw_spec', '15%', is_door, 'Door Hardware Spec'),
+		make_cell('Keeper', 'keeper', '13%', is_door, 'Selection Library'),
+		make_cell('Hinge', 'hinge', '13%', is_door, 'Selection Library'),
+		make_cell('Undercut', 'under_cut', '5%', is_door),
+		make_cell('Handle', 'handle_direct', '5%', is_door, 'Selection Library'),
+		make_cell('Color', 'color', '13%', is_door || is_panel, 'Product Color'),
+		cl_base_cell
+	].join('');
+
+	$wrap.html(html);
+
+	// Link 필드 title 비동기 resolve
+	_resolve_subrow_link_titles($wrap, doc);
+
+	// ============================================================
+	// 클릭 이벤트: 각 셀 클릭 시 해당 Dialog 열기
+	// ============================================================
+	$wrap.off('click', '.hw-cell').on('click', '.hw-cell', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		const field = $(this).data('hw-field');
+		const row_doc = locals[cdt][cdn];
+
+		if (field === 'door_hw_spec') {
+			_open_hw_spec_dialog(frm, cdt, cdn, row_doc);
+		} else if (field === 'keeper') {
+			_open_hw_detail_dialog(frm, cdt, cdn, row_doc, 'Keeper Side', 'keeper', ['Hinge & Keeper', 'Keeper']);
+		} else if (field === 'hinge') {
+			_open_hw_detail_dialog(frm, cdt, cdn, row_doc, 'Hinge Side', 'hinge', ['Hinge & Keeper', 'Hinge']);
+		} else if (field === 'under_cut') {
+			_open_undercut_dialog(frm, cdt, cdn, row_doc);
+		} else if (field === 'handle_direct') {
+			_open_handle_dialog(frm, cdt, cdn, row_doc);
+		} else if (field === 'color') {
+			_open_color_details_dialog(frm, cdt, cdn, row_doc);
+		} else if (field === 'cl_base') {
+			_open_clbasetype_detail_dialog(frm, cdt, cdn, row_doc);
+		}
+	});
+}
+
+// subrow 값 갱신 (리렌더링 없이)
+function _update_subrow_display($wrap, doc, is_door, is_panel) {
+	const val_style = 'font-size:var(--text-sm, 12px); color:var(--text-color, #36414C); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+	const placeholder_style = 'font-size:var(--text-sm, 12px); color:var(--text-light, #b8c2cc);';
+
+	const update_cell = (field, label, val) => {
+		const $cell = $wrap.find(`[data-hw-field="${field}"] .hw-val`);
+		if (!$cell.length) return;
+		$cell.html(val
+			? `<span style="${val_style}">${frappe.utils.escape_html(String(val))}</span>`
+			: `<span style="${placeholder_style}">${label}</span>`
+		);
+	};
+
+	update_cell('door_hw_spec', 'HW Spec', doc.door_hw_spec);
+	update_cell('keeper', 'Keeper', doc.keeper);
+	update_cell('hinge', 'Hinge', doc.hinge);
+	update_cell('under_cut', 'Undercut', doc.under_cut);
+	update_cell('handle_direct', 'Handle', doc.handle_direct);
+	update_cell('color', 'Color', doc.color);
+
+	const cl_base_val = [doc.clch_type, doc.base_type].filter(Boolean).join(' / ') || '';
+	update_cell('cl_base', 'CL &amp; Base', cl_base_val);
+
+	// visibility 토글
+	$wrap.find('[data-hw-field="door_hw_spec"]').toggle(is_door);
+	$wrap.find('[data-hw-field="keeper"]').toggle(is_door);
+	$wrap.find('[data-hw-field="hinge"]').toggle(is_door);
+	$wrap.find('[data-hw-field="under_cut"]').toggle(is_door);
+	$wrap.find('[data-hw-field="handle_direct"]').toggle(is_door);
+	$wrap.find('[data-hw-field="color"]').toggle(is_door || is_panel);
+	$wrap.find('[data-hw-field="cl_base"]').toggle(is_door || is_panel);
+
+	// Link 필드 title 비동기 resolve
+	_resolve_subrow_link_titles($wrap, doc);
+}
+
+// ============================================================
+// Link 필드 title resolve (name 대신 title_field 표시)
+// ============================================================
+const _link_title_cache = {};
+
+function _resolve_subrow_link_titles($wrap, doc) {
+	$wrap.find('.hw-cell[data-link-doctype]').each(function () {
+		const $cell = $(this);
+		const field = $cell.data('hw-field');
+		const doctype = $cell.data('link-doctype');
+		const name = doc[field];
+		if (!name || !doctype) return;
+
+		const cache_key = `${doctype}::${name}`;
+
+		// 캐시에 있으면 즉시 적용
+		if (_link_title_cache[cache_key]) {
+			$cell.find('.hw-val span').first().text(_link_title_cache[cache_key]);
+			return;
+		}
+
+		// title_field 확인
+		const meta = frappe.get_meta(doctype);
+		const title_field = meta?.title_field;
+		if (!title_field || title_field === 'name') {
+			// title_field가 없거나 name 자체이면 그대로 표시
+			return;
+		}
+
+		// 비동기로 title 가져오기
+		frappe.db.get_value(doctype, name, title_field).then(r => {
+			const title = r?.message?.[title_field];
+			if (title) {
+				_link_title_cache[cache_key] = title;
+				$cell.find('.hw-val span').first().text(title);
+			}
+		});
+	});
+}
+
+// ============================================================
+// Dialog 함수들 (ensure_hw_controls에서 분리)
+// ============================================================
+
+function _open_hw_spec_dialog(frm, cdt, cdn, row_doc) {
+	let mapping = {};
+	try { mapping = JSON.parse(frm.doc.hw_spec_mapping || '{}'); } catch (e) { mapping = {}; }
+	const allowed_specs = [];
+	Object.keys(mapping).forEach(check_field => {
+		if (frm.doc[check_field]) allowed_specs.push(mapping[check_field]);
+	});
+	const filters = { project: frm.doc.project };
+	if (allowed_specs.length > 0) {
+		filters['name'] = ['in', allowed_specs];
+	} else {
+		filters['name'] = ['in', ['no_match']];
+	}
+
+	let d = new frappe.ui.Dialog({
+		title: __('Door Hardware Spec'),
+		fields: [{
+			label: __('HW Spec'),
+			fieldname: 'door_hw_spec',
+			fieldtype: 'Link',
+			options: 'Door Hardware Spec',
+			default: row_doc.door_hw_spec,
+			get_query: () => ({ filters: filters })
+		}],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			frappe.model.set_value(cdt, cdn, 'door_hw_spec', values.door_hw_spec);
+			d.hide();
+			frm.save();
+		}
+	});
+	d.show();
+}
+
+function _open_hw_detail_dialog(frm, cdt, cdn, row_doc, title, field_prefix, filter_list) {
+	let d = new frappe.ui.Dialog({
+		title: title,
+		fields: [
+			{
+				label: title,
+				fieldname: field_prefix,
+				fieldtype: 'Link',
+				options: 'Selection Library',
+				default: row_doc[field_prefix],
+				get_query: () => ({ filters: { opt_name: ['in', filter_list], is_active: 1 } })
+			},
+			{
+				label: `${title} Glass A (Outer)`,
+				fieldname: `${field_prefix}_glass_a`,
+				fieldtype: 'Link',
+				options: 'Product Thickness',
+				default: row_doc[`${field_prefix}_glass_a`],
+				get_query: () => ({ filters: { type: ['in', ["Panel Glass","Panel & Leaf Glass"]], is_active: 1 } })
+			},
+			{
+				label: `${title} Glass B (Inner)`,
+				fieldname: `${field_prefix}_glass_b`,
+				fieldtype: 'Link',
+				options: 'Product Thickness',
+				default: row_doc[`${field_prefix}_glass_b`],
+				get_query: () => ({ filters: { type: ['in', ["Panel Glass","Panel & Leaf Glass"]], is_active: 1 } })
+			}
+		],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			frappe.model.set_value(cdt, cdn, {
+				[field_prefix]: values[field_prefix],
+				[`${field_prefix}_glass_a`]: values[`${field_prefix}_glass_a`],
+				[`${field_prefix}_glass_b`]: values[`${field_prefix}_glass_b`]
 			});
-
-			// 3. 필터 적용
-			if (allowed_specs.length > 0) {
-				filters['name'] = ['in', allowed_specs];
-			} else {
-				// 체크된 항목이 하나도 없으면?
-				// 정책 결정: 아무것도 안 보여줄지(['in', []]), 전체를 보여줄지 결정
-				// 아래는 "체크된 게 없으면 목록에 아무것도 안 뜨게 함" 설정입니다.
-				filters['name'] = ['in', ['no_match']]; 
-				
-				// 만약 체크 안 해도 전체는 보여주고 싶다면 위 줄을 주석 처리하세요.
-			}
-			return { filters: filters };
-		},
-		onchange: function () { frappe.model.set_value(cdt, cdn, 'door_hw_spec', this.get_value()); }
-	});
-	$(door_hw_spec_control.wrapper).toggle(is_door);
-
-	// Keeper
-	const keeper_control = manage_control('keeper',{
-		fieldname: 'keeper', fieldtype: 'Link', options: 'Selection Library', placeholder: 'Keeper',
-		get_query: () => ({ filters: { opt_name: ['in', ['Hinge & Keeper', 'Keeper']], is_active: 1 } }),
-		onchange: function () { frappe.model.set_value(cdt, cdn, 'keeper', this.get_value()); }
-	});
-
-	// Keeper 클릭 이벤트 바인딩
-	$(keeper_control.wrapper).toggle(is_door);
-	$(keeper_control.wrapper).find('input')
-		.prop('readonly', true) // 입력 방지 (드롭다운 뜨는 것 방지)
-		.css('cursor', 'pointer')
-		.off('click') // 기존 이벤트 제거 (중복 방지)
-		.on('click', function(e) {
-			// Link 필드 기본 이동 동작 방지
-			e.preventDefault(); 
-			e.stopPropagation(); 
-			open_hw_detail_dialog('Keeper Side', 'keeper', ['Hinge & Keeper', 'Keeper']);
-		});
-
-	// Hinge
-	const hinge_control = manage_control('hinge',{
-		fieldname: 'hinge', fieldtype: 'Link', options: 'Selection Library', placeholder: 'Hinge',
-		get_query: () => ({ filters: { opt_name: ['in', ['Hinge & Keeper', 'Hinge']], is_active: 1 } }),
-		onchange: function () { frappe.model.set_value(cdt, cdn, 'hinge', this.get_value()); }
-	});
-
-	// Hinge 클릭 이벤트 바인딩
-	$(hinge_control.wrapper).toggle(is_door);
-	$(hinge_control.wrapper).find('input')
-		.prop('readonly', true)
-		.css('cursor', 'pointer')
-		.off('click') // 기존 이벤트 제거 (중복 방지)
-		.on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			open_hw_detail_dialog('Hinge Side', 'hinge', ['Hinge & Keeper', 'Hinge']);
-		});
-
-	// Undercut
-	const undercut_control = manage_control('under_cut',{
-		fieldname: 'under_cut', fieldtype: 'Int', placeholder: 'Undercut',
-		onchange: function () {
-			const v = this.get_value();
-			frappe.model.set_value(cdt, cdn, 'under_cut', (v === undefined || v === null || v === '') ? null : cint(v));
+			d.hide();
+			frm.save();
 		}
 	});
-	$(undercut_control.wrapper).toggle(is_door);
+	d.show();
+}
 
-	// Handle Direction
-	const handle_control = manage_control('handle_direct',{
-		fieldname: 'handle_direct', fieldtype: 'Link', options: 'Selection Library', placeholder: 'Handle',
-		get_query: () => ({ filters: { opt_name: 'Handle Direction', is_active: 1 } }),
-		onchange: function () { frappe.model.set_value(cdt, cdn, 'handle_direct', this.get_value()); }
+function _open_undercut_dialog(frm, cdt, cdn, row_doc) {
+	let d = new frappe.ui.Dialog({
+		title: __('Undercut'),
+		fields: [{
+			label: __('Undercut'),
+			fieldname: 'under_cut',
+			fieldtype: 'Int',
+			default: row_doc.under_cut,
+		}],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			const v = values.under_cut;
+			frappe.model.set_value(cdt, cdn, 'under_cut', (v === undefined || v === null || v === '') ? null : cint(v));
+			d.hide();
+			frm.save();
+		}
 	});
-	$(handle_control.wrapper).toggle(is_door);
+	d.show();
+}
 
-	// Color Control
-	const color_control = manage_control('color',{
-		fieldname: 'color', 
-		fieldtype: 'Link', 
-		options: 'Product Color', 
-		placeholder: 'Color'
+function _open_handle_dialog(frm, cdt, cdn, row_doc) {
+	let d = new frappe.ui.Dialog({
+		title: __('Handle Direction'),
+		fields: [{
+			label: __('Handle Direction'),
+			fieldname: 'handle_direct',
+			fieldtype: 'Link',
+			options: 'Selection Library',
+			default: row_doc.handle_direct,
+			get_query: () => ({ filters: { opt_name: 'Handle Direction', is_active: 1 } })
+		}],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			frappe.model.set_value(cdt, cdn, 'handle_direct', values.handle_direct);
+			d.hide();
+			frm.save();
+		}
 	});
-	
+	d.show();
+}
 
-	// 클릭 이벤트 바인딩 (직접 입력 방지 + 다이얼로그 호출)
-	$(color_control.wrapper).toggle(is_door || is_panel);
-	$(color_control.wrapper).find('input')
-		.prop('readonly', true) // 입력 방지 (드롭다운 뜨는 것 방지)
-		.css('cursor', 'pointer') // 클릭 가능한 모양
-		.off('click')
-		.on('click', function(e) {
-			e.preventDefault(); 
-			e.stopPropagation(); 
-			open_color_details_dialog();
-		});
-
-	// CL & Base Control
-	const cl_base_control = manage_control('cl_base_ui', {
-		fieldname: 'cl_base_dummy',
-		fieldtype: 'Data',
-		readonly: 1,
-	});
-
-	cl_base_control.set_value('CL & Base');
-
-	// 클릭 이벤트 바인딩 (직접 입력 방지 + 다이얼로그 호출)
-	$(cl_base_control.wrapper).toggle(is_door || is_panel);
-	$(cl_base_control.wrapper).find('input')
-		.css({
-			'cursor': 'pointer',
-		})
-		.off('click')
-		.on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			open_clbasetype_detail_dialog();
-		});
-
-	const open_hw_detail_dialog = (title, field_prefix, filter_list) => {
-		const row_doc = locals[cdt][cdn];
-		
-		let d = new frappe.ui.Dialog({
-			title: title,
-			fields: [
-				{
-					label: title,
-					fieldname: field_prefix, // 예: keeper
-					fieldtype: 'Link',
-					options: 'Selection Library',
-					default: row_doc[field_prefix],
-					get_query: () => ({ filters: { opt_name: ['in', filter_list], is_active: 1 } })
-				},
-				{
-					label: `${title} Glass A (Outer)`,
-					fieldname: `${field_prefix}_glass_a`, // 예: keeper_glass_a
-					fieldtype: 'Link',
-					options: 'Product Thickness',
-					default: row_doc[`${field_prefix}_glass_a`],
-					get_query: () => ({ filters: { type: ['in', ["Panel Glass","Panel & Leaf Glass"]], is_active: 1 } })
-				},
-				{
-					label: `${title} Glass B (Inner)`,
-					fieldname: `${field_prefix}_glass_b`, // 예: keeper_glass_b
-					fieldtype: 'Link', // 필요에 따라 'Link' 등으로 변경 가능
-					options: 'Product Thickness',
-					default: row_doc[`${field_prefix}_glass_b`],
-					get_query: () => ({ filters: { type: ['in', ["Panel Glass","Panel & Leaf Glass"]], is_active: 1 } })
-				}
-			],
-			primary_action_label: __('Update'),
-			primary_action: (values) => {
-				// 3가지 값을 한 번에 업데이트
-				frappe.model.set_value(cdt, cdn, {
-					[field_prefix]: values[field_prefix],
-					[`${field_prefix}_glass_a`]: values[`${field_prefix}_glass_a`],
-					[`${field_prefix}_glass_b`]: values[`${field_prefix}_glass_b`]
-				});
-				d.hide();
-				frm.save();
-			}
-		});
-		d.show();
-	};
-
-	// [2] Color Dialog 함수 정의
-	const open_color_details_dialog = () => {
-		const row_doc = locals[cdt][cdn];
-		
-		let d = new frappe.ui.Dialog({
-			title: __('Edit Detailed Colors'),
-			fields: [
-				// 메인 Overall Color
-				{
-					label: __('Overall Color'),
-					fieldname: 'color',
-					fieldtype: 'Link',
-					options: 'Product Color',
-					default: row_doc.color,
-					reqd: 0,
-					onchange: function() {
-						// Overall Color 변경 시 나머지 필드 자동 채움
-						const val = this.get_value();
-						if (row_doc.color !== val) {
-							d.set_values({
-								'color_frame': val,
-								'color_transom': val,
-								'color_leaf': val,
-								'color_lipseal': 'STD',
-								'color_panel': val,
-								'color_clch': val,
-								'color_base': val,
-								'color_junction': val
-							});
-						}
-					}
-				},
-				{ fieldtype: 'Section Break', label: __('Details') },
-				{ fieldtype: 'Column Break' },
-				{ label: 'Frame', fieldname: 'color_frame', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_frame },
-				{ label: 'Transom', fieldname: 'color_transom', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_transom },
-				{ label: 'Leaf', fieldname: 'color_leaf', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_leaf },
-				{ label: 'Lipseal', fieldname: 'color_lipseal', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_lipseal },
-				
-				{ fieldtype: 'Column Break' },
-				{ label: 'Panel', fieldname: 'color_panel', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_panel },
-				{ label: 'CL/CH', fieldname: 'color_clch', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_clch },
-				{ label: 'Base', fieldname: 'color_base', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_base },
-				{ label: 'Junction', fieldname: 'color_junction', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_junction }
-			],
-			primary_action_label: __('Update'),
-			primary_action: (values) => {
-				// 9개 필드 값을 한 번에 업데이트
-				frappe.model.set_value(cdt, cdn, values);
-				d.hide();
-				frm.save();
-			}
-		});
-		d.show();
-	};
-
-	// $wrap.append($btn_wrapper);
-
-	// $cl_base_btn.on('click', function(e) {
-	// 	e.preventDefault(); 
-	// 	e.stopPropagation(); 
-	// 	open_clbasetype_detail_dialog();
-	// });
-
-	
-
-	// const $btn_wrapper = $('<div class="frappe-control input-max-width" style="flex-grow: 0; flex-basis: 13%;"></div>');
-	// const $btn_group = $('<div class="form-group"><div class="clearfix"><label class="control-label" style="padding-right: 0px;"></label><span class="help"></span></div></div>').appendTo($btn_wrapper);
-	// const $cl_base_btn = $(`<button class="btn btn-secondary btn-xs" style="width: 100%;">CL & Base</button>`).appendTo($btn_group);
-	
-
-	const open_clbasetype_detail_dialog = () => {
-		const row_doc = locals[cdt][cdn];
-		
-		let d = new frappe.ui.Dialog({
-			title: __("Ceiling & Base Details"),
-			fields: [
-				{
-					label: 'Ceiling Type',
-					fieldname: 'clch_type',
-					fieldtype: 'Link',
-					options: 'Selection Library',
-					default: row_doc.clch_type,
-					get_query: () => ({ filters: { opt_name: 'CL CH Type', is_active: 1 } })
-				},
-				{
-					label: 'Ceiling Visible Height',
-					fieldname: 'ceiling_visible',
-					fieldtype: 'Int',
-					default: row_doc.ceiling_visible,
-				},
-				{ fieldtype: 'Column Break' },
-				{
-					label: 'Base Type',
-					fieldname: 'base_type',
-					fieldtype: 'Link',
-					options: 'Selection Library',
-					default: row_doc.base_type,
-					get_query: () => ({ filters: { opt_name: 'Base Type', is_active: 1 } })
-				},
-				{
-					label: 'Base Visible Height',
-					fieldname: 'base_visible_h',
-					fieldtype: 'Int',
-					default: row_doc.base_visible_h,
-				},
-			],
-			primary_action_label: __('Update'),
-			primary_action: (values) => {
-				frappe.model.set_value(cdt, cdn, values);
-				d.hide();
-				frm.save();
-			}
-		});
-		d.show();
-	};
-
-	if (is_door) {
-        $(door_hw_spec_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '20%' });
-        $(keeper_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
-        $(hinge_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
-        $(undercut_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '5%' });
-        $(handle_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '5%' });
-        $(color_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
-        $(cl_base_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '13%' });
-    } else if (is_panel) {
-        $(color_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '15%' });
-		$(cl_base_control.wrapper).css({ 'flex-grow': '0', 'flex-basis': '13%' });
-    }
-
-	// ============================================================
-	// Tab 키 브릿지: 그리드 행 ↔ custom-subrow 간 연결
-	// 메모리 참조: feedback_frappe_grid_dom.md
-	// - grid_row.row는 jQuery/.data-row, data-name은 .parent()로 추출
-	// - capture phase 필수, visibleInputs 기준, data-fieldname 폴백
-	// ============================================================
-	const $parentRow = $(grid_row.row);
-	const parentRowEl = $parentRow[0];
-	const $subRow = $parentRow.next('.custom-subrow');
-	const subRowEl = $subRow[0];
-
-	// 1) 그리드 remark에서 Tab → subrow 첫 input
-	if (parentRowEl && !parentRowEl._remarkTabSet) {
-		parentRowEl._remarkTabSet = true;
-		parentRowEl.addEventListener('keydown', function (e) {
-			if (!(e.key === 'Tab' && !e.shiftKey)) return;
-			const active = document.activeElement;
-			if (!active) return;
-			if (!active.hasAttribute('data-last-input') && !active.closest('[data-fieldname="remark"]')) return;
-
-			const $mySubRow = $(this).next('.custom-subrow');
-			if (!$mySubRow.length) return;
-			const firstInput = $mySubRow[0].querySelector('input');
-			if (!firstInput) return;
-
-			e.preventDefault();
-			e.stopImmediatePropagation();
-			firstInput.focus();
-		}, true);
-	}
-
-	// 2) subrow 내 키 처리 + 3) Shift+Tab → 같은 행 remark
-	if (subRowEl && !subRowEl._subRowTabSet) {
-		subRowEl._subRowTabSet = true;
-		subRowEl.addEventListener('keydown', function (e) {
-			// Tab 이외: 그리드 전파만 차단 (backspace, enter 등 정상 동작)
-			if (e.key !== 'Tab') {
-				e.stopPropagation();
-				return;
-			}
-
-			const active = document.activeElement;
-			if (!active || !this.contains(active)) return;
-
-			const allInputs = Array.from(this.querySelectorAll('input'));
-			const visibleInputs = allInputs.filter(el => el.offsetParent !== null);
-			if (!visibleInputs.length) return;
-
-			// data-fieldname 폴백 매칭
-			let effectiveIdx = visibleInputs.indexOf(active);
-			if (effectiveIdx === -1) {
-				const fn = active.getAttribute('data-fieldname');
-				if (fn) effectiveIdx = visibleInputs.findIndex(el => el.getAttribute('data-fieldname') === fn);
-			}
-			if (effectiveIdx === -1) return;
-
-			const isOnLast = (effectiveIdx === visibleInputs.length - 1);
-			const isOnFirst = (effectiveIdx === 0);
-
-			// DOM에서 data-name 추출: $(subrow).prev() → .data-row, .parent() → .grid-row[data-name]
-			const $prevDataRow = $(this).prev();
-			const myDocName = $prevDataRow.closest('.grid-row').attr('data-name') || $prevDataRow.parent().attr('data-name');
-			const grid = frm.fields_dict['finished_items']?.grid;
-			if (!grid || !myDocName) return;
-			const myGridRowObj = grid.grid_rows_by_docname[myDocName];
-			if (!myGridRowObj) return;
-			const myIdx = myGridRowObj.doc.idx; // 1-based
-
-			// Tab on last → 다음 그리드 행
-			if (!e.shiftKey && isOnLast) {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-
-				const next_grid_row = grid.grid_rows[myIdx]; // 0-based next
-				if (next_grid_row) {
-					next_grid_row.toggle_editable_row(true);
-					grid.set_focus_on_row(myIdx);
-				} else {
-					grid.add_new_row(null, null, true);
-					grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
-					grid.set_focus_on_row();
-				}
-			}
-
-			// Shift+Tab on first → 같은 행 remark
-			if (e.shiftKey && isOnFirst) {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-
-				if (controls['door_hw_spec'] && controls['door_hw_spec'].awesomplete) {
-					controls['door_hw_spec'].awesomplete.close();
-				}
-
-				// 같은 행 remark 셀 클릭으로 편집 활성화
-				const $remarkCol = $prevDataRow.find('.col[data-fieldname="remark"]');
-				if ($remarkCol.length) {
-					let $inp = $remarkCol.find('.field-area input, .field-area textarea');
-					if ($inp.length) {
-						$inp.focus();
-					} else if (myGridRowObj) {
-						myGridRowObj.toggle_editable_row(true);
-						requestAnimationFrame(() => {
-							$inp = $remarkCol.find('.field-area input, .field-area textarea');
-							if ($inp.length) $inp.focus();
+function _open_color_details_dialog(frm, cdt, cdn, row_doc) {
+	let d = new frappe.ui.Dialog({
+		title: __('Edit Detailed Colors'),
+		fields: [
+			{
+				label: __('Overall Color'),
+				fieldname: 'color',
+				fieldtype: 'Link',
+				options: 'Product Color',
+				default: row_doc.color,
+				reqd: 0,
+				onchange: function() {
+					const val = this.get_value();
+					if (row_doc.color !== val) {
+						d.set_values({
+							'color_frame': val, 'color_transom': val,
+							'color_leaf': val, 'color_lipseal': 'STD',
+							'color_panel': val, 'color_clch': val,
+							'color_base': val, 'color_junction': val
 						});
 					}
 				}
-			}
-		}, true);
-	}
+			},
+			{ fieldtype: 'Section Break', label: __('Details') },
+			{ fieldtype: 'Column Break' },
+			{ label: 'Frame', fieldname: 'color_frame', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_frame },
+			{ label: 'Transom', fieldname: 'color_transom', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_transom },
+			{ label: 'Leaf', fieldname: 'color_leaf', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_leaf },
+			{ label: 'Lipseal', fieldname: 'color_lipseal', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_lipseal },
+			{ fieldtype: 'Column Break' },
+			{ label: 'Panel', fieldname: 'color_panel', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_panel },
+			{ label: 'CL/CH', fieldname: 'color_clch', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_clch },
+			{ label: 'Base', fieldname: 'color_base', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_base },
+			{ label: 'Junction', fieldname: 'color_junction', fieldtype: 'Link', options: 'Product Color', default: row_doc.color_junction }
+		],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			frappe.model.set_value(cdt, cdn, values);
+			d.hide();
+			frm.save();
+		}
+	});
+	d.show();
+}
+
+function _open_clbasetype_detail_dialog(frm, cdt, cdn, row_doc) {
+	let d = new frappe.ui.Dialog({
+		title: __("Ceiling & Base Details"),
+		fields: [
+			{
+				label: 'Ceiling Type', fieldname: 'clch_type', fieldtype: 'Link',
+				options: 'Selection Library', default: row_doc.clch_type,
+				get_query: () => ({ filters: { opt_name: 'CL CH Type', is_active: 1 } })
+			},
+			{ label: 'Ceiling Visible Height', fieldname: 'ceiling_visible', fieldtype: 'Int', default: row_doc.ceiling_visible },
+			{ fieldtype: 'Column Break' },
+			{
+				label: 'Base Type', fieldname: 'base_type', fieldtype: 'Link',
+				options: 'Selection Library', default: row_doc.base_type,
+				get_query: () => ({ filters: { opt_name: 'Base Type', is_active: 1 } })
+			},
+			{ label: 'Base Visible Height', fieldname: 'base_visible_h', fieldtype: 'Int', default: row_doc.base_visible_h },
+		],
+		primary_action_label: __('Update'),
+		primary_action: (values) => {
+			frappe.model.set_value(cdt, cdn, values);
+			d.hide();
+			frm.save();
+		}
+	});
+	d.show();
 }
 
 
@@ -4353,4 +4216,172 @@ function update_grand_total_vp(frm) {
 		total += flt(row.vp_amount);
 	});
 	frm.set_value('grand_total_vp', total);
+}
+
+
+// ====================================================================
+// Zone Summary HTML 렌더링
+// ====================================================================
+
+function render_new_zone_summary(frm) {
+	if (!$('style#new-zone-list-style').length) {
+		$(`<style id="new-zone-list-style">
+			.new-zone-list .list-row {
+				display: flex; align-items: center;
+				padding: 6px 12px;
+				font-size: var(--text-md, 13px);
+				border-bottom: 1px solid var(--border-color, #d1d8dd);
+			}
+			.new-zone-list .list-row:last-child { border-bottom: none; }
+			.new-zone-list .list-row-head {
+				display: flex; align-items: center;
+				padding: 6px 12px;
+				background: var(--subtle-fg, #f5f7fa);
+				font-weight: 600; font-size: var(--text-md, 13px);
+				border-bottom: 1px solid var(--border-color, #d1d8dd);
+			}
+			.new-zone-list .list-row-col { padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		</style>`).appendTo('head');
+	}
+
+	const wrapper = frm.fields_dict.zone_summary_new_html?.$wrapper;
+	if (!wrapper || !frm.doc.project) return;
+
+	// Zone doctype에서 조회 후 캐시
+	frappe.call({
+		method: 'clestra_app.clestra_selling.doctype.clestra_sales_order.clestra_sales_order.get_zones_for_project',
+		args: { project: frm.doc.project, sales_order: frm.doc.name },
+		async: false,
+		callback: function(r) {
+			frm._zone_list = r.message || [];
+		}
+	});
+
+	// zone_summary child table의 집계 값을 Zone 데이터에 병합
+	const summary_map = {};
+	(frm.doc.zone_summary || []).forEach(s => {
+		if (s.zone_name) summary_map[s.zone_name] = s;
+	});
+	(frm._zone_list || []).forEach(z => {
+		const s = summary_map[z.name];
+		if (s) {
+			z.lm = s.total_lm || 0;
+			z.square_m = s.total_square_m || 0;
+			z.zone_overall_color = s.zone_overall_color || z.zone_overall_color || '';
+			z.ch = s.ch || '';
+			z.ph = s.ph || '';
+			z.clch_type = s.clch_type || '';
+			z.ceiling_visible = s.ceiling_visible || '';
+			z.base_type = s.base_type || '';
+			z.base_visible_h = s.base_visible_h || '';
+		}
+	});
+
+	_render_zone_html(frm, wrapper, frm._zone_list || []);
+}
+
+
+function _render_zone_html(frm, wrapper, zones) {
+	const selected_zone = frm.doc.zone_selected;
+
+	let html = `
+	<div class="frappe-control">
+		<div class="grid-buttons" style="display:flex;gap:6px;margin-bottom:8px;">
+			<button class="btn btn-xs btn-default btn-new-add-zone">
+				<svg class="icon icon-sm"><use href="#icon-add"></use></svg> ${__('Add Zone')}
+			</button>
+			<button class="btn btn-xs btn-default btn-new-dup-zone">${__('Duplicate')}</button>
+			<button class="btn btn-xs btn-danger btn-new-del-zone" style="margin-left:auto;${selected_zone ? '' : 'display:none;'}">
+				<svg class="icon icon-sm"><use href="#icon-delete"></use></svg> ${__('Delete')}
+			</button>
+		</div>`;
+
+	if (zones.length > 0) {
+		html += `
+		<div class="new-zone-list" style="border:1px solid var(--border-color, #d1d8dd);border-radius:var(--border-radius, 6px);">
+			<div class="list-row-head">
+				<div class="list-row-col" style="flex:2">Zone</div>
+				<div class="list-row-col" style="flex:2">Prod. Type</div>
+				<div class="list-row-col" style="flex:1.5">Color</div>
+				<div class="list-row-col" style="flex:1;text-align:right">L/M</div>
+				<div class="list-row-col" style="flex:1;text-align:right">M²</div>
+				<div class="list-row-col" style="flex:1;text-align:center">CH</div>
+				<div class="list-row-col" style="flex:1;text-align:center">PH</div>
+				<div class="list-row-col" style="flex:1.5">CL/CH</div>
+				<div class="list-row-col" style="flex:1;text-align:center">CL Vis.</div>
+				<div class="list-row-col" style="flex:1.5">Base</div>
+				<div class="list-row-col" style="flex:1;text-align:center">Base Vis.</div>
+			</div>`;
+
+		zones.forEach(z => {
+			const is_active = selected_zone && z.name === selected_zone;
+			html += `
+			<div class="list-row zone-row" data-zone="${frappe.utils.escape_html(z.name || '')}"
+				 style="cursor:pointer;${is_active ? 'background:var(--highlight-color);' : ''}">
+				<div class="list-row-col ellipsis" style="flex:2;font-weight:600;">
+					${is_active ? '<i class="fa fa-check-circle text-success" style="margin-right:4px;"></i>' : ''}
+					${frappe.utils.escape_html(z.zone_name || '')}
+				</div>
+				<div class="list-row-col ellipsis" style="flex:2">${frappe.utils.escape_html(z.product_type || '')}</div>
+				<div class="list-row-col ellipsis" style="flex:1.5">${frappe.utils.escape_html(z.zone_overall_color || '')}</div>
+				<div class="list-row-col" style="flex:1;text-align:right">${flt(z.lm, 2)}</div>
+				<div class="list-row-col" style="flex:1;text-align:right">${flt(z.square_m, 2)}</div>
+				<div class="list-row-col" style="flex:1;text-align:center">${frappe.utils.escape_html(z.ch || '')}</div>
+				<div class="list-row-col" style="flex:1;text-align:center">${frappe.utils.escape_html(z.ph || '')}</div>
+				<div class="list-row-col ellipsis" style="flex:1.5">${frappe.utils.escape_html(z.clch_type || '')}</div>
+				<div class="list-row-col" style="flex:1;text-align:center">${z.ceiling_visible || ''}</div>
+				<div class="list-row-col ellipsis" style="flex:1.5">${frappe.utils.escape_html(z.base_type || '')}</div>
+				<div class="list-row-col" style="flex:1;text-align:center">${z.base_visible_h || ''}</div>
+			</div>`;
+		});
+
+		html += `</div>`;
+	} else {
+		html += `<div class="text-muted text-center" style="padding:24px;border:1px dashed var(--border-color);border-radius:var(--border-radius);">
+			${__('No zones yet. Click "Add Zone" to get started.')}
+		</div>`;
+	}
+
+	html += `</div>`;
+	wrapper.html(html);
+
+	// Zone row click → 서버 통신 없이 즉시 필터링
+	wrapper.find('.zone-row').on('click', function () {
+		const zone_name = $(this).data('zone');
+		if (frm.doc.zone_selected === zone_name) {
+			frm.doc.zone_selected = null;
+			frm.doc.zone_product_type = null;
+		} else {
+			frm.doc.zone_selected = zone_name;
+			const zone_row = zones.find(z => z.name === zone_name);
+			frm.doc.zone_product_type = zone_row ? zone_row.product_type : null;
+		}
+		_render_zone_html(frm, wrapper, zones);
+		apply_visibility_rules(frm);
+	});
+
+	// Toolbar buttons
+	wrapper.find('.btn-new-add-zone').on('click', () => open_add_zone_dialog(frm, null));
+	wrapper.find('.btn-new-dup-zone').on('click', () => {
+		if (!selected_zone) {
+			frappe.msgprint({ title: __('No Zone Selected'), indicator: 'orange', message: __('Please select a Zone first.') });
+			return;
+		}
+		open_add_zone_dialog(frm, selected_zone);
+	});
+	wrapper.find('.btn-new-del-zone').on('click', () => {
+		if (!selected_zone) return;
+		frappe.confirm(
+			__("All items in this zone will be deleted."),
+			() => {
+				perform_zone_and_items_deletion(frm, selected_zone);
+				frm.doc.zone_selected = null;
+				frm.doc.zone_product_type = null;
+				frm._zone_list = (frm._zone_list || []).filter(z => z.name !== selected_zone);
+				_render_zone_html(frm, wrapper, frm._zone_list);
+				apply_visibility_rules(frm);
+				frm.save();
+			}
+		);
+	});
 }

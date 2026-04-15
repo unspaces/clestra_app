@@ -1596,6 +1596,21 @@ function setup_size_field(frm) {
                 }
             });
             grid.wrapper.find('.col[data-fieldname="size"]').addClass('clickable');
+
+            // static-area에 size 문자열 표시 (setup_qty_field와 동일한 패턴)
+            if (grid.grid_rows) {
+                grid.grid_rows.forEach(grid_row => {
+                    if (grid_row.doc) {
+                        const product_section = grid_row.doc.product_section;
+                        const size_string = grid_row.doc.size || generate_js_size_string(product_section, grid_row.doc);
+                        let $size_cell_static = $(grid_row.wrapper).find('[data-fieldname="size"] .static-area');
+                        if ($size_cell_static.length > 0) {
+                            $size_cell_static.text(size_string).show();
+                            $(grid_row.wrapper).find('[data-fieldname="size"] .field-area').hide();
+                        }
+                    }
+                });
+            }
         }
     });
 }

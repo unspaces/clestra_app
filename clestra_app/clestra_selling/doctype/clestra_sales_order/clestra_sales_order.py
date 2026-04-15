@@ -226,57 +226,35 @@ class ClestraSalesOrder(Document):
                         val = row.get(field)
                         zone_totals[row.zone_name][field] = val
             
-        processed_zones = set()
-        for summary_row in self.get("zone_summary"):
-            zone_name = summary_row.zone_name
-            if zone_name in zone_totals:
-                # [업데이트] 이 Zone이 계산 결과에 있으면, 필드 값만 업데이트
-                totals = zone_totals[zone_name]
-                summary_row.total_lm = totals["lm"]
-                summary_row.total_square_m = totals["square_m"]
-                summary_row.zone_color = ", ".join(sorted(list(totals["colors"])))
-                summary_row.ch = ", ".join(sorted(list(totals["ch_set"])))
-                summary_row.ph = ", ".join(sorted(list(totals["ph_set"])))
-
-                for field_name, field_value in totals["detail_colors"].items():
-                    summary_row.set(field_name, field_value)
-
+        # Zone doctype에 직접 업데이트
+        for zone_name, totals in zone_totals.items():
+            if frappe.db.exists("Zone", zone_name):
+                update_vals = {
+                    "lm": totals["lm"],
+                    "square_m": totals["square_m"],
+                    "zone_overall_color": ", ".join(sorted(list(totals["colors"]))),
+                    "ch": ", ".join(sorted(list(totals["ch_set"]))),
+                    "ph": ", ".join(sorted(list(totals["ph_set"]))),
+                }
+                update_vals.update(totals["detail_colors"])
                 for field in cl_base_fields:
-                    summary_row.set(field, totals[field])
-                processed_zones.add(zone_name)
-            else:
-                # [삭제 대상] 이 Zone이 계산 결과에 없으면, 나중에 삭제 (여기서는 일단 넘어감)
-                # Frappe에서는 before_save에서 자식 행을 직접 삭제하는 것이 복잡할 수 있음
-                summary_row.total_lm = 0
-                summary_row.total_square_m = 0
-                summary_row.zone_color = ""
-                summary_row.ch = ""
-                summary_row.ph = ""
+                    val = totals[field]
+                    if field in ('ceiling_visible', 'base_visible_h') and val is None:
+                        val = 0
+                    update_vals[field] = val
 
-                for field in color_fields:
-                    summary_row.set(f"zone_{field}", None)
+                frappe.db.set_value("Zone", zone_name, update_vals, update_modified=False)
 
-                for field in cl_base_fields:
-                    # int 타입인지 확인 후 0 또는 None 설정 (여기서는 편의상 None/0 구분)
-                    if field in ['ceiling_visible', 'base_visible_h']:
-                        summary_row.set(field, 0)
-                    else:
-                        summary_row.set(field, None)
-
-        # 🔥 3. 새로운 Zone이 있다면 추가
-        # for zone_name, totals in zone_totals.items():
-        #     if zone_name not in processed_zones:
-        #         self.append("zone_summary", {
-        #             "zone": zone_name,
-        #             "product_type": frappe.db.get_value("Zone", zone_name, "product_type"), # 새 Zone은 product_type 조회 필요
-        #             "total_lm": totals["lm"],
-        #             "total_square_m": totals["square_m"],
-        #             "product_color": ", ".join(sorted(list(totals["colors"])))
-        #         })
-        
         self.grand_total_lm = grand_total_lm
         self.grand_total_square_m = grand_total_square_m
-        
+
+        # Zone doctype에 lm/square_m 동기화
+        for zone_name, totals in zone_totals.items():
+            if frappe.db.exists("Zone", zone_name):
+                frappe.db.set_value("Zone", zone_name, {
+                    "lm": totals["lm"],
+                    "square_m": totals["square_m"]
+                }, update_modified=False)
 
     def set_reference_id(self):
         parent_name = {row.idx: row.name for row in self.finished_items}
@@ -1003,45 +981,58 @@ def get_hw_spec_summary(doc_dict):
 
 
 @frappe.whitelist()
-def create_zone_and_add_to_summary(project, zone_name, product_type):
-    """
-    새로운 Zone 문서를 생성하고, 생성된 문서의 정보를 반환합니다.
-    """
+def create_zone_and_add_to_summary(project, zone_name, product_type, sales_order=None):
+    """새로운 Zone 문서를 생성하고, 생성된 문서의 정보를 반환합니다."""
     if not all([project, zone_name, product_type]):
-        frappe.throw(("Project, Zone Name, and Product Type are required."))
+        frappe.throw("Project, Zone Name, and Product Type are required.")
 
-    # 이미 동일한 Zone 코드가 있는지 확인 (선택 사항이지만 권장)
-    if frappe.db.exists("Zone", {"project": project, "zone_name": zone_name, "product_type": product_type}):
-        existing_zone = frappe.db.get_value("Zone", {"project": project, "zone_name": zone_name, "product_type": product_type}, "name")
-        return {
-            "name": existing_zone, # 기존에 존재하는 Zone의 고유 ID
-            "zone_name": zone_name,
-            "product_type": product_type
-        }
+    so_ref = ""
+    if sales_order:
+        parts = sales_order.split("-")
+        so_ref = "-".join(parts[-3:]) if len(parts) >= 3 else sales_order
+
+    filters = {"project": project, "zone_name": zone_name, "product_type": product_type}
+    if sales_order:
+        filters["sales_order"] = sales_order
+
+    if frappe.db.exists("Zone", filters):
+        existing_zone = frappe.db.get_value("Zone", filters, "name")
+        return {"name": existing_zone, "zone_name": zone_name, "product_type": product_type}
 
     try:
-        # 1. Zone Doctype에 새로운 문서를 생성합니다.
         new_zone = frappe.new_doc("Zone")
         new_zone.project = project
-        # 'Zone' Doctype의 Naming Rule이 'field:zone_code'로 설정되어 있다고 가정합니다.
-        # 'zone_name' 필드명이 실제 Doctype과 다를 경우 수정해야 합니다.
         new_zone.zone_name = zone_name
         new_zone.product_type = product_type
-        
-        # 문서를 데이터베이스에 저장합니다.
+        new_zone.sales_order = sales_order
+        new_zone.so_ref = so_ref
+        new_zone.ceiling_visible = 0
+        new_zone.base_visible_h = 0
         new_zone.insert(ignore_permissions=True)
 
-        # 2. 성공적으로 생성된 문서의 정보를 클라이언트로 반환합니다.
-        return {
-            "name": new_zone.name, # 새로 생성된 Zone의 고유 ID
-            "zone_name": new_zone.zone_name,
-            "product_type": new_zone.product_type
-        }
+        return {"name": new_zone.name, "zone_name": new_zone.zone_name, "product_type": new_zone.product_type}
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Create Zone Error")
-        # 에러를 클라이언트로 전송하여 사용자에게 보여줍니다.
         frappe.throw(str(e))
+
+
+@frappe.whitelist()
+def get_zones_for_project(project, sales_order=None):
+    """프로젝트 및 Sales Order에 속한 Zone 목록을 반환합니다."""
+    filters = {"project": project}
+    if sales_order:
+        filters["sales_order"] = sales_order
+
+    zones = frappe.get_all("Zone",
+        filters=filters,
+        fields=["name", "zone_name", "product_type", "lm", "square_m",
+                "zone_overall_color", "ch", "ph", "clch_type", "ceiling_visible",
+                "base_type", "base_visible_h", "sales_order"],
+        order_by="zone_name asc",
+        limit_page_length=0
+    )
+    return zones
 
 
 @frappe.whitelist()
@@ -1054,15 +1045,24 @@ def duplicate_zone_with_items(project, sales_order_docname, source_zone, new_zon
         frappe.throw("All required parameters are missing.")
     
     try:
-        # 1. Zone 생성 또는 조회
+        # 1. Zone 생성 또는 조회 (SO별 구분)
+        so_ref = ""
+        parts = sales_order_docname.split("-")
+        so_ref = "-".join(parts[-3:]) if len(parts) >= 3 else sales_order_docname
+
         new_zone_id = None
-        if frappe.db.exists("Zone", {"project": project, "zone_name": new_zone_name, "product_type": new_product_type}):
-            new_zone_id = frappe.db.get_value("Zone", {"project": project, "zone_name": new_zone_name, "product_type": new_product_type}, "name")
-        else: 
+        dup_filters = {"project": project, "zone_name": new_zone_name, "product_type": new_product_type, "sales_order": sales_order_docname}
+        if frappe.db.exists("Zone", dup_filters):
+            new_zone_id = frappe.db.get_value("Zone", dup_filters, "name")
+        else:
             new_zone = frappe.new_doc("Zone")
             new_zone.project = project
             new_zone.zone_name = new_zone_name
             new_zone.product_type = new_product_type
+            new_zone.sales_order = sales_order_docname
+            new_zone.so_ref = so_ref
+            new_zone.ceiling_visible = 0
+            new_zone.base_visible_h = 0
             new_zone.insert(ignore_permissions=True)
             new_zone_id = new_zone.name
 

@@ -14,7 +14,17 @@ frappe.ui.form.on("Clestra Quotation", {
 
 
 	refresh: function (frm) {
-		setup_item_grid(frm)
+		setup_item_grid(frm);
+		setup_desc_subrows(frm);
+		fill_missing_descriptions(frm);
+
+		// quotation_master 필드: item_code에 따른 동적 필터
+		frm.set_query('quotation_master', 'items', function(doc, cdt, cdn) {
+			let row = locals[cdt][cdn];
+			return {
+				filters: { 'item_code': row.item_code || '' }
+			};
+		});
 	},
 });
 
@@ -23,15 +33,17 @@ frappe.ui.form.on("Clestra Quotation Item", {
 		let row = locals[cdt][cdn];
 
 		if (row.item_code) {
-			// Quotation Pricing Doctype에서 item_code가 일치하는 target_price를 가져옴
-			frappe.db.get_value('Quotation Pricing', {'item_code': row.item_code}, 'target_price')
-				.then(r => {
-					if (r && r.message) {
-						frappe.model.set_value(cdt, cdn, 'rate', r.message.target_price);
-						
-						frm.refresh_field('items');
+			// Quotation Master 자동 설정 + rate/description 로드
+			frappe.call({
+				method: "clestra_app.clestra_selling.doctype.clestra_quotation.clestra_quotation.get_quotation_master_desc",
+				args: { item_code: row.item_code },
+				callback: function(r) {
+					if (r.message && r.message.name) {
+						frappe.model.set_value(cdt, cdn, 'quotation_master', r.message.name);
+						apply_quotation_master(frm, cdt, cdn, r.message);
 					}
-				});
+				}
+			});
 			frappe.db.get_value('Item', row.item_code, 'stock_uom')
 				.then(r => {
 					if (r && r.message) {
@@ -41,12 +53,12 @@ frappe.ui.form.on("Clestra Quotation Item", {
 				});
 			frappe.db.get_list('VP Rate', {
 				filters: {'company': frm.doc.company},
-				fields: ['rate'],
-				order_by: 'creation desc', // 생성일 역순 (최신순)
-				limit: 1 // 1개만 가져옴
+				fields: ['name', 'rate'],
+				order_by: 'creation desc',
+				limit: 1
 			}).then(res => {
 				if (res && res.length > 0) {
-					frappe.model.set_value(cdt, cdn, 'vp_rate', res[0].rate);
+					frappe.model.set_value(cdt, cdn, 'vp_rate', res[0].name);
 				}
 			});
 			refresh_row_rate(frm, cdt, cdn);
@@ -54,16 +66,38 @@ frappe.ui.form.on("Clestra Quotation Item", {
 			frappe.model.set_value(cdt, cdn, 'rate', 0);
 		}
 	},
-	ch: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); },
-    width: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); },
+	ch: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); frm.fields_dict.items.grid.refresh(); },
+    width: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); frm.fields_dict.items.grid.refresh(); },
 
 	// glass_type_a: function(frm, cdt, cdn) {fetch_glass_rate(frm, cdt, cdn, 'glass_type_a', 'glass_thk_a', 'glass_cost_a');},
     // glass_thk_a: function(frm, cdt, cdn) {fetch_glass_rate(frm, cdt, cdn, 'glass_type_a', 'glass_thk_a', 'glass_cost_a');},
     // glass_type_b: function(frm, cdt, cdn) {fetch_glass_rate(frm, cdt, cdn, 'glass_type_b', 'glass_thk_b', 'glass_cost_b');},
     // glass_thk_b: function(frm, cdt, cdn) {fetch_glass_rate(frm, cdt, cdn, 'glass_type_b', 'glass_thk_b', 'glass_cost_b');},
 
-    glass_cost_a: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); },
-    glass_cost_b: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); },
+	quotation_master: function(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		console.log('[QM] quotation_master changed to:', row.quotation_master);
+		if (row.quotation_master) {
+			// 모든 캐시를 우회하여 서버에서 직접 가져옴
+			fetch(`/api/method/clestra_app.clestra_selling.doctype.clestra_quotation.clestra_quotation.get_quotation_master_by_name`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Frappe-CSRF-Token': frappe.csrf_token
+				},
+				body: JSON.stringify({ name: row.quotation_master })
+			})
+			.then(res => res.json())
+			.then(data => {
+				const qm = data.message;
+				console.log('[QM] fetch response:', qm.name, 'desc:', (qm.quotation_desc || '').substring(0, 100));
+				if (qm) apply_quotation_master(frm, cdt, cdn, qm);
+			});
+		}
+	},
+
+    glass_cost_a: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); frm.fields_dict.items.grid.refresh(); },
+    glass_cost_b: function(frm, cdt, cdn) { refresh_row_rate(frm, cdt, cdn); frm.fields_dict.items.grid.refresh(); },
 
 	qty: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
@@ -212,11 +246,12 @@ function setup_item_grid(frm) {
 			}
 
 			const COL_RESIZE_CONFIG = {
-				'item_code': '15%',
-				'qty': '10%',
-				'ch': '10%',
-				'width': '10%',
-				'glass_btn': '10%',
+				'item_code': '14%',
+				'quotation_master': '12%',
+				'qty': '5%',
+				'ch': '7%',
+				'width': '7%',
+				'glass_btn': '7%',
 				'rate': '10%',
 				'amount': '10%',
 			};
@@ -471,4 +506,117 @@ function update_dialog_glass_cost(dialog, suffix) {
         // 조건이 맞지 않으면 단가를 0으로 초기화
         dialog.set_value(cost_fieldname, 0);
     }
+}
+
+// ─── Quotation Master 적용 ───
+
+function apply_quotation_master(frm, cdt, cdn, qm) {
+    // HTML을 텍스트로 변환하여 로그 표시
+    const tmp = document.createElement('div');
+    tmp.innerHTML = qm.quotation_desc || '';
+    const desc_text = tmp.textContent || tmp.innerText || '';
+
+    console.log('[QM] ===== apply_quotation_master =====');
+    console.log('[QM] Q-Master name:', qm.name);
+    console.log('[QM] Q-Master quotation_desc (text):', desc_text);
+
+    frappe.model.set_value(cdt, cdn, 'rate', qm.target_price);
+    frappe.model.set_value(cdt, cdn, 'item_description', qm.quotation_desc || '');
+
+    const row = locals[cdt][cdn];
+    const tmp2 = document.createElement('div');
+    tmp2.innerHTML = row.item_description || '';
+    const row_desc_text = tmp2.textContent || tmp2.innerText || '';
+
+    console.log('[QM] row.item_description (text):', row_desc_text);
+    console.log('[QM] MATCH:', desc_text === row_desc_text);
+    console.log('[QM] =====================================');
+
+    frm.refresh_field('items');
+}
+
+// ─── Item Description ───
+
+// 템플릿의 {변수명}을 row 데이터로 치환
+function render_item_description(template, row) {
+    if (!template) return '';
+    // 템플릿에서 변수 찾기 디버그
+    const found_vars = template.match(/\{(\w+)\}/g);
+    console.log('[DESC] template vars found:', found_vars);
+    return template.replace(/\{(\w+)\}/g, function (match, key) {
+        const val = row[key];
+        console.log('[DESC] replace:', match, '→ key:', key, '→ val:', val);
+        if (val === undefined || val === null || val === '') return match;
+        return val;
+    });
+}
+
+
+// 기존 items에 item_description이 없는 경우 자동 채우기
+function fill_missing_descriptions(frm) {
+    (frm.doc.items || []).forEach(row => {
+        if (row.item_code && !row.item_description) {
+            const qm_name = row.quotation_master;
+            const method = qm_name
+                ? "clestra_app.clestra_selling.doctype.clestra_quotation.clestra_quotation.get_quotation_master_by_name"
+                : "clestra_app.clestra_selling.doctype.clestra_quotation.clestra_quotation.get_quotation_master_desc";
+            const args = qm_name ? { name: qm_name } : { item_code: row.item_code };
+
+            frappe.call({
+                method: method,
+                args: args,
+                async: false,
+                callback: function(r) {
+                    if (r.message && r.message.quotation_desc) {
+                        row.item_description = r.message.quotation_desc;
+                    }
+                    if (r.message && r.message.name && !row.quotation_master) {
+                        row.quotation_master = r.message.name;
+                    }
+                }
+            });
+        }
+    });
+    const grid = frm.fields_dict.items && frm.fields_dict.items.grid;
+    if (grid) _render_desc_subrows(grid);
+}
+
+// grid.refresh monkey patch — refresh 후 항상 desc subrow를 렌더링
+function setup_desc_subrows(frm) {
+    const grid = frm.fields_dict.items && frm.fields_dict.items.grid;
+    if (!grid) return;
+
+    if (!grid._desc_patched) {
+        const orig_refresh = grid.refresh;
+        grid.refresh = function () {
+            orig_refresh.apply(this, arguments);
+            _render_desc_subrows(grid);
+        };
+        grid._desc_patched = true;
+    }
+
+    // 초기 렌더링
+    _render_desc_subrows(grid);
+}
+
+function _render_desc_subrows(grid) {
+    $(grid.wrapper).find('.desc-subrow').remove();
+
+    if (!grid.grid_rows) return;
+
+    grid.grid_rows.forEach(grid_row => {
+        const doc = grid_row.doc;
+        if (!doc.item_description) return;
+
+        // 표시 시점에 변수 치환 — doc의 현재 값 반영
+        console.log('[DESC] render vars:', 'ch:', doc.ch, 'width:', doc.width, 'glass_thk_a:', doc.glass_thk_a, 'glass_type_b:', doc.glass_type_b, 'item_code:', doc.item_code);
+        const rendered = render_item_description(doc.item_description, doc);
+
+        const $row = $(grid_row.row);
+        $row.after(`<div class="desc-subrow" style="
+            padding: 2px 12px 4px 60px;
+            font-size: 11px; color: #6c757d; line-height: 1.4;
+            border-bottom: 1px solid var(--border-color, #eee);
+        ">${rendered}</div>`);
+    });
 }

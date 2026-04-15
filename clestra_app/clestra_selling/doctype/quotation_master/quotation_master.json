@@ -15,6 +15,7 @@
   "id_code",
   "uom",
   "item_vp",
+  "refresh_vp",
   "column_break_njlr",
   "company",
   "is_active",
@@ -70,6 +71,7 @@
   "column_break_eopk",
   "formula_section_section",
   "aa10_formula",
+  "aa10_skip",
   "column_break_psoc",
   "column_break_acyn",
   "aa10_result",
@@ -81,6 +83,7 @@
   "section_break_uock",
   "column_break_vwbq",
   "ac40_formula",
+  "ac40_skip",
   "ac40_formula_detail",
   "column_break_ikmy",
   "is_tempered_a",
@@ -97,6 +100,7 @@
   "ac40_calc",
   "section_break_wyum",
   "ab20_formula",
+  "ab20_skip",
   "ab20_formula_detail",
   "column_break_naud",
   "inst_type",
@@ -107,20 +111,28 @@
   "section_break_uzct",
   "column_break_fjxk",
   "ab44_formula",
+  "ab44_skip",
   "ab44_formula_detail",
   "ac33_formula",
+  "ac33_skip",
   "ac33_formula_detail",
   "ab30_formula",
+  "ab30_skip",
   "ab30_formula_detail",
   "ac34_formula",
+  "ac34_skip",
   "ac34_formula_detail",
   "ad43_formula",
+  "ad43_skip",
   "ac43_formula_detail",
   "ad41_formula",
+  "ad41_skip",
   "ad41_formula_detail",
   "ab52_formula",
+  "ab52_skip",
   "ab52_formula_detail",
   "sp1_formula",
+  "sp1_skip",
   "sp1_formula_detail",
   "column_break_zjuc",
   "column_break_rlie",
@@ -140,8 +152,14 @@
   "ab52_calc",
   "sp1_result",
   "sp1_calc",
+  "section_break_cost_codes",
+  "cost_code_items",
   "materials_section",
   "items",
+  "description_tab",
+  "section_desc_template",
+  "desc_variables_html",
+  "quotation_desc",
   "more_info_tab",
   "item_name",
   "description",
@@ -158,6 +176,7 @@
    "fieldname": "item_code",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Item Code",
    "link_filters": "[[\"Item\",\"item_group\",\"=\",\"Finished Product\"]]",
    "options": "Item",
@@ -312,82 +331,165 @@
    "fieldname": "aa10_formula",
    "fieldtype": "Link",
    "label": "AA10 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AA10%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "aa10_skip",
+   "fieldtype": "Check",
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ac40_formula",
    "fieldtype": "Link",
    "label": "AC40 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AC40%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ac40_skip",
+   "fieldtype": "Check",
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ab20_formula",
    "fieldtype": "Link",
    "label": "AB20 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AB20%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ab20_skip",
+   "fieldtype": "Check",
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ab44_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AB44 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AB44%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ab44_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ac33_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AC33 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AC33%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ac33_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ab30_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AB30 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AB30%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ab30_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ac34_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AC34 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AC34%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ac34_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ad43_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AD43 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AD43%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ad43_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ad41_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AD41 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AD41%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ad41_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "ab52_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "AB52 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%AB52%\"]]",
    "options": "Formula Library"
+  },
+  {
+   "default": "0",
+   "fieldname": "ab52_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
   },
   {
    "fieldname": "sp1_formula",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "SP1 Formula",
-   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"]]",
+   "link_filters": "[[\"Formula Library\",\"category\",\"=\",\"Quotation\"],[\"Formula Library\",\"formula_name\",\"like\",\"%SP1%\"]]",
    "options": "Formula Library"
   },
   {
+   "default": "0",
+   "fieldname": "sp1_skip",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Exclude Calculation"
+  },
+  {
    "fieldname": "column_break_rlie",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
    "columns": 1,
@@ -414,6 +516,7 @@
    "columns": 1,
    "fieldname": "ab44_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AB44 (Cleaning)"
   },
@@ -421,6 +524,7 @@
    "columns": 1,
    "fieldname": "ac33_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AC33 (Caulking)"
   },
@@ -428,6 +532,7 @@
    "columns": 1,
    "fieldname": "ab30_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AB30 (Transp.)"
   },
@@ -435,6 +540,7 @@
    "columns": 1,
    "fieldname": "ac34_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AC34 (HW)"
   },
@@ -442,6 +548,7 @@
    "columns": 1,
    "fieldname": "ad43_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AD43 (Waste)"
   },
@@ -449,6 +556,7 @@
    "columns": 1,
    "fieldname": "ad41_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AD41 (Contingency)"
   },
@@ -456,6 +564,7 @@
    "columns": 1,
    "fieldname": "ab52_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "AB52 (PM)"
   },
@@ -463,8 +572,20 @@
    "columns": 1,
    "fieldname": "sp1_result",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "SP1 (Royalty)"
+  },
+  {
+   "fieldname": "section_break_cost_codes",
+   "fieldtype": "Section Break",
+   "label": "Additional Cost Codes"
+  },
+  {
+   "fieldname": "cost_code_items",
+   "fieldtype": "Table",
+   "label": "Cost Code Items",
+   "options": "Quotation Cost Code Item"
   },
   {
    "fieldname": "materials_section",
@@ -476,6 +597,26 @@
    "fieldtype": "Table",
    "label": "Items",
    "options": "QBOM Item"
+  },
+  {
+   "fieldname": "description_tab",
+   "fieldtype": "Tab Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "section_desc_template",
+   "fieldtype": "Section Break",
+   "label": "Quotation Description"
+  },
+  {
+   "fieldname": "desc_variables_html",
+   "fieldtype": "HTML",
+   "label": "Available Variables"
+  },
+  {
+   "fieldname": "quotation_desc",
+   "fieldtype": "Text Editor",
+   "label": "Quotation Description"
   },
   {
    "fieldname": "more_info_tab",
@@ -501,7 +642,7 @@
    "ignore_user_permissions": 1,
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Quotation Pricing",
+   "options": "Quotation Master",
    "read_only": 1
   },
   {
@@ -512,6 +653,11 @@
    "fieldname": "item_vp",
    "fieldtype": "Int",
    "label": "Item VP"
+  },
+  {
+   "fieldname": "refresh_vp",
+   "fieldtype": "Button",
+   "label": "Refresh VP"
   },
   {
    "fieldname": "mat_margin",
@@ -583,15 +729,18 @@
   },
   {
    "fieldname": "section_break_uzct",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
    "fieldname": "column_break_fjxk",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
    "fieldname": "column_break_zjuc",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
    "fieldname": "inst_type",
@@ -819,48 +968,56 @@
    "fetch_from": "ab44_formula.formula",
    "fieldname": "ab44_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ac33_formula.formula",
    "fieldname": "ac33_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ab30_formula.formula",
    "fieldname": "ab30_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ac34_formula.formula",
    "fieldname": "ac34_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ad43_formula.formula",
    "fieldname": "ac43_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ad41_formula.formula",
    "fieldname": "ad41_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "ab52_formula.formula",
    "fieldname": "ab52_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
    "fetch_from": "sp1_formula.formula",
    "fieldname": "sp1_formula_detail",
    "fieldtype": "Code",
+   "hidden": 1,
    "read_only": 1
   },
   {
@@ -872,41 +1029,49 @@
   {
    "fieldname": "ab44_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ac33_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ab30_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ac34_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ad43_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ad41_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "ab52_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
    "fieldname": "sp1_calc",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Calc"
   },
   {
@@ -944,10 +1109,10 @@
   }
  ],
  "links": [],
- "modified": "2026-03-10 10:04:19.888300",
+ "modified": "2026-04-10 15:51:11.095296",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
- "name": "Quotation Pricing",
+ "name": "Quotation Master",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [

@@ -9,18 +9,16 @@ import re
 import logging
 
 # Logger 설정
-logger = frappe.logger("quotation_pricing", allow_site=True)
+logger = frappe.logger("quotation_master", allow_site=True)
 logger.setLevel(logging.DEBUG)
 
-# Quotation Pricing 고정 필드 변수 (수식에서 자동으로 사용 가능)
+# Quotation Master 고정 필드 변수 (수식에서 자동으로 사용 가능)
 FIXED_FIELDS = {
 	"item_vp", "vp_rate", "mat_rate", "glass_rate", "inst_rate", "other_rate",
 	"mat_margin", "ch_surcharge_rate", "pm_reserve_rate", "royalty_rate",
 	"width", "ch", "stnd_ch", "lh", "height", "buffer_width", "buffer_rate",
 	"glass_cost_a", "glass_cost_b",
 }
-
-
 
 # 수식에서 변수 추출용 정규식
 VAR_REGEX = r'\b(?![0-9])([a-zA-Z_][a-zA-Z0-9_]*)\b'
@@ -33,8 +31,16 @@ EXCLUDED_NAMES = {
 }
 
 
-class QuotationPricing(Document):
-	pass
+class QuotationMaster(Document):
+	def before_save(self):
+		logger.debug(f"[QM SAVE] {self.name} quotation_desc length: {len(self.quotation_desc or '')}")
+		logger.debug(f"[QM SAVE] quotation_desc first 200: {(self.quotation_desc or '')[:200]}")
+
+	def on_update(self):
+		# DB에 실제 저장된 값 확인
+		db_val = frappe.db.get_value("Quotation Master", self.name, "quotation_desc")
+		logger.debug(f"[QM ON_UPDATE] DB quotation_desc length: {len(db_val or '')}")
+		logger.debug(f"[QM ON_UPDATE] DB first 200: {(db_val or '')[:200]}")
 
 
 @frappe.whitelist()
@@ -47,38 +53,31 @@ def get_formula_variables(formula_name):
 	if not formula:
 		return []
 
-	# 수식에서 모든 식별자 추출
 	all_vars = set(re.findall(VAR_REGEX, formula))
-
-	# 고정 필드, Python 키워드 제외 → child table 변수로 취급
 	needed_vars = [v for v in all_vars if v not in FIXED_FIELDS and v not in EXCLUDED_NAMES]
-
-	# 정렬하여 반환
 	return needed_vars
 
 
 @frappe.whitelist()
 def get_vp(item_code, height=None, width=None, qty=None):
 	if not item_code:
-		return {"price": 0, "unit": None, "is_vp": False}
+		return {"price": 0, "unit": None, "is_vp": False, "reason": "Item Code가 입력되지 않았습니다."}
 
 	try:
-		# 1. Item 기본 정보 가져오기
 		item_doc = frappe.get_value(
-			"Item", 
-			item_code, 
-			["vp_rate", "standard_rate", "include_lm"], 
+			"Item",
+			item_code,
+			["vp_rate", "standard_rate", "include_lm"],
 			as_dict=True
 		)
 		if not item_doc:
-			return {"price": 0, "unit": None, "is_vp": False}
+			return {"price": 0, "unit": None, "is_vp": False, "reason": f"Item '{item_code}'을(를) 찾을 수 없습니다."}
 
 		target_price = 0
 		target_unit = "/M2" if item_doc.include_lm else None
 		is_vp = False
-		
-		# 2. VP Management 검색
-		# get_doc 대신 db.get_values를 사용하여 필요한 child table 데이터만 가져오면 더 가볍습니다.
+		reason = ""
+
 		vp_doc_name = frappe.db.get_value("VP Management", {"product_name": item_code})
 		if vp_doc_name:
 			vp_doc = frappe.get_doc("VP Management", vp_doc_name)
@@ -92,15 +91,13 @@ def get_vp(item_code, height=None, width=None, qty=None):
 					is_vp = True
 				else:
 					if dimension_rule == "ALL" and not (height and width):
-						return {"price": 0, "unit": None} # 둘 다 필요
+						return {"price": 0, "unit": None, "is_vp": False, "reason": "VP 조회에 CH(높이)와 Width(폭) 값이 모두 필요합니다."}
 					elif dimension_rule == "HEIGHT" and not height:
-						return {"price": 0, "unit": None} # height만 필요
+						return {"price": 0, "unit": None, "is_vp": False, "reason": "VP 조회에 CH(높이) 값이 필요합니다."}
 					elif dimension_rule == "WIDTH" and not width:
-						return {"price": 0, "unit": None} # width만 필요
+						return {"price": 0, "unit": None, "is_vp": False, "reason": "VP 조회에 Width(폭) 값이 필요합니다."}
 
-					# 유효성 검사를 통과했으므로, 값을 숫자로 변환합니다.
-					# 값이 없는 경우는 위에서 걸러졌으므로 'or 0'이 없어도 안전합니다.
-					so_height = flt(height) 
+					so_height = flt(height)
 					so_width = flt(width)
 
 					for vp_row in vp_table:
@@ -111,7 +108,7 @@ def get_vp(item_code, height=None, width=None, qty=None):
 
 						height_match = (so_height > height_from) and (so_height <= height_to)
 						width_match = (so_width > width_from) and (so_width <= width_to)
-						
+
 						match_found = False
 						if dimension_rule == "ALL" and height_match and width_match:
 							match_found = True
@@ -119,80 +116,106 @@ def get_vp(item_code, height=None, width=None, qty=None):
 							match_found = True
 						elif dimension_rule == "WIDTH" and width_match:
 							match_found = True
-						
+
 						if match_found:
 							target_price = vp_row.vp
 							is_vp = True
 							break
-			
-		else: # 그 외 product_section
+
+					if not is_vp:
+						reason = f"VP 테이블에서 CH={height}, Width={width} 에 해당하는 구간을 찾을 수 없습니다."
+			else:
+				reason = f"VP Management '{vp_doc_name}'에 VP 테이블 데이터가 없습니다."
+
+		else:
 			if flt(item_doc.vp_rate) > 0:
 				target_price = item_doc.vp_rate
 				is_vp = True
 			else:
 				target_price = item_doc.standard_rate
-
-		# (이하 수량 계산 및 반환 로직은 이전과 동일)
-		# try:
-		#     quantity = flt(qty or 1)
-		# except (ValueError, TypeError):
-		#     quantity = 1
-		
-		# final_price = flt(target_price) * quantity
+				reason = "VP Management가 없어 Standard Rate를 사용합니다." if target_price else "VP Management가 없고 Standard Rate도 0입니다."
 
 		if item_doc.include_lm:
 			target_unit = "/M2"
 
-		return {"price": target_price, "unit": target_unit, "is_vp": is_vp}
+		return {"price": target_price, "unit": target_unit, "is_vp": is_vp, "reason": reason}
 
 	except Exception as e:
 		frappe.log_error(f"Price calculation failed for {item_code}: {e}", "VP Price Calculation")
-		return {"price": 0, "unit": None, is_vp: False}
-	
+		return {"price": 0, "unit": None, "is_vp": False, "reason": f"VP 조회 중 오류 발생: {str(e)}"}
+
 
 @frappe.whitelist()
-def calculate_cost(field, formula_name, doc=None):
+def get_installation_cost(item_code, field):
+	"""Estimate Installation Cost의 콤마 구분 item_code 필드에서 정확히 매칭되는 문서를 찾아 단가를 반환"""
+	if not item_code or not field:
+		return 0
+
+	valid_fields = {"metro_new_inst", "metro_dismantle", "metro_reinst", "reg_new_inst", "reg_dismantle", "reg_reinst"}
+	if field not in valid_fields:
+		return 0
+
+	rows = frappe.db.sql(
+		f"SELECT item_code, `{field}` as rate FROM `tabEstimate Installation Cost`",
+		as_dict=True
+	)
+
+	for row in rows:
+		items = [v.strip() for v in (row.item_code or "").split(",")]
+		if item_code in items:
+			return flt(row.rate)
+
+	return 0
+
+
+@frappe.whitelist()
+def calculate_cost(field, formula_name, doc=None, skip_fields=None):
 	formula = frappe.db.get_value("Formula Library", formula_name, "formula")
 	if not formula:
 		return {"status": "error", "message": "Formula not found"}
 
+	if isinstance(skip_fields, str):
+		import json as _json
+		skip_fields = _json.loads(skip_fields)
+	skip_set = set(skip_fields or [])
+
 	context = {
-        'math': math,
-        'ceil': math.ceil,
-        'floor': math.floor,
-        'round': round,
-        'abs': abs
-    }
+		'math': math,
+		'ceil': math.ceil,
+		'floor': math.floor,
+		'round': round,
+		'abs': abs
+	}
 
 	if doc:
-		# 클라이언트에서 보낸 doc(dict)을 context에 업데이트
 		if isinstance(doc, str):
 			import json
 			doc = json.loads(doc)
 		context.update(doc)
 
-		# Child table 변수 추출
 		for key, value in doc.items():
 			if isinstance(value, list):
 				for row in value:
 					if isinstance(row, dict) and 'variable' in row and 'value' in row:
-						context[row['variable']] = row['value']
-	
+						context[row['variable']] = flt(row['value'])
+
 	try:
-		if isinstance(formula, str):  # 수식 또는 조건식으로 처리
-			# 필요한 변수 추출 및 누락 확인
+		if isinstance(formula, str):
 			all_vars = set(re.findall(VAR_REGEX, formula))
 			required_vars = [v for v in all_vars if v not in EXCLUDED_NAMES]
 			missing_vars = []
 			for v in required_vars:
 				val = context.get(v)
-				if val in (None, "", 0, 0.0, "0", "0.0"):
+				if val is None or val == "":
+					if v in skip_set:
+						context[v] = 0
+						continue
 					missing_vars.append(v)
-			
+
 			if missing_vars:
 				return {"status": "missing_vars", "missing_vars": missing_vars}
 
-			if "if" in formula: 
+			if "if" in formula:
 				exec(f"result = None\n{formula.replace('return', 'result =')}", {}, context)
 				return {"status": "success", "result": context.get("result")}
 			else:

@@ -223,7 +223,7 @@
    "fieldtype": "Link",
    "in_filter": 1,
    "label": "QBOM No",
-   "options": "Quotation Pricing",
+   "options": "Quotation Master",
    "print_width": "150px",
    "search_index": 1,
    "width": "150px"

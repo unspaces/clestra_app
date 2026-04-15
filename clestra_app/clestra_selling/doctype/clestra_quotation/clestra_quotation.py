@@ -21,7 +21,7 @@ class ClestraQuotation(Document):
 def get_row_total_rate(doc_context):
 	"""
 	Clestra Quotation 그리드 Row의 데이터를 기반으로 
-	Quotation Pricing 수식을 시뮬레이션하여 단가를 산출합니다.
+	Quotation Master 수식을 시뮬레이션하여 단가를 산출합니다.
 	"""
 	if isinstance(doc_context, str):
 		import json
@@ -29,10 +29,10 @@ def get_row_total_rate(doc_context):
 
 	item_code = doc_context.get("item_code")
 	
-	# 1. 마스터 데이터 로드 (Quotation Pricing)
-	pricing = frappe.db.get_value("Quotation Pricing", {"item_code": item_code}, "*", as_dict=True)
+	# 1. 마스터 데이터 로드 (Quotation Master)
+	pricing = frappe.db.get_value("Quotation Master", {"item_code": item_code}, "*", as_dict=True)
 	if not pricing:
-		return {"rate": 0, "error": "Quotation Pricing 마스터를 찾을 수 없습니다."}
+		return {"rate": 0, "error": "Quotation Master 마스터를 찾을 수 없습니다."}
 	
 
 	# 2. 계산 환경(Context) 초기화
@@ -138,4 +138,39 @@ def get_row_total_rate(doc_context):
 	}
 
 
+@frappe.whitelist()
+def get_quotation_master_desc(item_code):
+	"""Quotation Master에서 item_code에 해당하는 quotation_desc를 반환"""
+	if not item_code:
+		return {}
 
+	result = frappe.db.sql("""
+		SELECT name, target_price, quotation_desc, product_section
+		FROM `tabQuotation Master`
+		WHERE item_code = %s
+		ORDER BY (quotation_desc IS NOT NULL AND quotation_desc != '') DESC,
+			is_default DESC, creation DESC
+		LIMIT 1
+	""", item_code, as_dict=True)
+
+	if result:
+		return result[0]
+	return {}
+
+
+@frappe.whitelist()
+def get_quotation_master_by_name(name):
+	"""Quotation Master를 name으로 직접 조회"""
+	if not name:
+		return {}
+
+	result = frappe.db.sql("""
+		SELECT name, target_price, quotation_desc, product_section
+		FROM `tabQuotation Master`
+		WHERE name = %s
+		LIMIT 1
+	""", name, as_dict=True)
+
+	if result:
+		return result[0]
+	return {}

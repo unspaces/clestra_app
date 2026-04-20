@@ -304,11 +304,72 @@ def get_qr_item_info(token):
 			"description": child_data.product_position_desc,
 			"image": child_data.qr_image,
 		},
+		"detail_image": _get_detail_image_data(child_data, item_data),
 		"zone_breakdown": zone_breakdown,
 		"related_items": related_items,
 	}
 
 	return result
+
+
+def _get_detail_image_data(child_data, item_data):
+	"""Get detail image info for the QR scan page.
+
+	- No parent_item_code: show item's own image
+	- Has parent_item_code: show parent item's image, highlight current item via drawing-matcher
+
+	Image lookup priority: QR-{item_code}.png file → Item.image
+	"""
+	item_link = child_data.item_code  # This is Item.name (link value)
+	parent_item_link = item_data.get("parent_item_code", "")
+
+	# Get current item's image (QR- prefix first, then Item.image)
+	item_image = _lookup_item_image(item_link)
+
+	# No parent: show item image only
+	if not parent_item_link:
+		return {
+			"has_parent": False,
+			"item_image": item_image,
+			"parent_image": "",
+			"needs_matching": False,
+		}
+
+	# Has parent: get parent item's image
+	parent_image = _lookup_item_image(parent_item_link)
+
+	return {
+		"has_parent": True,
+		"item_image": item_image,
+		"parent_image": parent_image,
+		"needs_matching": bool(item_image and parent_image),
+	}
+
+
+def _lookup_item_image(item_link):
+	"""Look up an item's image with fallback.
+
+	Priority:
+	1. File with name QR-{item_code}.png (uses Item.item_code, not Item.name)
+	2. Item.image field
+	"""
+	if not item_link:
+		return ""
+
+	# Get the real item_code (suffix-stripped)
+	item_code = frappe.db.get_value("Item", item_link, "item_code") or item_link
+
+	# 1. Try QR- prefix file
+	qr_file = frappe.db.get_value(
+		"File",
+		{"file_name": f"QR-{item_code}.png"},
+		"file_url"
+	)
+	if qr_file:
+		return qr_file
+
+	# 2. Fallback to Item.image
+	return frappe.db.get_value("Item", item_link, "image") or ""
 
 
 @frappe.whitelist()
@@ -480,6 +541,192 @@ def increment_print_count_bulk(qr_lookup_name, child_row_names):
 	qr_lookup.save(ignore_permissions=True)
 	frappe.db.commit()
 	return results
+
+
+@frappe.whitelist()
+def resolve_item_codes(item_links):
+	"""Resolve Item.name (link value) to Item.item_code for display.
+
+	Args:
+		item_links: JSON list of Item.name values
+
+	Returns:
+		dict: {Item.name: Item.item_code}
+	"""
+	if isinstance(item_links, str):
+		item_links = json.loads(item_links)
+
+	if not item_links:
+		return {}
+
+	placeholders = ", ".join(["%s"] * len(item_links))
+	rows = frappe.db.sql(f"""
+		SELECT name, item_code FROM tabItem WHERE name IN ({placeholders})
+	""", item_links, as_dict=True)
+
+	return {r.name: r.item_code for r in rows}
+
+
+def ensure_item_qr_codes(pbm_name, child_row_names):
+	"""Ensure QR Item Lookup entries exist for given PBM child rows.
+
+	Creates missing QR codes automatically. Used by Project Packing List
+	when loading items to ensure all items have QR before packing.
+
+	Args:
+		pbm_name: Project Billing Master name
+		child_row_names: list of child row names from any PBM child table
+
+	Returns:
+		dict: {child_row_name: {"token": ..., "image": ...}}
+	"""
+	site_url = frappe.utils.get_url()
+	pbm = frappe.get_doc("Project Billing Master", pbm_name)
+	qr_lookup = _get_or_create_qr_lookup(pbm_name, pbm.project)
+
+	# Build existing QR map
+	existing_map = {}
+	for item in qr_lookup.items:
+		if item.pbm_child_name and item.qr_token:
+			existing_map[item.pbm_child_name] = {
+				"token": item.qr_token,
+				"image": item.qr_image,
+			}
+
+	result = {}
+	generated = 0
+
+	for row_name in child_row_names:
+		if row_name in existing_map:
+			result[row_name] = existing_map[row_name]
+			continue
+
+		row_data = frappe.db.get_value(
+			"Project Billing Master Sub Item", row_name,
+			["item_code", "item_name", "product_section", "product_type",
+			 "zone", "color", "size", "qty"],
+			as_dict=True
+		)
+		if not row_data or not row_data.item_code:
+			continue
+
+		token = frappe.generate_hash(length=10)
+		qr_url = f"{site_url}/qr_item?token={token}"
+		qr_png_data = _generate_qr_image(qr_url)
+
+		qr_lookup.append("items", {
+			"qr_token": token,
+			"pbm_child_name": row_name,
+			"item_code": row_data.item_code,
+			"item_name": row_data.item_name,
+			"product_section": row_data.product_section,
+			"product_type": row_data.product_type,
+			"zone": row_data.zone,
+			"color": row_data.color,
+			"size": row_data.size,
+			"qty": row_data.qty,
+			"print_count": 0,
+		})
+		qr_lookup.save(ignore_permissions=True)
+
+		file_doc = frappe.get_doc({
+			"doctype": "File",
+			"file_name": f"qr_{token}.png",
+			"attached_to_doctype": "QR Item Lookup",
+			"attached_to_name": qr_lookup.name,
+			"content": qr_png_data,
+			"is_private": 0,
+		})
+		file_doc.save(ignore_permissions=True)
+
+		for item in qr_lookup.items:
+			if item.qr_token == token:
+				item.qr_image = file_doc.file_url
+				break
+		qr_lookup.save(ignore_permissions=True)
+
+		frappe.db.set_value(
+			"Project Billing Master Sub Item", row_name,
+			"qr_token", token, update_modified=False
+		)
+
+		result[row_name] = {"token": token, "image": file_doc.file_url}
+		generated += 1
+
+	if generated:
+		qr_lookup.generated_on = frappe.utils.now_datetime()
+		qr_lookup.generated_by = frappe.session.user
+		qr_lookup.save(ignore_permissions=True)
+		frappe.db.commit()
+
+	return result
+
+
+DRAWING_MATCHER_URL = "http://100.77.234.10:8000"
+
+
+@frappe.whitelist(allow_guest=True)
+def get_detail_image(template_url, target_url):
+	"""Call drawing-matcher API to highlight template on target image.
+
+	Args:
+		template_url: URL path of the current item's image (e.g. /files/item.png)
+		target_url: URL path of the parent item's image
+
+	Returns:
+		dict with highlighted_image (base64 data URI) or error
+	"""
+	import requests
+
+	site_url = frappe.utils.get_url()
+
+	try:
+		# Download both images from frappe file system
+		template_path = frappe.get_site_path("public", template_url.lstrip("/"))
+		target_path = frappe.get_site_path("public", target_url.lstrip("/"))
+
+		with open(template_path, "rb") as f:
+			template_bytes = f.read()
+		with open(target_path, "rb") as f:
+			target_bytes = f.read()
+
+		# Call drawing-matcher API
+		resp = requests.post(
+			f"{DRAWING_MATCHER_URL}/api/match",
+			files={
+				"template": ("template.png", template_bytes, "image/png"),
+				"target": ("target.png", target_bytes, "image/png"),
+			},
+			data={
+				"threshold": "0.6",
+				"contour_threshold": "0.3",
+				"feature_method": "sift",
+				"use_ollama": "false",
+			},
+			timeout=30,
+		)
+
+		if resp.status_code == 200:
+			result = resp.json()
+			if result.get("highlighted_image_base64"):
+				return {
+					"status": "success",
+					"highlighted_image": f"data:image/png;base64,{result['highlighted_image_base64']}",
+					"matches_count": len(result.get("matches", [])),
+				}
+			return {
+				"status": "no_match",
+				"message": _("No matching region found."),
+			}
+		else:
+			return {"status": "error", "message": f"Drawing matcher returned {resp.status_code}"}
+
+	except FileNotFoundError:
+		return {"status": "error", "message": _("Image file not found.")}
+	except requests.exceptions.ConnectionError:
+		return {"status": "error", "message": _("Drawing matcher service unavailable.")}
+	except Exception as e:
+		return {"status": "error", "message": str(e)}
 
 
 def _generate_qr_image(data):

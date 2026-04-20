@@ -5,7 +5,7 @@ frappe.ui.form.on('Project Packing List', {
 	refresh: function(frm) {
 		render_pallet_qr_list(frm);
 		setup_items_toolbar(frm);
-		inject_load_btn_to_pbm_grid(frm);
+		render_pbm_display(frm);
 
 		const grid = frm.fields_dict['items']?.grid;
 		if (grid) {
@@ -97,6 +97,7 @@ frappe.ui.form.on('Project Packing List', {
 				});
 				frm.refresh_field('pbm_items');
 				frm.dirty();
+				render_pbm_display(frm);
 			}
 		});
 	}
@@ -114,23 +115,65 @@ frappe.ui.form.on('Packing List Detail', {
 // ============================================================
 // Load Items button in pbm_items grid footer
 // ============================================================
-function inject_load_btn_to_pbm_grid(frm) {
-	const grid = frm.fields_dict['pbm_items']?.grid;
-	if (!grid || !grid.wrapper) return;
+function render_pbm_display(frm) {
+	const wrapper = frm.fields_dict.pbm_display?.$wrapper;
+	if (!wrapper) return;
 
-	// Hide Add Row and Delete buttons
-	grid.wrapper.find('.grid-add-row, .grid-remove-rows, .grid-remove-all-rows').hide();
+	const rows = frm.doc.pbm_items || [];
 
-	const $footer = grid.wrapper.find('.grid-footer');
-	if (!$footer.length || $footer.find('.ppl-load-btn').length) return;
+	if (!rows.length) {
+		wrapper.html(`<div class="text-muted" style="padding:8px 0;font-size:12px;">${__('No PBMs loaded. Select a project first.')}</div>`);
+		return;
+	}
 
-	const $btn = $(`<button class="btn btn-xs btn-primary ppl-load-btn">
+	let html = '<table class="table table-bordered table-sm ppl-pbm-table" style="font-size:12px;margin-bottom:4px;">';
+	html += `<thead><tr>
+		<th style="width:30px;"><input type="checkbox" class="pbm-check-all"></th>
+		<th>${__('Project Billing Master')}</th>
+		<th style="text-align:center;">${__('Door')}</th>
+		<th style="text-align:center;">${__('Leaf')}</th>
+		<th style="text-align:center;">${__('Panel')}</th>
+		<th style="text-align:center;">${__('Sub Items')}</th>
+	</tr></thead><tbody>`;
+
+	rows.forEach((row, i) => {
+		html += `<tr>
+			<td style="text-align:center;"><input type="checkbox" class="pbm-check" data-idx="${i}" data-pbm="${row.project_billing_master || ''}"></td>
+			<td><a href="/app/project-billing-master/${row.project_billing_master}" target="_blank">${row.project_billing_master || ''}</a></td>
+			<td style="text-align:center;">${row.door_count || 0}</td>
+			<td style="text-align:center;">${row.leaf_count || 0}</td>
+			<td style="text-align:center;">${row.panel_count || 0}</td>
+			<td style="text-align:center;">${row.sub_items_count || 0}</td>
+		</tr>`;
+	});
+
+	html += '</tbody></table>';
+	html += `<button class="btn btn-xs btn-primary ppl-load-btn">
 		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;">
 			<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
-		</svg>${__('Load Items')}</button>`);
+		</svg>${__('Load Items')}</button>`;
 
-	$btn.on('click', () => load_items_from_pbms(frm));
-	$footer.prepend($btn);
+	wrapper.html(html);
+
+	// Check all
+	wrapper.find('.pbm-check-all').on('change', function() {
+		wrapper.find('.pbm-check').prop('checked', $(this).prop('checked'));
+	});
+
+	// Load Items
+	wrapper.find('.ppl-load-btn').on('click', () => {
+		const checked = [];
+		wrapper.find('.pbm-check:checked').each(function() {
+			checked.push($(this).data('pbm'));
+		});
+
+		if (!checked.length) {
+			frappe.msgprint(__('Please check the PBMs you want to load.'));
+			return;
+		}
+
+		load_items_from_pbms(frm, checked);
+	});
 }
 
 function reinject_buttons(frm) {
@@ -275,18 +318,9 @@ function setup_items_toolbar(frm) {
 // ============================================================
 // Load PBM items (checked rows in pbm_items only)
 // ============================================================
-function load_items_from_pbms(frm) {
-	const pbmGrid = frm.fields_dict['pbm_items']?.grid;
-	const selected = pbmGrid?.get_selected_children();
-
-	if (!selected || !selected.length) {
-		frappe.msgprint(__('Please check the PBMs you want to load in the Billing Masters table.'));
-		return;
-	}
-
-	const pbmNames = selected.map(r => r.project_billing_master).filter(Boolean);
-	if (!pbmNames.length) {
-		frappe.msgprint(__('Selected PBM rows have no Project Billing Master set.'));
+function load_items_from_pbms(frm, pbmNames) {
+	if (!pbmNames || !pbmNames.length) {
+		frappe.msgprint(__('No PBMs selected.'));
 		return;
 	}
 

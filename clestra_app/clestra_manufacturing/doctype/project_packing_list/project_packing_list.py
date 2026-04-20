@@ -327,13 +327,19 @@ def load_pbm_items(pbm_names, existing_items_json=None):
 
 		for table_name in source_tables:
 			rows = frappe.db.sql("""
-				SELECT name, item_code, item_name, product_section, product_keyword,
-					zone, color, size, qty, old_idx, handle_direct, remark, parent_item_code
-				FROM `tabProject Billing Master Sub Item`
-				WHERE parent = %(pbm)s
-				  AND parentfield = %(table)s
-				  AND item_code IS NOT NULL AND item_code != ''
-				ORDER BY old_idx ASC, item_code ASC
+				SELECT psi.name, psi.item_code AS item_link,
+					COALESCE(itm.item_code, psi.item_code) AS item_code,
+					psi.item_name, psi.product_section, psi.product_keyword,
+					psi.zone, psi.color, psi.size, psi.qty, psi.old_idx,
+					psi.handle_direct, psi.remark,
+					COALESCE(pitm.item_code, psi.parent_item_code) AS parent_item_code
+				FROM `tabProject Billing Master Sub Item` psi
+				LEFT JOIN `tabItem` itm ON itm.name = psi.item_code
+				LEFT JOIN `tabItem` pitm ON pitm.name = psi.parent_item_code
+				WHERE psi.parent = %(pbm)s
+				  AND psi.parentfield = %(table)s
+				  AND psi.item_code IS NOT NULL AND psi.item_code != ''
+				ORDER BY psi.old_idx ASC, psi.item_code ASC
 			""", {"pbm": pbm_name, "table": table_name}, as_dict=True)
 
 			for row in rows:

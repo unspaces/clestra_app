@@ -84,6 +84,7 @@ frappe.ui.form.on('Project Billing Master', {
                 detail_bom_items_grid.refresh();
                 setTimeout(() => {
                     setup_detail_bom_grid(frm);
+                    setup_detail_bom_search(frm);
                     setup_group_selection_and_highlight(frm);
 
                     update_grid_qty_view(frm);
@@ -98,6 +99,12 @@ frappe.ui.form.on('Project Billing Master', {
                             // console.log(`[${grid_name}] Row index hidden.`);
                         }
                     });
+
+                    // door_cover indent 표시
+                    setup_door_cover_indent_display(frm);
+
+                    // sub_items 토글 (parent_item_code별 sub_total)
+                    setup_sub_items_toggle(frm);
                 }, 200);
             }
         }, 100); // Small delay after grid resets are potentially queued
@@ -170,9 +177,9 @@ frappe.ui.form.on('Project Billing Master', {
         });
 
         // === QR Code: inject QR buttons into grid rows ===
-        if (!frm.is_new()) {
-            setTimeout(() => setup_qr_row_buttons(frm), 600);
-        }
+        // if (!frm.is_new()) {
+        //     setTimeout(() => setup_qr_row_buttons(frm), 600);
+        // }
     },
 
     update_grid_qty_js_string(frm) {
@@ -788,8 +795,51 @@ function setup_po_items_grid(frm) {
 
     // 행 선택/해제 시 Duplicate 버튼 보이기/숨기기 (블록 안의 change 이벤트에서 처리됨)
 
-    // --- 3. 주석 처리된 구 grid.refresh 몽키패치 제거됨 ---
+    // --- 3. indent_level 시각 표시 (들여쓰기 + ↳ 표시) ---
+    if (!grid._indent_display_setup) {
+        const original_refresh = grid.refresh.bind(grid);
+        grid.refresh = function () {
+            original_refresh();
+            apply_po_items_indent_display(grid);
+        };
+        grid._indent_display_setup = true;
+    }
+
     grid.is_fully_enhanced = true;
+    grid.refresh();
+}
+
+function apply_po_items_indent_display(grid, target_fieldname = "item_code") {
+    if (!grid.grid_rows) return;
+    grid.grid_rows.forEach(grid_row => {
+        if (!grid_row.doc) return;
+        const level = cint(grid_row.doc.indent_level);
+        const $static = $(grid_row.wrapper).find(`[data-fieldname="${target_fieldname}"] .static-area`).first();
+        if (!$static.length) return;
+
+        // 기존 indent prefix 제거
+        $static.find('.po-indent-prefix').remove();
+
+        if (level > 0) {
+            const padding = level * 16;
+            const prefix = $('<span class="po-indent-prefix" style="color: var(--text-muted); margin-right: 4px;">↳</span>');
+            $static.css('padding-left', padding + 'px').prepend(prefix);
+        } else {
+            $static.css('padding-left', '');
+        }
+    });
+}
+
+function setup_door_cover_indent_display(frm) {
+    const grid = frm.fields_dict['door_cover']?.grid;
+    if (!grid || grid._indent_display_setup) return;
+
+    const original_refresh = grid.refresh.bind(grid);
+    grid.refresh = function () {
+        original_refresh();
+        apply_po_items_indent_display(grid, "product_keyword");
+    };
+    grid._indent_display_setup = true;
     grid.refresh();
 }
 
@@ -2586,7 +2636,10 @@ function setup_detail_bom_grid(frm) {
         // 가. 자식 행 토글 기능 적용 (기존 setup_toggle_sub_items의 로직)
         apply_toggle_logic(frm, this);
 
-        // 나. 'Add Item' 버튼 표시/숨김 상태 업데이트
+        // 나. indent_level 시각 표시 (들여쓰기 + ↳)
+        apply_po_items_indent_display(this, "item_code");
+
+        // 다. 'Add Item' 버튼 표시/숨김 상태 업데이트
         toggle_add_item_button_visibility(frm);
     };
 
@@ -2680,6 +2733,10 @@ function apply_toggle_logic(frm, grid_obj) {
     const all_items = frm.doc.detail_bom_items;
     if (!all_items) return;
 
+    // 검색 모드 확인
+    const search_active = frm._bom_search_active;
+    const matched_names = search_active ? _get_bom_search_matched_names(frm) : null;
+
     // --- 1. 상태 초기화 ---
     all_items.forEach(doc_row => {
         const is_potential_parent = doc_row.indent_level == 0 || (doc_row.indent_level == 1 && doc_row.product_section === "Leaf");
@@ -2698,6 +2755,20 @@ function apply_toggle_logic(frm, grid_obj) {
         if (!$row_wrapper.length) return;
         $row_wrapper.find('.toggle-sub-items').remove(); // [안정성] 모든 행의 토글 버튼을 일단 제거
         $row_wrapper.show(); // [안정성] 모든 행을 일단 보이게 초기화
+
+        // 검색 모드: 매칭된 행만 표시, 토글 로직 스킵
+        if (search_active && matched_names) {
+            const doc_data_row_s = all_items.find(d => d.name === row_doc.name);
+            if (doc_data_row_s && matched_names.has(doc_data_row_s.name)) {
+                $row_wrapper.show();
+                if (doc_data_row_s.indent_level > 0) {
+                    $row_wrapper.css('background-color', 'var(--subtle-fg, #f8f8f8)');
+                }
+            } else {
+                $row_wrapper.hide();
+            }
+            return;
+        }
 
         // if (row_doc.__islocal) {
         //     return; // 새로 추가된 빈 행은 더 이상 처리하지 않음
@@ -2811,6 +2882,377 @@ function apply_toggle_logic(frm, grid_obj) {
             if (!top_level_parent_expanded) {
                 $row_wrapper.hide();
             }
+        }
+    });
+}
+
+// ===================================================================
+// Detail BOM Items: Search Bar + Bulk Edit Dialog
+// ===================================================================
+
+function setup_detail_bom_search(frm) {
+    if (frm._detail_bom_search_setup) return;
+
+    const search_wrapper = frm.fields_dict.search?.$wrapper;
+    if (!search_wrapper) return;
+
+    frm._detail_bom_search_setup = true;
+
+    const searchable_columns = [
+        { fieldname: "old_idx", label: "Index" },
+        { fieldname: "item_code", label: "Item Code" },
+        { fieldname: "item_name", label: "Item Name" },
+        { fieldname: "size", label: "Size" },
+        { fieldname: "color", label: "Color" },
+        { fieldname: "remark", label: "Remark" },
+        { fieldname: "zone", label: "Zone" },
+    ];
+
+    const $search_bar = $(`
+        <div class="detail-bom-search-bar" style="display: flex; align-items: center; gap: 6px; padding: 8px 0; flex-wrap: wrap;">
+            ${searchable_columns.map(col => `
+                <div class="frappe-control" style="flex: 1; min-width: 110px; max-width: 180px;">
+                    <input type="text" class="form-control input-xs bom-search-input"
+                        data-fieldname="${col.fieldname}"
+                        placeholder="${__(col.label)}"
+                        style="height: 28px; font-size: 12px;">
+                </div>
+            `).join('')}
+            <button class="btn btn-xs btn-default bom-search-clear" title="${__('Clear Filters')}" style="height: 28px; padding: 0 8px;">
+                <svg class="icon icon-sm"><use href="#icon-close"></use></svg>
+            </button>
+            <button class="btn btn-xs btn-primary bom-search-edit" title="${__('Edit')}" style="height: 28px; padding: 0 12px; display: none;">
+                ${__('Edit')}
+            </button>
+        </div>
+    `);
+    search_wrapper.empty().append($search_bar);
+
+    frm._bom_search_filters = {};
+    frm._bom_search_active = false;
+    frm._bom_search_bar = $search_bar;
+
+    let search_timeout = null;
+    $search_bar.on('input', '.bom-search-input', function () {
+        clearTimeout(search_timeout);
+        search_timeout = setTimeout(() => _apply_bom_search(frm, $search_bar), 300);
+    });
+
+    $search_bar.on('keydown', '.bom-search-input', function (e) {
+        if (e.key === 'Enter') {
+            clearTimeout(search_timeout);
+            _apply_bom_search(frm, $search_bar);
+        }
+    });
+
+    $search_bar.on('click', '.bom-search-clear', function () {
+        $search_bar.find('.bom-search-input').val('');
+        frm._bom_search_filters = {};
+        frm._bom_search_active = false;
+        $search_bar.find('.bom-search-edit').hide();
+        const grid = frm.fields_dict['detail_bom_items']?.grid;
+        if (grid) grid.refresh();
+    });
+
+    $search_bar.on('click', '.bom-search-edit', function () {
+        _open_bom_bulk_edit_dialog(frm);
+    });
+
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (grid && grid.wrapper) {
+        $(grid.wrapper).on('change', '.grid-row-check', function () {
+            setTimeout(() => _update_bom_edit_button_visibility(frm, $search_bar), 50);
+        });
+    }
+}
+
+function _apply_bom_search(frm, $search_bar) {
+    const filters = {};
+    let has_filter = false;
+
+    $search_bar.find('.bom-search-input').each(function () {
+        const val = $(this).val().trim().toLowerCase();
+        const fieldname = $(this).data('fieldname');
+        if (val) {
+            filters[fieldname] = val;
+            has_filter = true;
+        }
+    });
+
+    frm._bom_search_filters = filters;
+    frm._bom_search_active = has_filter;
+
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (grid) grid.refresh();
+}
+
+function _get_bom_search_matched_names(frm) {
+    if (!frm._bom_search_active) return null;
+
+    const filters = frm._bom_search_filters;
+    const all_items = frm.doc.detail_bom_items || [];
+    const matched_names = new Set();
+
+    const directly_matched = [];
+    all_items.forEach(row => {
+        let matches = true;
+        for (const [fieldname, search_val] of Object.entries(filters)) {
+            const row_val = cstr(row[fieldname] || '').toLowerCase();
+            if (!row_val.includes(search_val)) {
+                matches = false;
+                break;
+            }
+        }
+        if (matches) {
+            directly_matched.push(row);
+            matched_names.add(row.name);
+        }
+    });
+
+    // 자녀 행이 매칭되면 최상위 부모(indent_level=0 또는 Leaf)까지 포함
+    directly_matched.forEach(row => {
+        if (row.indent_level > 0) {
+            const row_idx = all_items.findIndex(d => d.name === row.name);
+            if (row_idx > -1) {
+                for (let i = row_idx - 1; i >= 0; i--) {
+                    const ancestor = all_items[i];
+                    matched_names.add(ancestor.name);
+                    const is_top_parent = ancestor.indent_level === 0 ||
+                        (ancestor.indent_level === 1 && ancestor.product_section === "Leaf");
+                    if (is_top_parent) break;
+                }
+            }
+        }
+    });
+
+    return matched_names;
+}
+
+function _update_bom_edit_button_visibility(frm, $search_bar) {
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (!grid) return;
+
+    const checked = grid.get_selected_children();
+    if (checked && checked.length > 0) {
+        $search_bar.find('.bom-search-edit').show();
+    } else {
+        $search_bar.find('.bom-search-edit').hide();
+    }
+}
+
+function _open_bom_bulk_edit_dialog(frm) {
+    const grid = frm.fields_dict['detail_bom_items']?.grid;
+    if (!grid) return;
+
+    const selected = grid.get_selected_children();
+    if (!selected || selected.length === 0) {
+        frappe.msgprint(__('Please select rows to edit.'));
+        return;
+    }
+
+    const first_row = selected[0];
+
+    const field_options = [
+        { label: "Size", value: "size" },
+        { label: "Quantity", value: "qty" },
+        { label: "Color", value: "color" },
+        { label: "Remark", value: "remark" },
+    ];
+
+    // Zone virtual fields 추가
+    const zone_map = frm._zone_to_virtual_field_map || {};
+    Object.keys(zone_map).forEach(zone_name => {
+        field_options.push({ label: `Zone: ${zone_name}`, value: zone_map[zone_name] });
+    });
+
+    const label_to_value = {};
+    field_options.forEach(o => { label_to_value[o.label] = o.value; });
+
+    const size_fields = ['width', 'ch', 'pw', 'ph'];
+
+    function _toggle_size_mode(dialog, show_size) {
+        dialog.fields_dict.value.df.hidden = show_size ? 1 : 0;
+        dialog.fields_dict.value.refresh();
+        size_fields.forEach(f => {
+            dialog.fields_dict[f].df.hidden = show_size ? 0 : 1;
+            dialog.fields_dict[f].refresh();
+        });
+        dialog.fields_dict.size_section.df.hidden = show_size ? 0 : 1;
+        dialog.fields_dict.size_section.refresh();
+    }
+
+    let dialog = new frappe.ui.Dialog({
+        title: __('Edit {0} rows', [selected.length]),
+        fields: [
+            {
+                label: __('Field'),
+                fieldname: 'field',
+                fieldtype: 'Select',
+                options: field_options.map(o => o.label).join('\n'),
+                reqd: 1,
+                change: function () {
+                    const field_value = label_to_value[dialog.get_value('field')];
+                    _toggle_size_mode(dialog, field_value === 'size');
+                }
+            },
+            { label: __('Value'), fieldname: 'value', fieldtype: 'Data' },
+            { fieldtype: 'Section Break', fieldname: 'size_section' },
+            { label: 'Width', fieldname: 'width', fieldtype: 'Float', precision: 1, default: first_row.width || 0 },
+            { label: 'CH', fieldname: 'ch', fieldtype: 'Float', precision: 1, default: first_row.ch || 0 },
+            { fieldtype: 'Column Break' },
+            { label: 'Panel Width (PW)', fieldname: 'pw', fieldtype: 'Float', precision: 1, default: first_row.pw || 0 },
+            { label: 'Panel Height (PH)', fieldname: 'ph', fieldtype: 'Float', precision: 1, default: first_row.ph || 0 },
+        ],
+        primary_action_label: __('Update'),
+        primary_action: function (values) {
+            const field = label_to_value[values.field] || values.field;
+
+            if (field === 'size') {
+                const size_data = { width: values.width, ch: values.ch, pw: values.pw, ph: values.ph };
+                selected.forEach(row => {
+                    const cdt = row.doctype;
+                    const cdn = row.name;
+                    frappe.model.set_value(cdt, cdn, 'width', values.width);
+                    frappe.model.set_value(cdt, cdn, 'ch', values.ch);
+                    frappe.model.set_value(cdt, cdn, 'pw', values.pw);
+                    frappe.model.set_value(cdt, cdn, 'ph', values.ph);
+                    const new_size = generate_js_size_string(row.product_section || '', size_data);
+                    frappe.model.set_value(cdt, cdn, 'size', new_size);
+                });
+            } else {
+                let new_value = values.value;
+                if (field === 'qty' || field.startsWith('zone_')) {
+                    new_value = cint(new_value);
+                }
+                selected.forEach(row => {
+                    frappe.model.set_value(row.doctype, row.name, field, new_value);
+
+                    // zone virtual field → zone_qty JSON 동기화
+                    if (field.startsWith('zone_') && frm._virtual_field_to_zone_map) {
+                        const zone_name = frm._virtual_field_to_zone_map[field];
+                        if (zone_name) {
+                            let zq = {};
+                            try { zq = JSON.parse(row.zone_qty || '{}'); } catch (e) { }
+                            if (!zq[zone_name] || typeof zq[zone_name] !== 'object') zq[zone_name] = { field: field, qty: 0 };
+                            zq[zone_name].qty = cint(new_value);
+                            zq[zone_name].field = field;
+                            frappe.model.set_value(row.doctype, row.name, 'zone_qty', JSON.stringify(zq));
+                        }
+                    }
+                });
+            }
+
+            frm.dirty();
+            grid.refresh();
+            dialog.hide();
+            frappe.show_alert({
+                message: __('Updated {0} rows', [selected.length]),
+                indicator: 'green'
+            });
+        }
+    });
+
+    dialog.show();
+    _toggle_size_mode(dialog, false);
+}
+
+// ===================================================================
+// Sub Items Toggle: parent_item_code별 sub_total 행 표시/숨김
+// ===================================================================
+function setup_sub_items_toggle(frm) {
+    const grid = frm.fields_dict['sub_items']?.grid;
+    if (!grid || grid._sub_items_toggle_setup) return;
+
+    const original_refresh = grid.refresh;
+    grid.refresh = function () {
+        original_refresh.apply(this, arguments);
+        apply_sub_items_toggle(frm, this);
+    };
+    grid._sub_items_toggle_setup = true;
+    grid.refresh();
+}
+
+function apply_sub_items_toggle(frm, grid_obj) {
+    const all_items = frm.doc.sub_items;
+    if (!all_items) return;
+
+    const $wrapper = $(grid_obj.wrapper);
+    $wrapper.find('div.grid-heading-row .row-index').hide();
+    $wrapper.find('.rows .row-index').hide();
+
+    // indent_level === 0인 행에 _expanded 속성 초기화
+    all_items.forEach(doc_row => {
+        if (cint(doc_row.indent_level) === 0 && doc_row._expanded === undefined) {
+            doc_row._expanded = false;
+        }
+    });
+
+    const rendered_rows = Object.values(grid_obj.grid_rows_by_docname || {});
+    rendered_rows.forEach(function (grid_row) {
+        const row_doc = grid_row.doc;
+        if (!row_doc) return;
+
+        const $row_wrapper = $(grid_row.wrapper);
+        if (!$row_wrapper.length) return;
+        $row_wrapper.find('.toggle-sub-items').remove();
+        $row_wrapper.show();
+        $row_wrapper.css('background-color', '');
+
+        const doc_data_row = all_items.find(d => d.name === row_doc.name);
+        if (!doc_data_row) return;
+
+        const indent_level = cint(doc_data_row.indent_level);
+        const is_sub_total = cint(doc_data_row.is_sub_total);
+
+        if (indent_level === 0) {
+            // 부모 행: 연결된 sub_total 행이 있는지 확인 → 토글 버튼 추가
+            const current_idx = all_items.findIndex(d => d.name === doc_data_row.name);
+            let has_sub_totals = false;
+            for (let i = current_idx + 1; i < all_items.length; i++) {
+                if (cint(all_items[i].indent_level) === 0) break;
+                if (cint(all_items[i].is_sub_total) === 1) {
+                    has_sub_totals = true;
+                    break;
+                }
+            }
+
+            if (has_sub_totals) {
+                const $button_container = $row_wrapper.find('.row-check');
+                const is_expanded = doc_data_row._expanded;
+                const button_icon = is_expanded
+                    ? '<i class="fa fa-chevron-down"></i>'
+                    : '<i class="fa fa-chevron-right"></i>';
+                const $toggle_button = $(`
+                    <button class="btn btn-xs btn-default toggle-sub-items"
+                        title="${__('Toggle Sub Totals')}" style="line-height: 1;">
+                        ${button_icon}
+                    </button>
+                `);
+                $button_container.prepend($toggle_button);
+
+                $toggle_button.off('click').on('click', function (e) {
+                    e.stopPropagation();
+                    const clicked = all_items.find(d => d.name === grid_row.doc.name);
+                    if (!clicked) return;
+                    clicked._expanded = !clicked._expanded;
+                    grid_obj.refresh();
+                });
+            }
+        } else if (is_sub_total === 1) {
+            // Sub Total 행: 부모 상태에 따라 표시/숨김
+            const current_idx = all_items.findIndex(d => d.name === doc_data_row.name);
+            let parent_row = null;
+            for (let i = current_idx - 1; i >= 0; i--) {
+                if (cint(all_items[i].indent_level) === 0) {
+                    parent_row = all_items[i];
+                    break;
+                }
+            }
+            if (!parent_row || !parent_row._expanded) {
+                $row_wrapper.hide();
+            }
+            $row_wrapper.css('background-color', 'var(--subtle-fg, #f8f8f8)');
+            $row_wrapper.find('.static-area').first().css('padding-left', '20px');
         }
     });
 }

@@ -20,6 +20,7 @@
    "in_list_view": 1,
    "label": "Project Billing Master",
    "options": "Project Billing Master",
+   "read_only": 1,
    "reqd": 1
   },
   {

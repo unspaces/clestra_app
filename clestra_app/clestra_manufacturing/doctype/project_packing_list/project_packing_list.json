@@ -13,6 +13,7 @@
   "packing_date",
   "status",
   "pbm_section",
+  "pbm_display",
   "pbm_items",
   "pallet_section",
   "pallet_prefix",
@@ -85,8 +86,14 @@
    "label": "Billing Masters"
   },
   {
+   "fieldname": "pbm_display",
+   "fieldtype": "HTML",
+   "label": "PBM List"
+  },
+  {
    "fieldname": "pbm_items",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Project Billing Masters",
    "options": "Packing List PBM Item"
   },

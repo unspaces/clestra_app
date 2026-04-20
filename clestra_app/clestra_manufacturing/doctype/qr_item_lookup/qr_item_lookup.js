@@ -170,32 +170,35 @@ function print_selected_labels(frm) {
 }
 
 function open_label_print_window(frm, items) {
-	const siteUrl = frappe.urllib.get_base_url();
 	const pbm = frm.doc.pbm || '';
 	const project = frm.doc.project || '';
 
+	// Resolve Item.item_code from Item.name for all items
+	const itemLinks = [...new Set(items.map(i => i.item_code).filter(Boolean))];
+
+	frappe.call({
+		method: 'clestra_app.clestra_manufacturing.qr_code_api.resolve_item_codes',
+		args: { item_links: JSON.stringify(itemLinks) },
+		async: false,
+		callback: (r) => {
+			const codeMap = r.message || {};
+			items.forEach(item => {
+				item._display_code = codeMap[item.item_code] || item.item_code;
+			});
+		}
+	});
+
 	let labelsHtml = '';
 	items.forEach(item => {
-		const qrImgSrc = item.qr_image
-			? `<img src="${item.qr_image}" style="width:100px;height:100px;">`
-			: `<div style="width:100px;height:100px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">No QR</div>`;
+		const qrImg = item.qr_image
+			? `<img src="${item.qr_image}">`
+			: `<div class="no-qr">No QR</div>`;
 
 		labelsHtml += `
-			<div class="qr-label">
-				<div class="qr-label-image">${qrImgSrc}</div>
-				<div class="qr-label-info">
-					<div class="qr-label-item-code">${item.item_code || ''}</div>
-					<div class="qr-label-item-name">${item.item_name || ''}</div>
-					<div class="qr-label-details">
-						${item.zone ? `<span>Zone: ${item.zone}</span>` : ''}
-						${item.color ? `<span>Color: ${item.color}</span>` : ''}
-						${item.size ? `<span>Size: ${item.size}</span>` : ''}
-						${item.qty ? `<span>Qty: ${item.qty}</span>` : ''}
-					</div>
-					<div class="qr-label-position">
-						${item.product_position_desc ? `Pos: ${item.product_position_desc}` : ''}
-					</div>
-				</div>
+			<div class="sticker">
+				<div class="item-code">${item._display_code || item.item_code || ''}</div>
+				<div class="item-name">${item.item_name || ''}</div>
+				<div class="qr">${qrImg}</div>
 			</div>
 		`;
 	});
@@ -206,80 +209,27 @@ function open_label_print_window(frm, items) {
 <head>
 <title>QR Labels - ${pbm}</title>
 <style>
-	@media print {
-		@page { margin: 5mm; }
-		body { margin: 0; }
-	}
+	@page { size: 40mm 40mm; margin: 0; }
+	* { margin: 0; padding: 0; box-sizing: border-box; }
 	body {
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-		margin: 10px;
 	}
-	.print-header {
+	.sticker {
+		width: 40mm; height: 40mm; padding: 1mm;
+		display: flex; flex-direction: column; align-items: center; justify-content: center;
 		text-align: center;
-		margin-bottom: 10px;
-		padding-bottom: 8px;
-		border-bottom: 1px solid #ddd;
-		font-size: 12px;
-		color: #666;
+		page-break-after: always;
 	}
-	.qr-labels-grid {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-	}
-	.qr-label {
-		display: flex;
-		border: 1px solid #e0e0e0;
-		border-radius: 4px;
-		padding: 8px;
-		width: 280px;
-		page-break-inside: avoid;
-	}
-	.qr-label-image {
-		flex-shrink: 0;
-		margin-right: 8px;
-	}
-	.qr-label-image img {
-		display: block;
-	}
-	.qr-label-info {
-		flex: 1;
-		min-width: 0;
-		font-size: 11px;
-	}
-	.qr-label-item-code {
-		font-weight: 700;
-		font-size: 13px;
-		margin-bottom: 2px;
-		word-break: break-all;
-	}
-	.qr-label-item-name {
-		color: #555;
-		margin-bottom: 4px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-	.qr-label-details span {
-		display: inline-block;
-		background: #f0f0f0;
-		padding: 1px 5px;
-		border-radius: 3px;
-		margin: 1px 2px 1px 0;
-		font-size: 10px;
-	}
-	.qr-label-position {
-		margin-top: 3px;
-		font-size: 10px;
-		color: #666;
-	}
+	.sticker:last-child { page-break-after: auto; }
+	.item-code { font-size: 9px; font-weight: 700; color: #000; word-break: break-all; line-height: 1.2; }
+	.item-name { font-size: 6px; color: #555; margin-top: 0.5mm; line-height: 1.2; max-width: 38mm; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+	.qr { margin: 1mm 0; }
+	.qr img { width: 22mm; height: 22mm; display: block; }
+	.no-qr { width: 22mm; height: 22mm; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #999; }
 </style>
 </head>
 <body>
-	<div class="print-header">
-		PBM: ${pbm} | Project: ${project} | ${items.length} label(s) | ${new Date().toLocaleString()}
-	</div>
-	<div class="qr-labels-grid">${labelsHtml}</div>
+	${labelsHtml}
 	<script>window.onload = function() { window.print(); }</script>
 </body>
 </html>`);

@@ -9,6 +9,7 @@
   "section_break_axmh",
   "old_idx",
   "indent_level",
+  "is_sub_total",
   "product_section",
   "product_type",
   "item_code",
@@ -641,6 +642,13 @@
    "fieldname": "indent_level",
    "fieldtype": "Int",
    "label": "Indent Level",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_sub_total",
+   "fieldtype": "Check",
+   "label": "Is Sub Total",
    "read_only": 1
   },
   {

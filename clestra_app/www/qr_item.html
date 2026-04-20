@@ -82,14 +82,14 @@
 			</div>
 		</div>
 
-		<!-- Section 4: Product Position -->
-		<div class="qr-card" id="product-position-card" style="display:none;">
-			<div class="qr-card-title" data-toggle="collapse" data-target="#section-product-pos">
-				<span>{{ _("Position on Product") }}</span>
+		<!-- Section 4: Detail Image -->
+		<div class="qr-card" id="detail-image-card" style="display:none;">
+			<div class="qr-card-title" data-toggle="collapse" data-target="#section-detail-image">
+				<span>{{ _("Detail Image") }}</span>
 				<span class="qr-chevron">&#9662;</span>
 			</div>
-			<div id="section-product-pos" class="collapse show">
-				<div id="product-position-info"></div>
+			<div id="section-detail-image" class="collapse show">
+				<div id="detail-image-info"></div>
 			</div>
 		</div>
 
@@ -477,32 +477,66 @@ document.addEventListener("DOMContentLoaded", function() {
 		asmHtml += '</div>';
 		document.getElementById("assembly-info").innerHTML = asmHtml;
 
-		// Product position — render as visual diagram
-		if (productPos.description || productPos.image) {
-			document.getElementById("product-position-card").style.display = "block";
-			let posHtml = '';
+		// Detail Image section
+		const detailImg = data.detail_image || {};
+		if (detailImg.item_image || detailImg.parent_image) {
+			document.getElementById("detail-image-card").style.display = "block";
+			const infoEl = document.getElementById("detail-image-info");
 
-			// Build position diagram if description matches a position ID
-			const posId = (productPos.description || '').trim().toLowerCase();
-			const posIds = ['top-left','top','top-right','left','center','right','bottom-left','bottom','bottom-right'];
-			const posLabels = {'top-left':'TL','top':'T','top-right':'TR','left':'L','center':'C','right':'R','bottom-left':'BL','bottom':'B','bottom-right':'BR'};
+			if (detailImg.needs_matching) {
+				// Has parent: call drawing-matcher to highlight current item on parent image
+				infoEl.innerHTML = `<div style="padding:16px;text-align:center;">
+					<div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+					<p class="text-muted mt-2" style="font-size:0.82rem;">{{ _("Matching item on parent drawing...") }}</p>
+				</div>`;
 
-			if (posIds.includes(posId)) {
-				posHtml += '<div class="qr-pos-diagram">';
-				posIds.forEach(pid => {
-					const cls = pid === posId ? 'qr-pos-cell active' : 'qr-pos-cell';
-					posHtml += `<div class="${cls}">${posLabels[pid]}</div>`;
+				fetch("/api/method/clestra_app.clestra_manufacturing.qr_code_api.get_detail_image", {
+					method: "POST",
+					headers: {"Content-Type": "application/json", "X-Frappe-CSRF-Token": "{{ frappe.session.csrf_token or '' }}"},
+					body: JSON.stringify({
+						template_url: detailImg.item_image,
+						target_url: detailImg.parent_image
+					})
+				})
+				.then(r => r.json())
+				.then(resp => {
+					const result = resp.message;
+					if (result && result.status === "success") {
+						infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+							<img src="${result.highlighted_image}" style="max-width:100%;border-radius:4px;">
+							<div style="font-size:0.75rem;color:#718096;margin-top:4px;">${result.matches_count || 0} {{ _("match(es) found") }}</div>
+						</div>`;
+					} else if (result && result.status === "no_match") {
+						// No match: show parent image (as per spec — parent image is the base)
+						infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+							<img src="${detailImg.parent_image}" style="max-width:100%;border-radius:4px;">
+							<div style="font-size:0.75rem;color:#c05621;margin-top:4px;">{{ _("No matching region found") }}</div>
+						</div>`;
+					} else {
+						// Error: show parent image as fallback
+						infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+							<img src="${detailImg.parent_image}" style="max-width:100%;border-radius:4px;">
+							<div style="font-size:0.75rem;color:#a0aec0;margin-top:4px;">${result?.message || ''}</div>
+						</div>`;
+					}
+				})
+				.catch(() => {
+					// Fallback to parent image on network error
+					infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+						<img src="${detailImg.parent_image}" style="max-width:100%;border-radius:4px;">
+					</div>`;
 				});
-				posHtml += '</div>';
-				posHtml += `<div style="text-align:center;font-size:0.82rem;color:#2d3748;font-weight:600;margin-bottom:8px;">${posId.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</div>`;
-			} else if (posId) {
-				posHtml += `<div class="qr-field-grid">${fieldFull("{{ _('Position') }}", posId)}</div>`;
+			} else if (detailImg.has_parent && detailImg.parent_image) {
+				// Has parent but item image missing — show parent image
+				infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+					<img src="${detailImg.parent_image}" style="max-width:100%;border-radius:4px;">
+				</div>`;
+			} else if (detailImg.item_image) {
+				// No parent: show item's own image
+				infoEl.innerHTML = `<div style="padding:8px 16px;text-align:center;">
+					<img src="${detailImg.item_image}" style="max-width:100%;border-radius:4px;">
+				</div>`;
 			}
-
-			if (productPos.image) {
-				posHtml += `<div style="padding: 8px 16px;"><img src="${productPos.image}" class="product-position-image" alt="{{ _('Position Diagram') }}"></div>`;
-			}
-			document.getElementById("product-position-info").innerHTML = posHtml;
 		}
 
 		// Related items

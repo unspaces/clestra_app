@@ -76,23 +76,48 @@ frappe.ui.form.on("Clestra Sales Order", {
 	},
 
 	add_door_hw_spec: function (frm) {
-		// 전제 조건 확인: 새 HW Spec을 만들기 전에 Project가 선택되었는지 확인합니다.
 		if (!frm.doc.project) {
 			frappe.msgprint({
 				title: __('Project Required'),
 				indicator: 'orange',
 				message: __('Please select a Project before creating a new Door Hardware Spec.')
 			});
-			return; // Project가 없으면 실행을 중단합니다.
+			return;
 		}
-		frappe.new_doc("Door Hardware Spec", {
-			// 두 번째 인자로 전달된 객체의 값들이 새 문서 양식의 필드를 미리 채워줍니다.
-			// 새 'Door Hardware Spec' 문서의 'project' 필드에
-			// 현재 'Clestra Sales Order'의 'project' 값을 설정합니다.
-			project: frm.doc.project
-			// 다른 미리 채울 필드가 있다면 여기에 추가할 수 있습니다.
-			// 예: company: frm.doc.company
-		});
+
+		// Quick Entry 다이얼로그 — 페이지 이동 없이 HW Spec 생성
+		// 저장 성공 후 hw_spec_mapping 빈 슬롯에 매핑 + hw_check_N 자동 체크
+		frappe.ui.form.make_quick_entry(
+			"Door Hardware Spec",
+			function (doc) {
+				// after_insert 콜백: doc은 방금 생성된 Door Hardware Spec 문서
+				let mapping = {};
+				try { mapping = JSON.parse(frm.doc.hw_spec_mapping || '{}'); } catch (e) { mapping = {}; }
+
+				for (let i = 1; i <= 10; i++) {
+					const key = `hw_check_${i}`;
+					if (!mapping[key]) {
+						mapping[key] = doc.name;
+						frm.set_value(key, 1);
+						break;
+					}
+				}
+				frm.set_value('hw_spec_mapping', JSON.stringify(mapping));
+
+				if (typeof render_hw_spec_summary === 'function') {
+					render_hw_spec_summary(frm);
+				}
+
+				frappe.show_alert({
+					message: __('HW Spec "{0}" added and checked.', [doc.name]),
+					indicator: 'green'
+				});
+			},
+			function (dialog) {
+				// init_callback: 다이얼로그 생성 직후 project 자동 입력
+				dialog.set_value('project', frm.doc.project);
+			}
+		);
 	},
 	setup_sales_order(frm) {
 		if (!frm.is_new()) {
@@ -828,15 +853,17 @@ frappe.ui.form.on("Sales Order Finished Items", {
 // planned_qty 필드를 product_section 값에 따라 표시하거나 숨기는 함수
 function toggle_planned_qty_field(grid_row, product_section) {
 	if (!grid_row || !grid_row.row) return;
-	
+
+	// 컬럼은 항상 표시, Option/Price Study/Sub Contract만 값(input/static)을 숨김
 	const allowed_sections = ['Door', 'Leaf', 'Panel', ''];
-	const should_show = allowed_sections.includes(product_section);
-	
-	// planned_qty 필드를 찾아서 표시/숨김 처리
-	const $planned_qty_field = $(grid_row.row).find('[data-fieldname="planned_qty"]');
-	if ($planned_qty_field.length) {
-		$planned_qty_field.toggle(should_show);
-	}
+	const should_show_value = allowed_sections.includes(product_section);
+
+	const $cell = $(grid_row.row).find('.col[data-fieldname="planned_qty"]');
+	if (!$cell.length) return;
+
+	$cell.show(); // 컬럼 자체는 항상 표시
+	// 값(input, static-area)만 표시/숨김
+	$cell.find('.field-area, .static-area').css('visibility', should_show_value ? '' : 'hidden');
 }
 
 // grid의 모든 행에 대해 planned_qty 필드 표시/숨김 처리
@@ -1658,6 +1685,22 @@ function open_add_zone_dialog(frm, source_zone) {
 						if (r.message) {
 							dialog.hide();
 							frappe.show_alert({ message: __('New Zone added successfully.'), indicator: 'green' });
+
+							// 새 Zone 자동 선택
+							frm.doc.zone_selected = r.message.name;
+							frm.doc.zone_product_type = r.message.product_type;
+							frm.refresh_field('zone_selected');
+							frm.refresh_field('zone_product_type');
+
+							// new-zone-list 재렌더 (서버에서 최신 목록 가져옴)
+							if (typeof render_new_zone_summary === 'function') {
+								render_new_zone_summary(frm);
+							}
+
+							// finished_items 필터링 반영
+							if (typeof apply_visibility_rules === 'function') {
+								apply_visibility_rules(frm);
+							}
 						}
 					},
 					error: function () {
@@ -1801,7 +1844,7 @@ function setup_grid_column_interaction(frm, grid_name, target_fields, is_editabl
 				],
 				primary_action_label: __('Update'),
 				primary_action: (values) => {
-					frappe.model.set_value(doc.doctype, doc.name, 'remark', values.remark_text);
+					frappe.model.set_value(doc.doctype, doc.name, fieldname, values.input_value);
 					d.hide();
 				}
 			});
@@ -2533,9 +2576,29 @@ function setup_finished_items_grid(frm) {
 					} else if (!nextGridRow) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						grid.add_new_row(null, null, true);
-						grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
-						grid.set_focus_on_row();
+
+						// 현재 행이 sub item이면 Add Sub Item 실행, 아니면 Add Item
+						const curDoc = currentGridRow.doc;
+						if (cint(curDoc.indent_level) > 0) {
+							execute_add_sub_item(curDoc.name);
+							setTimeout(() => {
+								// 새로 추가된 sub item 행 찾아서 포커스
+								const newRowIdx = grid.grid_rows.length - 1;
+								const newRow = grid.grid_rows[newRowIdx];
+								if (newRow) {
+									newRow.toggle_editable_row(true);
+									setTimeout(() => {
+										let $inp = $(newRow.row).find('.col[data-fieldname="item_code"] .field-area input:visible');
+										if (!$inp.length) $inp = $(newRow.row).find('.field-area input:visible, .field-area textarea:visible, .field-area select:visible').first();
+										if ($inp.length) $inp.first().focus();
+									}, 200);
+								}
+							}, 100);
+						} else {
+							grid.add_new_row(null, null, true);
+							grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
+							grid.set_focus_on_row();
+						}
 					}
 					return;
 				}
@@ -3570,7 +3633,7 @@ function render_hw_spec_summary(frm) {
                 if (spec_data) {
                     frm.set_df_property(fieldname, 'hidden', 0);
                     frm.set_df_property(fieldname, 'label', spec_data.hw_spec_code);
-                    
+
                     // 이벤트 핸들러 연결 (중복 방지)
                     if (!frm.fields_dict[fieldname].is_handler_set) {
                         frm.set_df_property(fieldname, 'onchange', () => {
@@ -3578,6 +3641,24 @@ function render_hw_spec_summary(frm) {
                             render_hw_spec_summary(frm);
                         });
                         frm.fields_dict[fieldname].is_handler_set = true;
+                    }
+
+                    // 체크박스 라벨 옆에 "새 탭으로 열기" 아이콘 버튼 주입
+                    const $field_wrapper = frm.fields_dict[fieldname].$wrapper;
+                    if ($field_wrapper) {
+                        $field_wrapper.find('.hw-spec-open-btn').remove();
+                        const $label_area = $field_wrapper.find('.label-area').first();
+                        if ($label_area.length) {
+                            const open_url = `/app/door-hardware-spec/${encodeURIComponent(spec_data.name)}`;
+                            $label_area.after(
+                                `<a href="${open_url}" target="_blank" rel="noopener"
+                                    class="hw-spec-open-btn text-muted"
+                                    title="${__('Open in new tab')}"
+                                    style="margin-left:6px;cursor:pointer;display:inline-flex;align-items:center;">
+                                    <svg class="icon icon-sm" style="width:14px;height:14px;"><use href="#icon-external-link"></use></svg>
+                                </a>`
+                            );
+                        }
                     }
 
                     // 체크되어 있다면 필터 리스트에 추가
@@ -3588,6 +3669,8 @@ function render_hw_spec_summary(frm) {
             } else {
                 // 매핑된 Spec이 없으면 숨김 및 체크 해제
                 frm.set_df_property(fieldname, 'hidden', 1);
+                const $field_wrapper = frm.fields_dict[fieldname].$wrapper;
+                if ($field_wrapper) $field_wrapper.find('.hw-spec-open-btn').remove();
                 if (frm.doc[fieldname]) {
                     frm.set_value(fieldname, 0);
                 }
@@ -3996,37 +4079,34 @@ function setup_group_selection_for_grid(frm) {
 		// Ctrl/Cmd 키 누름 여부
 		const is_individual_select = e.ctrlKey || e.metaKey || e.shiftKey; 
 
-		if (is_individual_select) {
-			// [개별 선택] 해당 행만 체크/해제
+		const is_parent = cint(clicked_row_doc.indent_level) === 0;
+
+		if (is_individual_select || !is_parent) {
+			// [개별 선택] Ctrl/Shift 또는 자식 행: 해당 행만 체크/해제
 			clicked_row_doc.__checked = is_checked ? 1 : 0;
 		} else {
-			// [그룹 선택]
-			// 부모 판단: indent_level이 0이거나, fg_reference_id가 없으면 부모로 간주
-			const is_parent = clicked_row_doc.indent_level == 0 || (cint(clicked_row_doc.parent_row_no) == 0);
-			
-			// 그룹 ID 결정: 부모면 자기 자신, 자식이면 부모 ID
-			const group_id = is_parent ? clicked_row_doc.name : clicked_row_doc.fg_reference_id;
+			// [그룹 선택] 부모 행: idx 정렬 후 연속된 indent_level>0 행을 자식으로 수집
+			// (fg_reference_id는 부모 저장 시 name이 바뀌면 stale이 될 수 있어 사용하지 않음)
+			const sorted = [...all_rows].sort((a, b) => (a.idx || 0) - (b.idx || 0));
+			const parent_pos = sorted.findIndex(d => d.name === clicked_row_doc.name);
 
-			if (group_id) {
-				// 같은 그룹 ID를 가진 모든 행(부모 + 자식들)을 찾음
-				const rows_in_group = all_rows.filter(d => 
-					d.name === group_id || d.fg_reference_id === group_id
-				);
-
-				// 그룹 내 모든 행의 체크 상태 동기화
-				rows_in_group.forEach(row_doc => {
-					row_doc.__checked = is_checked ? 1 : 0;
-					
-					// 화면에 보이는 행이면 UI 체크박스도 동기화
-					const grid_row = grid.get_row(row_doc.name);
-					if (grid_row) {
-						$(grid_row.row).find('.grid-row-check').prop('checked', is_checked);
-					}
-				});
-			} else {
-				// 그룹 ID를 못 찾은 경우(예외), 해당 행만 처리
-				clicked_row_doc.__checked = is_checked ? 1 : 0;
+			const rows_in_group = [clicked_row_doc];
+			for (let i = parent_pos + 1; i < sorted.length; i++) {
+				if (cint(sorted[i].indent_level) > 0) {
+					rows_in_group.push(sorted[i]);
+				} else {
+					break;
+				}
 			}
+
+			rows_in_group.forEach(row_doc => {
+				row_doc.__checked = is_checked ? 1 : 0;
+
+				const grid_row = grid.get_row(row_doc.name);
+				if (grid_row) {
+					$(grid_row.row).find('.grid-row-check').prop('checked', is_checked);
+				}
+			});
 		}
 
 		// 후처리: 헤더 체크박스 갱신, 버튼 표시, 하이라이트 적용

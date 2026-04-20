@@ -18,6 +18,7 @@ app_include_css = "/assets/clestra_app/css/clestra_app_v1.css"
 app_include_js = [
     "/assets/clestra_app/js/quick_entry_custom_v5.js",
     "/assets/clestra_app/js/list_filter_patch_v1.js",
+    "/assets/clestra_app/js/bom_creator_indent.js",
 ]
 
 # include js, css files in header of web template

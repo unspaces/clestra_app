@@ -46,19 +46,29 @@ def get_item_company(pbm_company):
 		return "Taicang Factory"
 	return "Clestra Korea"
 
+def resolve_item_code_from_name(value, cache=None):
+	"""Item.name이 전달된 경우 실제 item_code를 반환. 문자열이 아니거나 Item이 없으면 원본 반환.
+	공식 평가 시 door_frame, astragal 등 Item reference 필드의 값을 비교 가능한 item_code로 변환."""
+	if not value or not isinstance(value, str):
+		return value
+	if cache is not None and value in cache:
+		return cache[value]
+	resolved = frappe.db.get_value("Item", value, "item_code") or value
+	if cache is not None:
+		cache[value] = resolved
+	return resolved
+
 def get_item_value(item_code, fields, company=None, as_dict=False, cache=None):
-	"""item_code + company 기반으로 Item 값을 조회 (캐시 지원)"""
+	"""item_code + company 기반으로 Item 값을 조회 (캐시 지원).
+	PBM이 Item.name을 저장한 경우 name으로도 fallback 조회.
+	캐시 키는 (item_code, company, fields_tuple) 기반이라 scalar/as_dict 모두 캐시됨."""
 	if not item_code:
 		return {} if as_dict else None
 
-	cache_key = f"{item_code}:{company}"
+	fields_key = tuple(fields) if isinstance(fields, (list, tuple)) else fields
+	cache_key = (item_code, company, fields_key, as_dict)
 	if cache is not None and cache_key in cache:
-		cached = cache[cache_key]
-		if as_dict:
-			return cached
-		if isinstance(fields, str):
-			return cached.get(fields) if cached else None
-		return cached
+		return cache[cache_key]
 
 	filters = {"item_code": item_code}
 	if company:
@@ -66,7 +76,11 @@ def get_item_value(item_code, fields, company=None, as_dict=False, cache=None):
 
 	result = frappe.db.get_value("Item", filters, fields, as_dict=as_dict)
 
-	if cache is not None and as_dict and result:
+	# fallback: name으로 직접 조회 (PBM이 Item.name을 저장하는 경우)
+	if not result:
+		result = frappe.db.get_value("Item", item_code, fields, as_dict=as_dict)
+
+	if cache is not None:
 		cache[cache_key] = result
 
 	return result
@@ -95,6 +109,13 @@ BOM_ITEM_FIELDS = [
 	]
 
 CONDITIONAL_FORMULA_FIELDS = ["door_frame", "astragal", "leaf_item_code", "sub_contract"]
+
+# Item을 참조하는 필드 목록 (값이 Item.name 형식일 수 있어 비교 전 item_code로 변환 필요)
+ITEM_REFERENCE_FIELDS = {
+	"door_frame", "leaf_item_code", "leaf_b_item_code", "astragal", "flush_bolt",
+	"sub_contract", "hw_options", "keeper", "hinge", "door_closer", "auto_drop_seal",
+	"price_study", "item_code",
+}
 
 class ProjectBillingMaster(Document):
 	def before_save(self):
@@ -398,8 +419,14 @@ class ProjectBillingMaster(Document):
 
 		aggregated_door_covers = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "rh_qty": 0, "lhr_qty": 0, "lh_qty": 0, "rhr_qty": 0, "zone_qty": defaultdict(lambda: defaultdict(int)) })
 		aggregated_panel_covers = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "zone_qty": defaultdict(int) })
-		aggregated_sub_items = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "zone_qty": defaultdict(int) })
-		
+		aggregated_sub_items = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "zone_qty": defaultdict(int), "parent_breakdown": defaultdict(lambda: {"qty": 0, "zone_qty": defaultdict(int)})})
+
+		# 최상위 부모(parent_row_no 기준) item_code 매핑: 자녀의 최상위 부모 item_code를 빠르게 조회
+		top_parent_item_code_map = {}
+		for row in self.detail_bom_items:
+			if row.old_idx and str(row.old_idx).isdigit():
+				top_parent_item_code_map[str(row.old_idx)] = row.item_code
+
 		# --- Iterate and Categorize ---
 		processed_count = 0
 		skipped_for_print_hide = 0 # print_hide로 인해 스킵된 항목 카운트
@@ -647,7 +674,15 @@ class ProjectBillingMaster(Document):
 				else:
 					if current_zone:
 						target_aggregator[key_tuple]["zone_qty"][current_zone] += current_qty
-				
+
+					# sub_items: 최상위 부모(parent_row_no)의 item_code별 수량 추적
+					if target_aggregator is aggregated_sub_items:
+						prn = cstr(getattr(row, "parent_row_no", "")).strip()
+						top_pic = top_parent_item_code_map.get(prn, cstr(getattr(row, "parent_item_code", "")).strip())
+						target_aggregator[key_tuple]["parent_breakdown"][top_pic]["qty"] += current_qty
+						if current_zone:
+							target_aggregator[key_tuple]["parent_breakdown"][top_pic]["zone_qty"][current_zone] += current_qty
+
 		temp_door_cover_list = []
 		for key, aggregated_data in aggregated_door_covers.items():
 			final_row_data = aggregated_data["data"].copy()
@@ -754,6 +789,8 @@ class ProjectBillingMaster(Document):
 				# 	logger.warning(f"Item {final_row_data.item_code}: Zone '{actual_zone_name}' not found in global mapping. Skipping.")
 
 			final_row_data.zone_qty = json.dumps(zone_qty_object_for_json)
+			# parent_breakdown을 final_row_data에 첨부하여 이후 sub_total 행 생성 시 사용
+			final_row_data._parent_breakdown = dict(aggregated_data.get("parent_breakdown", {}))
 			sub_items_final_list.append(final_row_data)
 
 		def get_sub_item_sort_key(item):
@@ -781,12 +818,43 @@ class ProjectBillingMaster(Document):
 
 		# --- Phase 3: Append sorted sub_items to the document ---
 		for item_data in sorted_sub_items:
+			parent_breakdown = item_data.pop("_parent_breakdown", {})
 			if 'idx' in item_data:
-			# 	item_data['old_idx'] = item_data['idx']
 				del item_data['idx']
 
 			self.append("sub_items", item_data)
 			processed_count += 1
+
+			# parent_item_code가 2개 이상인 경우 sub_total 행 추가 (indent_level=1, is_sub_total=1, print_hide=1)
+			if len(parent_breakdown) > 1:
+				parent_old_idx = cstr(item_data.get("old_idx", ""))
+				for pic in sorted(parent_breakdown.keys()):
+					pic_data = parent_breakdown[pic]
+					sub_total_old_idx = f"{parent_old_idx}-{pic}" if parent_old_idx else pic
+					sub_total_row = frappe._dict({
+						"item_code": item_data.get("item_code"),
+						"item_name": item_data.get("item_name"),
+						"old_idx": sub_total_old_idx,
+						"parent_item_code": pic,
+						"print_group": item_data.get("print_group"),
+						"print_order": item_data.get("print_order"),
+						"color": item_data.get("color"),
+						"size": item_data.get("size"),
+						"product_type": item_data.get("product_type"),
+						"product_section": item_data.get("product_section"),
+						"qty": cint(pic_data["qty"]),
+						"indent_level": 1,
+						"is_sub_total": 1,
+						"print_hide": 1,
+					})
+					zone_qty_json = {}
+					for zone_name, qty in pic_data.get("zone_qty", {}).items():
+						virtual_field = global_zone_to_virtual_field_map.get(zone_name)
+						if virtual_field:
+							zone_qty_json[zone_name] = {"field": virtual_field, "qty": qty}
+					sub_total_row.zone_qty = json.dumps(zone_qty_json)
+					self.append("sub_items", sub_total_row)
+					processed_count += 1
 
 		# self.save(ignore_permissions=True)
 		return {"status": "success", "processed": processed_count, "skipped": skipped_count + skipped_for_print_hide}
@@ -814,11 +882,28 @@ class ProjectBillingMaster(Document):
 			else:
 				break
 
-		# --- Step 2: Aggregation (generate_billing과 동일한 combine_key) ---
-		aggregated = defaultdict(lambda: {"data": frappe._dict(), "qty": 0, "zone_qty": defaultdict(int)})
+		# --- Step 2: sub_total 행 폐기, 부모 행만 수집 ---
+		meta_fields = {"idx", "name", "parent", "parenttype", "parentfield", "doctype",
+					   "docstatus", "creation", "modified", "modified_by", "owner"}
 
+		raw_parent_rows = []
 		for row in self.sub_items:
-			row_data = row.as_dict()
+			if cint(row.is_sub_total) == 1:
+				continue  # 기존 sub_total 행은 폐기 후 재생성
+			row_data = frappe._dict({
+				f: v for f, v in row.as_dict().items() if f not in meta_fields
+			})
+			raw_parent_rows.append(row_data)
+
+		# --- Step 3: Parent Aggregation + parent_item_code별 breakdown 추적 ---
+		aggregated = defaultdict(lambda: {
+			"data": frappe._dict(),
+			"qty": 0,
+			"zone_qty": defaultdict(int),
+			"parent_breakdown": defaultdict(lambda: {"qty": 0, "zone_qty": defaultdict(int)}),
+		})
+
+		for row_data in raw_parent_rows:
 			current_qty = cint(row_data.get("qty", 0))
 
 			# combine_key 생성
@@ -858,19 +943,25 @@ class ProjectBillingMaster(Document):
 			aggregated[key_tuple]["qty"] += current_qty
 
 			# zone_qty 집계
+			parent_zone_qty = defaultdict(int)
 			zone_qty_existing = row_data.get("zone_qty")
 			if zone_qty_existing:
 				try:
 					zq = json.loads(zone_qty_existing) if isinstance(zone_qty_existing, str) else zone_qty_existing
 					for zone_name, zone_info in zq.items():
-						if isinstance(zone_info, dict):
-							aggregated[key_tuple]["zone_qty"][zone_name] += cint(zone_info.get("qty", 0))
-						else:
-							aggregated[key_tuple]["zone_qty"][zone_name] += cint(zone_info)
+						q = cint(zone_info.get("qty", 0)) if isinstance(zone_info, dict) else cint(zone_info)
+						aggregated[key_tuple]["zone_qty"][zone_name] += q
+						parent_zone_qty[zone_name] += q
 				except (json.JSONDecodeError, TypeError):
 					pass
 
-		# --- Step 3: Finalize ---
+			# parent_item_code별 breakdown 누적 (서로 다른 parent를 가진 행이 합쳐지면 multi-breakdown 생성)
+			pic = cstr(row_data.get("parent_item_code", "")).strip()
+			aggregated[key_tuple]["parent_breakdown"][pic]["qty"] += current_qty
+			for zone_name, q in parent_zone_qty.items():
+				aggregated[key_tuple]["parent_breakdown"][pic]["zone_qty"][zone_name] += q
+
+		# --- Step 4: Finalize ---
 		sub_items_final_list = []
 		for key, agg_data in aggregated.items():
 			final_row = agg_data["data"]
@@ -883,6 +974,7 @@ class ProjectBillingMaster(Document):
 					zone_qty_json[zone_name] = {"field": virtual_field, "qty": qty}
 
 			final_row.zone_qty = json.dumps(zone_qty_json)
+			final_row._parent_breakdown = dict(agg_data.get("parent_breakdown", {}))
 			sub_items_final_list.append(final_row)
 
 		# --- Step 4: Sort (generate_billing과 동일) ---
@@ -907,14 +999,51 @@ class ProjectBillingMaster(Document):
 
 		sorted_sub_items = sorted(sub_items_final_list, key=get_sub_item_sort_key)
 
-		# --- Step 5: Rebuild table ---
+		# --- Step 5: Rebuild table (parent + parent_breakdown 기반 신규 sub_total 행 배치) ---
 		self.sub_items = []
+		total_count = 0
 		for row_data in sorted_sub_items:
+			parent_breakdown = row_data.pop("_parent_breakdown", {})
 			if 'idx' in row_data:
 				del row_data['idx']
+			# 부모 행의 is_sub_total 보장 (재집계 후 0)
+			row_data["is_sub_total"] = 0
+			row_data["indent_level"] = 0
 			self.append("sub_items", row_data)
+			total_count += 1
 
-		return {"status": "success", "sorted": len(sorted_sub_items)}
+			# 서로 다른 parent_item_code가 2개 이상이면 sub_total 행 생성
+			if len(parent_breakdown) > 1:
+				parent_old_idx = cstr(row_data.get("old_idx", ""))
+				for pic in sorted(parent_breakdown.keys()):
+					pic_data = parent_breakdown[pic]
+					sub_total_old_idx = f"{parent_old_idx}-{pic}" if parent_old_idx else pic
+					sub_total_row = frappe._dict({
+						"item_code": row_data.get("item_code"),
+						"item_name": row_data.get("item_name"),
+						"old_idx": sub_total_old_idx,
+						"parent_item_code": pic,
+						"print_group": row_data.get("print_group"),
+						"print_order": row_data.get("print_order"),
+						"color": row_data.get("color"),
+						"size": row_data.get("size"),
+						"product_type": row_data.get("product_type"),
+						"product_section": row_data.get("product_section"),
+						"qty": cint(pic_data["qty"]),
+						"indent_level": 1,
+						"is_sub_total": 1,
+						"print_hide": 1,
+					})
+					zone_qty_json = {}
+					for zone_name, qty in pic_data.get("zone_qty", {}).items():
+						virtual_field = global_zone_to_virtual_field_map.get(zone_name)
+						if virtual_field:
+							zone_qty_json[zone_name] = {"field": virtual_field, "qty": qty}
+					sub_total_row.zone_qty = json.dumps(zone_qty_json)
+					self.append("sub_items", sub_total_row)
+					total_count += 1
+
+		return {"status": "success", "sorted": total_count}
 
 	def set_sub_assembly_items_based_on_level(self, row, bom_data, manufacturing_type=None):
 		"Modify bom_data, set additional details."
@@ -1123,8 +1252,13 @@ def get_sub_assembly_items(
 
 		# 수식 실행을 위한 로컬 변수 준비
 		# context_values는 parent_values_from_so가 됩니다.
-		exec_locals = context_values.copy()
-		exec_locals['doc'] = frappe._dict(context_values)
+		# Item reference 필드는 Item.name → item_code로 변환하여 공식의 하드코딩 비교와 매칭되도록 함
+		_code_cache = cache.setdefault("item_code_resolve", {})
+		exec_locals = {
+			k: (resolve_item_code_from_name(v, _code_cache) if k in ITEM_REFERENCE_FIELDS else v)
+			for k, v in context_values.items()
+		}
+		exec_locals['doc'] = frappe._dict(exec_locals)
 		try:
 			# [Performance] 컴파일된 코드 객체 캐시 (기존: 매 호출마다 문자열 컴파일)
 			compiled_cache_key = f"color_{formula}"
@@ -1150,14 +1284,27 @@ def get_sub_assembly_items(
 	parent_item_code = frappe.get_cached_value("BOM", bom_no, "item")
 	item_company = get_item_company(company)
 
+	# [Performance] get_item_value 공통 캐시
+	_iv_cache = global_cache.setdefault("item_value_cache", {})
+	# [Performance] finished_product_section 캐시 (짧은 scalar 전용)
+	_fps_cache = global_cache.setdefault("finished_product_section_cache", {})
+
 	item_info_cache_key = f"{parent_item_code}:{item_company}"
 	if item_info_cache_key in global_cache["item_info"]:
 		parent_item_info = global_cache["item_info"][item_info_cache_key]
 	else:
-		parent_item_info = get_item_value(parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword", "color", "default_bom"], company=item_company, as_dict=True) or {}
+		parent_item_info = get_item_value(parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword", "color", "default_bom"], company=item_company, as_dict=True, cache=_iv_cache) or {}
 		global_cache["item_info"][item_info_cache_key] = parent_item_info
 
-	finished_product_section = get_item_value(finished_item_code, "product_section", company=item_company) if finished_item_code else None
+	if finished_item_code:
+		_fps_key = f"{finished_item_code}:{item_company}"
+		if _fps_key in _fps_cache:
+			finished_product_section = _fps_cache[_fps_key]
+		else:
+			finished_product_section = get_item_value(finished_item_code, "product_section", company=item_company, cache=_iv_cache)
+			_fps_cache[_fps_key] = finished_product_section
+	else:
+		finished_product_section = None
 
 	# parent_item_info_from_item = frappe.get_cached_value("Item", parent_item_code, ["product_section", "item_group", "product_type", "exclude_from_cover", "product_keyword"], as_dict=True) if parent_item_code else None
 	current_product_section = parent_item_info.get("product_section")
@@ -1192,7 +1339,9 @@ def get_sub_assembly_items(
 
 	parent_data_from_bom_and_so["parent_row_no"] = parent_values_from_so.get("parent_row_no", None)
 	# parent_door_frame = parent_data_from_bom_and_so.get("door_frame",)
-	conditional_field_values = {key: parent_data_from_bom_and_so.get(key, None) for key in CONDITIONAL_FORMULA_FIELDS}
+	# 공식에서 사용되는 Item reference 필드는 item_code로 변환 (Item.name 형식 대응)
+	_item_code_cache = global_cache.setdefault("item_code_resolve", {})
+	conditional_field_values = {key: resolve_item_code_from_name(parent_data_from_bom_and_so.get(key, None), _item_code_cache) for key in CONDITIONAL_FORMULA_FIELDS}
 	parent_stock_qty = flt(to_produce_qty)
 
 	def _get_final_billing_color_if_needed(color_code, use_billing_color_flag, cache):
@@ -1215,8 +1364,15 @@ def get_sub_assembly_items(
 		return billing_color if billing_color else color_code
 
 	# ▼▼▼▼▼▼▼▼▼▼ final_parent_color 로직 ▼▼▼▼▼▼▼▼▼▼
-	parent_color_from_item = get_item_value(parent_item_code, "color", company=item_company) if parent_item_code else None
-	parent_color_from_bom = frappe.db.get_value("BOM", bom_no, "color")
+	# [Performance] parent_item_info에서 이미 조회한 color 재사용 (추가 쿼리 제거)
+	parent_color_from_item = parent_item_info.get("color") if parent_item_code else None
+	# [Performance] BOM color 캐시
+	_bom_color_cache = global_cache.setdefault("bom_color_cache", {})
+	if bom_no in _bom_color_cache:
+		parent_color_from_bom = _bom_color_cache[bom_no]
+	else:
+		parent_color_from_bom = frappe.db.get_value("BOM", bom_no, "color")
+		_bom_color_cache[bom_no] = parent_color_from_bom
 	color_from_so = parent_values_from_so.get("color", None)
 	use_billing_color_flag = parent_values_from_so.get("use_billing_color", 0)
 	
@@ -1344,8 +1500,8 @@ def get_sub_assembly_items(
 				formula_library_name = parent_bom_values.get(field, None)
 				parent_value = local_variables.get(field, None)
 
-				conditional_field_values = {key: parent_data_from_bom_and_so.get(key, None) for key in CONDITIONAL_FORMULA_FIELDS}
-				
+				conditional_field_values = {key: resolve_item_code_from_name(parent_data_from_bom_and_so.get(key, None), _item_code_cache) for key in CONDITIONAL_FORMULA_FIELDS}
+
 				# Cache Formula
 				if formula_library_name and formula_library_name not in global_cache["formula"]:
 					global_cache["formula"][formula_library_name] = frappe.db.get_value("Formula Library", formula_library_name, "formula")
@@ -1417,7 +1573,7 @@ def get_sub_assembly_items(
 				if context_for_children.get("door_frame"):
 					frame_cache_key = f"{context_for_children['door_frame']}:{item_company}"
 					if frame_cache_key not in global_cache["item_info"]:
-						frame_details = get_item_value(context_for_children["door_frame"], ["door_set_type", "door_open_type"], company=item_company, as_dict=True) or {}
+						frame_details = get_item_value(context_for_children["door_frame"], ["door_set_type", "door_open_type"], company=item_company, as_dict=True, cache=_iv_cache) or {}
 						global_cache["item_info"][frame_cache_key] = frame_details
 					else:
 						frame_details = global_cache["item_info"][frame_cache_key]
@@ -1460,7 +1616,7 @@ def get_sub_assembly_items(
 				if sub_info_cache_key in global_cache["item_info"]:
 					sub_item_info = global_cache["item_info"][sub_info_cache_key]
 				else:
-					sub_item_info = get_item_value(item_code_for_bom, ["default_bom", "product_section"], company=item_company, as_dict=True) or {}
+					sub_item_info = get_item_value(item_code_for_bom, ["default_bom", "product_section"], company=item_company, as_dict=True, cache=_iv_cache) or {}
 					global_cache["item_info"][sub_info_cache_key] = sub_item_info
 
 				sub_assy_default_bom = sub_item_info.get("default_bom")
@@ -1566,12 +1722,16 @@ def get_sub_assembly_items(
 				# logger.debug(f"Match Info: Item: {bom_item_data.get('item_code')}, Field: {field_key}, PBM Value is empty/None. This filter field imposes no restriction.")
 				continue
 
+			# Item reference 필드인 경우 Item.name을 item_code로 변환
+			is_item_ref = field_key in ITEM_REFERENCE_FIELDS
+			_norm = (lambda v: resolve_item_code_from_name(v, _item_code_cache)) if is_item_ref else (lambda v: v)
+
 			# 2. Prepare sets from PBM and Item values
 			pbm_set = set()
 			if isinstance(pbm_value_orig, str):
-				pbm_set = {v.strip() for v in pbm_value_orig.split(',') if v.strip()}
+				pbm_set = {_norm(v.strip()) for v in pbm_value_orig.split(',') if v.strip()}
 			elif pbm_value_orig is not None:
-				pbm_set = {str(pbm_value_orig).strip()}
+				pbm_set = {_norm(str(pbm_value_orig).strip())}
 
 			if not pbm_set: # PBM filter became empty after processing (e.g., was ",,")
 				# logger.debug(f"Match Info: Item: {bom_item_data.get('item_code')}, Field: {field_key}, PBM Value ('{pbm_value_orig}') processed to empty set. This filter field imposes no restriction.")
@@ -1579,9 +1739,9 @@ def get_sub_assembly_items(
 
 			item_set = set()
 			if isinstance(item_value_orig, str):
-				item_set = {v.strip() for v in item_value_orig.split(',') if v.strip()}
+				item_set = {_norm(v.strip()) for v in item_value_orig.split(',') if v.strip()}
 			elif item_value_orig is not None:
-				item_set = {str(item_value_orig).strip()}
+				item_set = {_norm(str(item_value_orig).strip())}
 
 			# 3. Determine if this field_key is an exclusion field
 			is_exclusion_field = bool(exclude_fields_config.get(field_key)) # True if field_key in dict and value is truthy
@@ -1657,7 +1817,8 @@ def get_sub_assembly_items(
 			continue
 
 		# ▼▼▼▼▼▼▼▼▼▼ final_child_color 로직 ▼▼▼▼▼▼▼▼▼▼
-		child_color_from_item = get_item_value(d.item_code, "color", company=item_company)
+		# [Performance] child Item color 캐시 (자식 루프에서 반복 호출됨)
+		child_color_from_item = get_item_value(d.item_code, "color", company=item_company, cache=_iv_cache)
 		child_color_from_bom = bom_item.get("color") if bom_item.get("color") not in [None, ""] else None
 		use_billing_color_flag = cint(bom_item.get("use_billing_color"))
 		color_from_so = parent_values_from_so.get("color", None)
@@ -1746,7 +1907,6 @@ def get_sub_assembly_items(
 
 		# child_product_section = d.product_section
 		child_size_string = _generate_size_string(finished_product_section, size_field_values)
-		# logger.info(f"Child Size String for {d.item_code}, parent_product_section: {finished_product_section}: {size_field_values}, Result: {child_size_string}")
 
 		# bom_data에 추가
 		# logger.info(f"Adding BOM Item {d.item_code} to bom_data")

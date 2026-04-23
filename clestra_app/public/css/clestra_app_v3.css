@@ -71,3 +71,54 @@ body[data-route^="Form/Project Billing Master"] {
     line-height: 1.4 !important;
     margin-top: 4px !important;
 }
+
+/* =========================================================== */
+/* Link 필드에 Select 필드처럼 드롭다운 화살표 표시 */
+/* =========================================================== */
+.frappe-control[data-fieldtype="Link"] input.input-with-feedback,
+.frappe-control[data-fieldtype="Dynamic Link"] input.input-with-feedback,
+input.input-with-feedback[data-fieldtype="Link"],
+input.input-with-feedback[data-fieldtype="Dynamic Link"] {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='none' stroke='%237a8189' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2.5 4l2.5 2.5L7.5 4'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    padding-right: 26px !important;
+}
+
+/* 그리드 셀 내 Link 필드에도 화살표 표시 (static 상태) */
+.grid-static-col[data-fieldtype="Link"],
+.grid-static-col[data-fieldtype="Dynamic Link"] {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='none' stroke='%237a8189' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2.5 4l2.5 2.5L7.5 4'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    padding-right: 20px;
+}
+
+/* =========================================================== */
+/* Date Picker 일요일/토요일 색상 표시 (air-datepicker) */
+/* firstDay=0(일요일 시작) 기준: 일=빨강, 토=파랑 */
+/* =========================================================== */
+.datepicker--cells-days .datepicker--cell-day:nth-child(7n+1) {
+    color: #e74c3c !important;
+}
+.datepicker--cells-days .datepicker--cell-day:nth-child(7n) {
+    color: #3498db !important;
+}
+.datepicker--days-names .datepicker--day-name:nth-child(7n+1) {
+    color: #e74c3c;
+}
+.datepicker--days-names .datepicker--day-name:nth-child(7n) {
+    color: #3498db;
+}
+/* fallback: 위 선택자가 맞지 않을 때도 -weekend- 클래스로 커버 */
+.datepicker--cell-day.-weekend-,
+.datepicker--day-name.-weekend- {
+    color: #e74c3c;
+}
+/* 다른 달의 날짜(흐림)일 때도 옅은 색 유지 */
+.datepicker--cells-days .datepicker--cell-day.-other-month-:nth-child(7n+1) {
+    color: rgba(231, 76, 60, 0.5) !important;
+}
+.datepicker--cells-days .datepicker--cell-day.-other-month-:nth-child(7n) {
+    color: rgba(52, 152, 219, 0.5) !important;
+}

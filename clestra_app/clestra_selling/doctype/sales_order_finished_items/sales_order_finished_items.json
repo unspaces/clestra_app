@@ -282,8 +282,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Prod. Section",
-   "options": "\nDoor\nLeaf\nPanel\nOption\nPrice Study\nSub Contract",
-   "reqd": 1
+   "options": "\nDoor\nLeaf\nPanel\nOption\nPrice Study\nSub Contract"
   },
   {
    "fieldname": "column_break_zhyh",
@@ -890,7 +889,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-03-11 14:31:10.822201",
+ "modified": "2026-04-21 16:53:05.642625",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Sales Order Finished Items",

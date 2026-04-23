@@ -1,0 +1,671 @@
+<!-- Cover Page -->
+{% if doc.print_cover_page %}
+    <table class="table table-bordered table-condensed" style="margin:0px 0px 5px !important;">
+        <tbody>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 9pt; padding: 2px 4px !important;" colspan="2">Project Name</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">MPR</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Job ID</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Contract No.</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Sub No.</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Serial No.</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Revision</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;" colspan="2">{%- if doc.project -%}
+                    {%- set project_doc = frappe.get_doc("Project", doc.project).project_name -%}
+                    {{ project_doc }}
+                    {%- endif -%}
+                </td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">{{ doc.mpr }}</td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">{{ doc.job_id }}</td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">{{ doc.contract_no }}</td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">{{ doc.sub_no }}</td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">{{ doc.serial_no }}</td>
+                <td style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;"></td>
+            </tr>
+            {% if doc.mpr %}
+                {# doc.mpr 값이 있을 때만 이 행을 렌더링 #}
+                {% set mpr_code = doc.mpr|string|upper %} {# mpr을 문자열로 변환하고 대문자로 통일 #}
+                {% set location = '' %} {# location 변수 초기화 #}
+
+                {% if 'K' in mpr_code %}
+                    {% set location = 'K = Gumi' %}
+                {% elif 'J' in mpr_code %}
+                    {% set location = 'J = Japan' %}
+                {% elif 'V' in mpr_code %}
+                    {% set location = 'V = Taicang' %}
+                {% elif 'W' in mpr_code %}
+                    {% set location = 'W = HongKong' %}
+                {% elif 'G' in mpr_code %}
+                    {% set location = 'G = Singapore' %}
+                {% elif 'F' in mpr_code %}
+                    {% set location = 'F = USA' %}
+                {% endif %}
+                
+                {% if location %}
+                <tr>
+                    <td style="border-color: transparent !important; padding: 1px 2px !important;"></td>
+                    <td style="border-color: transparent !important; padding: 1px 2px !important; text-align: left; font-size: 8pt; " colspan="7">
+                        {{ location }}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endif %}
+        </tbody>
+    </table>
+    <table class="table table-bordered table-condensed" style="margin:0px 0px 5px !important; border: 1px solid black;">
+        <tbody>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Sales Person</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{%- if doc.sales_person -%}
+                    {%- set so_user = frappe.get_doc("User", doc.sales_person).full_name_region -%}
+                    {{ so_user }}
+                    {%- endif -%}</td>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; padding: 2px 4px !important;" rowspan="4">Client</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.client_company }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">PM</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{%- if doc.project_manager -%}
+                    {%- set pm_user = frappe.get_doc("User", doc.project_manager).full_name_region -%}
+                    {{ pm_user }}
+                    {%- endif -%}</td>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">
+                    {%- if doc.contact_person -%}
+                    {%- set contact_person_name = (frappe.get_doc("Contact", doc.contact_person).last_name or '') ~ (frappe.get_doc("Contact", doc.contact_person).first_name or '') -%}
+                    {{ contact_person_name }}
+                    {%- endif -%}
+                </td>    
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Factory</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{%- if doc.set_warehouse -%}
+                    {%- set warehouse_name = frappe.get_doc("Warehouse", doc.set_warehouse).company -%}
+                    {{ warehouse_name }}
+                    {%- endif -%}
+                </td>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.mobile_number }}</td>    
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">W-Scope</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.scope_of_supply }} </td>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.email_address }}</td>    
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; padding: 2px 4px !important;">Shipping<br>/Incoterms </th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.shipping_method }} / {{ doc.incoterms }}</td>
+                <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 9pt; padding: 2px 4px !important;" rowspan="4">Site<br>Location</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.city }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 9pt; padding: 2px 4px !important;">Ex-Work Date</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.ex_work_date }}</td>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;" rowspan="2">{{ doc.building_name }}<br>{{ doc.street_address }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 9pt; padding: 2px 4px !important;">On-Site Date</th>
+                <td style="border: 1px solid black; font-size: 9pt; padding: 2px 4px !important;">{{ doc.on_site_date }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Summary Section (전체 요약) -->
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="width: 55%; text-align: left; vertical-align: bottom !important; padding: 0 !important; border: 0 !important;">
+                <h4 style="margin: 0; padding: 0;">
+                    Summary
+                </h4>
+            </td>
+            <td style="width: 25%; text-align: right; font-size: 9pt; vertical-align: bottom !important; padding: 0 !important; border: 0 !important;">
+                TOTAL QUANTITY:
+            </td>
+            <td style="width: 10%; text-align: right; font-size: 9pt; vertical-align: bottom !important; padding: 0 !important; border: 0 !important;">
+                {{ doc.lm_link }} L/M,   
+            </td>
+            <td style="width: 10%; text-align: right; font-size: 9pt; vertical-align: bottom !important; padding: 0 !important; border: 0 !important;">
+                {{ "%.2f"|format(doc.square_m_link or 0) }} m²
+            </td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered table-condensed" style="width: 100%; margin:0px 0px 10px !important; border: 1px solid black;">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; width: 10%;" rowspan="2">Zone</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; width: 6%;" rowspan="2">L/M</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; width: 6%;" rowspan="2">m²</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; width: 6%;" rowspan="2">CH<br>/UH</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt; vertical-align: middle !important; width: 6%;" rowspan="2">PH</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt;" colspan="2">CEILING</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt;" colspan="2">BASE</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 9pt;" colspan="8">COLOR</th>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black; text-align: center; font-size: 7pt; width: 5%;">TYPE</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 7pt; width: 4%;">V.H.</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 7pt; width: 5%;">TYPE</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 7pt; width: 4%;">V.H.</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">CL/CH</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">BASE</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">PANEL</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">Jct.<br>(F/Strip)</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 5pt; width: 6%;">TRANSOM</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">FRAME</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 6pt; width: 6%;">LEAF</th>
+                <th style="border: 1px solid black; text-align: center; font-size: 5pt; width: 6%;">LIP SEAL</th>
+            </tr>
+        </thead>
+        
+        <!-- 데이터 그룹핑 및 출력 -->
+        {% if doc.zone_summary %}
+            {% set grouped_zones = doc.zone_summary | groupby('product_type') %}
+            
+            {% for product_type, items in grouped_zones %}
+                <tbody>
+                    <tr>
+                        <td colspan="17" style="border: 1px solid black; background-color: #eee; font-weight: bold; font-size: 9pt; padding: 2px 5px !important;">
+                            {{ product_type or "Other" }}
+                        </td>
+                    </tr>
+                    {% for row in items %}
+                    <tr>
+                        <td style="border: 1px solid black; text-align: left; font-size: 8pt; padding: 2px !important;">
+                            {%- set zone_doc = frappe.get_doc("Zone", row.zone_name) -%}
+                            {{ zone_doc.zone_name }}
+                        </td>
+                        <td style="border: 1px solid black; text-align: right; font-size: 8pt; padding: 2px !important;">{{ "%.1f"|format(row.total_lm or 0) }}</td>
+                        <td style="border: 1px solid black; text-align: right; font-size: 8pt; padding: 2px !important;">{{ "%.1f"|format(row.total_square_m or 0) }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.ch or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.ph or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.clch_type or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.ceiling_visible or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.base_type or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 8pt; padding: 2px !important;">{{ row.base_visible_h or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_clch or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_base or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_panel or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_junction or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_transom or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_frame or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_leaf or '' }}</td>
+                        <td style="border: 1px solid black; text-align: center; font-size: 7pt; padding: 1px !important; word-break: break-all;">{{ row.zone_color_lipseal or '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            {% endfor %}
+        {% else %}
+            <tbody>
+                 <tr>
+                    <td colspan="17" style="border: 1px solid black; text-align: center; padding: 10px;">No zone summary data available.</td>
+                </tr>
+            </tbody>
+        {% endif %}
+    </table>
+    
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="vertical-align: top; left; padding-left: 0 !important; padding-bottom: 0 !important; font-size: 10pt">
+                <div>
+                    <h4 style="margin: 0; padding: 0;">
+                        Note
+                    </h4>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered table-condensed" style="margin:0px 0px 10px !important; border: 1px solid black;">
+        <tr style="border: 1px solid black; text-align: center;">
+            <td style="border: 1px solid black; text-align: left; font-size: 9pt;">
+                {{ doc.notes | replace('\n', '<br>') }}
+                <br>
+                <br>
+            </td>
+        </tr>
+    </table>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="vertical-align: top; left; padding-left: 0 !important; padding-bottom: 0 !important; font-size: 10pt">
+                <div>
+                    <h4 style="margin: 0; padding: 0;">
+                        ATTACHMENT
+                    </h4>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered table-condensed" style="margin:0px 0px 10px !important; border: 1px solid black;">
+        <tr style="border: 1px solid black; text-align: center;">
+            <td style="border: 1px solid black; text-align: center; font-size: 9pt;">
+                <br>
+                <br>
+            </td>
+        </tr>
+    </table>
+    <div style="page-break-after: always;"></div>
+{% endif %}
+
+<!-- Hardware Specification (공통) -->
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div style="flex-basis: 33.33%; text-align: left;"><h4 style="margin: 0; padding: 0;">Hardware Specifications</h4></div>
+    <div style="flex-basis: 66.66%; text-align: right;"></div>
+</div>
+<!-- 헤더 테이블 (생략 가능하나 유지) -->
+<table class="table table-bordered table-condensed" style="margin:0px 0px 10px !important; border: 1px solid black;">
+    <tbody>
+        <tr>
+            <th style="border: 1px solid black; text-align: center; vertical-align: middle !important; font-size: 10pt; padding: 2px 4px !important;" colspan="2">Project Name</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">MPR</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Job ID</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Contract No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Sub No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Serial No.</th>
+            <th style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">Revision</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;" colspan="2">{%- if doc.project -%}
+                {%- set project_doc = frappe.get_doc("Project", doc.project).project_name -%}
+                {{ project_doc }}
+                {%- endif -%}
+            </td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.mpr }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.job_id }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.contract_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.sub_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;">{{ doc.serial_no }}</td>
+            <td style="border: 1px solid black; text-align: center; font-size: 10pt; padding: 2px 4px !important;"></td>
+        </tr>
+    </tbody>
+</table>
+
+{% set hw_summary = doc.get_print_hw_spec_summary() %}
+{% if hw_summary and hw_summary.chunks %}
+    {% for chunk in hw_summary.chunks %}
+        {% set num_specs = chunk | length %}
+        {% if num_specs > 0 %}
+            {% set property_col_width_percent = 20 %}
+			{% set spec_col_width_percent = 20 * num_specs %}
+			{% set total_width_percent = property_col_width_percent + spec_col_width_percent %}
+            {% set labels_in_order = chunk[0].keys() | reject('in', ['name', 'hw_spec_code']) | list %}
+            {% set property_min_width = 180 %}
+            {% set spec_min_width = 150 %}
+            {% set total_min_width = property_min_width + (num_specs * spec_min_width) %}
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" style="width: {{total_width_percent}}%; table-layout: fixed; margin-bottom: 25px;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="min-width: {{ property_min_width }}px;">Property</th>
+                            {% for spec in chunk %}
+                                <th style="min-width: {{ spec_min_width }}px;"><a href="/app/door-hardware-spec/{{ spec.name }}">{{ spec.hw_spec_code }}</a></th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label in labels_in_order %}
+                        <tr>
+                            <td style="font-weight: 500;">{{ label }}</td>
+                            {% for spec in chunk %}
+                                <td>{{ spec[label] or '-' }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <p class="text-muted">{{ _('No Hardware Specs found for this project.') }}</p>
+{% endif %}
+<div style="page-break-after: always;"></div>
+
+
+<!-- ================= Product Type 별 데이터 Loop ================= -->
+{% set computation_data = doc.get_print_computation_data() %}
+{% set codes_summary = doc.get_print_codes_sum_data(view_type="product_type") %}
+{% set item_summary = doc.get_print_codes_sum_data(view_type="zone") %}
+{% set project = frappe.get_doc("Project", doc.project) if doc.project else None %}
+
+<!-- Product Type 목록 추출 (Computation이나 Codes Sum 중 하나라도 있는 타입) -->
+{% set ptypes = [] %}
+{% if computation_data.by_type %}
+    {% for pt in computation_data.by_type.keys() %}
+        {% if pt not in ptypes %}{% set _ = ptypes.append(pt) %}{% endif %}
+    {% endfor %}
+{% endif %}
+{% if codes_summary.by_type %}
+    {% for pt in codes_summary.by_type.keys() %}
+        {% if pt not in ptypes %}{% set _ = ptypes.append(pt) %}{% endif %}
+    {% endfor %}
+{% endif %}
+{% set ptypes = ptypes | sort %}
+
+
+{% for ptype in ptypes %}
+
+    <!-- 1. Computation (Product Type별) -->
+    {% if doc.print_computation and not doc.agent_dealer and computation_data.by_type[ptype] %}
+        {% set type_comp = computation_data.by_type[ptype] %}
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tbody>
+                <tr>
+                    <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10p; border: 0;">
+                            <h4 style="margin: 0; padding: 0;">COMPUTATION - {{ ptype }}</h4>
+                    </td>
+                    <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                        <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                        <div>Project: {{ project.project_name if project else '' }}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="margin-bottom: 15px; font-size: 1.1em;">
+            <strong>VP: {{ computation_data.vp_multiplier }}</strong>
+        </div>
+        
+        {% for group in type_comp.groups %}
+        <table class="table table-bordered table-condensed" style="margin-top: 10px !important;">
+            <thead>
+                <tr style="background-color: #e9ecef; font-weight: bold;">
+                    <th style="width: 10%; text-align: center; padding: 1px 4px !important;">{{ group.title }}</th>
+                    <th style="width: 30%; padding: 1px 4px !important;"></th>
+                    <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Cost</th>
+                    <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Sales</th>
+                    <th style="width: 20%; text-align: center; padding: 1px 4px !important;">Manufacturer D/C</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in group.rows %}
+                <tr>
+                    <td style="text-align: center; padding: 1px 4px !important;">{{ row.code }}</td>
+                    <td style="padding: 1px 4px !important;">{{ row.label }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.cost, 0, doc.currency) }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.sales, 0, doc.currency) }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(row.summary.discount, 0, doc.currency) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot style="font-weight: bold;">
+                <tr style="background-color: #f8f9fa;">
+                    <td colspan="2" style="text-align: center; padding: 1px 4px !important;">TOTAL {{ group.title }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.cost, 0, doc.currency) }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.sales, 0, doc.currency) }}</td>
+                    <td style="text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(group.total.discount, 0, doc.currency) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        {% endfor %}
+        
+        <!-- Grand Total -->
+        <table class="table table-bordered table-sm">
+            <tfoot style="font-weight: bold;">
+                <tr style="background-color: #343a40; color: white;">
+                    <td style="width: 40%; padding: 1px 4px !important;" colspan="2">GRAND TOTAL</td>
+                    <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(type_comp.grand_total.cost, 0, doc.currency) }}</td>
+                    <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(type_comp.grand_total.sales, 0, doc.currency) }}</td>
+                    <td style="width: 20%; text-align: right; padding: 1px 4px !important;">{{ frappe.utils.fmt_money(type_comp.grand_total.discount, 0, doc.currency) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div style="page-break-after: always;"></div>
+    {% endif %}
+
+
+    <!-- 2. Codes Sum (Product Type별) -->
+    {% if doc.print_codes_sum and codes_summary.by_type[ptype] %}
+        {% set type_codes = codes_summary.by_type[ptype] %}
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tbody>
+                <tr>
+                    <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10pt; border: 0;">
+                            <h4 style="margin: 0; padding: 0;">CODES SUM - {{ ptype }}</h4>
+                    </td>
+                    <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                        <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                        <div>Project: {{ project.project_name if project else '' }}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="flex-basis: 1%;"></div>
+            <div style="flex-basis: 16%; font-weight: bold; font-size: 11pt;"></div>
+            <div style="flex-basis: 20%; text-align: left;">
+                {% if not doc.agent_dealer %}
+                    VP: {{doc.point_value}}
+                {% endif %}
+            </div>
+            <div style="flex-basis: 38%; text-align: left;">Product Type: {{ ptype }}</div>
+            <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(type_codes.total.lm or 0) }} LM</div>
+            <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(type_codes.total.square_m or 0) }} M2</div>
+            <div style="flex-basis: 1%;"></div>
+        </div>  
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm">
+                <thead style="background-color: #e9ecef;">
+                    <tr>
+                        <th>CODE</th><th>Item Name</th><th>CH</th><th>Width</th><th>Qty</th>
+                        <th>LM</th><th>M²</th>
+                        {% if not doc.agent_dealer %}
+                            <th>VP</th><th>Total VPs</th><th>Price</th><th>Total Price</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in type_codes.rows %}
+                    <tr>
+                        <td>{{ row.item_code or '' }}</td>
+                        <td>{{ row.item_name or '' }}</td>
+                        <td style="text-align: right;">{{ "%d"|format(row.height or 0) }}</td> 
+                        <td style="text-align: right;">{{ "%d"|format(row.width or 0) }}</td>
+                        <td style="text-align: right; font-weight: bold;">{{ frappe.utils.fmt_money(row.qty or 0, 0, doc.currency) }}</td>
+                        <td style="text-align: right;">{{ "%.2f"|format(row.lm or 0) }}</td>
+                        <td style="text-align: right;">{{ "%.2f"|format(row.square_m or 0) }}</td>
+                        {% if not doc.agent_dealer %}
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money( (row.vp / row.qty) if row.qty else 0, 0, doc.currency) }}</td>
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money(row.vp or 0, 0, doc.currency) }}</td>
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money( (row.price / row.qty) if row.qty else 0, 0, doc.currency) }}</td>
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money(row.price or 0, 0, doc.currency) }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; background-color: #343a40; color: white;">
+                        <td colspan="5">Grand Total</td>
+                        <td style="text-align: right;">{{ "%.2f"|format(type_codes.total.lm) }}</td>
+                        <td style="text-align: right;">{{ "%.2f"|format(type_codes.total.square_m) }}</td>
+                        {% if not doc.agent_dealer %}
+                            <td></td>
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money(type_codes.total.vp_amount, 0, doc.currency) }}</td>
+                            <td></td>
+                            <td style="text-align: right;">{{ frappe.utils.fmt_money(type_codes.total.price, 0, doc.currency) }}</td>
+                        {% endif %}
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div style="page-break-after: always;"></div>
+    {% endif %}
+
+    <!-- 3. Items (Zone별이지만 Product Type 필터링 필요) -->
+    {% if doc.print_items and item_summary and item_summary.zones %}
+        <!-- 현재 Product Type에 해당하는 Zone만 필터링 -->
+        {% set filtered_zones = [] %}
+        {% for zone in item_summary.zones %}
+             {%- set zone_doc = frappe.get_doc("Zone", zone.zone_name) -%}
+             <!-- Zone DocType에 product_type 필드가 있다고 가정 -->
+             {% if zone_doc.product_type == ptype %}
+                 {% set _ = filtered_zones.append(zone) %}
+             {% endif %}
+        {% endfor %}
+
+        {% for zone in filtered_zones %}
+            {%- set zone_doc = frappe.get_doc("Zone", zone.zone_name) -%}
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <td rowspan="2" style="width: 60%; text-align: left; vertical-align: top; padding: 0 !important; font-size: 10pt; border: 0;">
+                                <h4 style="margin: 0; padding: 0;">ITEMS</h4>
+                        </td>
+                        <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                            <div>Order No: {{ doc.mpr }} - {{ doc.job_id }} - {{ doc.contract_no}} - {{doc.sub_no}} - {{doc.serial_no}} - {{doc.revision_no}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 40%; text-align: left; vertical-align: top; padding: 0 !important; border: 0; font-size: 10pt;">
+                            <div>Project: {{ project.project_name if project else '' }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 10px !important;">
+                <div style="flex-basis: 1%;"></div>
+                <div style="flex-basis: 16%; font-weight: bold; font-size: 11pt;">Zone:&nbsp;{{ zone_doc.zone_name }}</div>
+                <div style="flex-basis: 20%; text-align: left;">
+                    {% if not doc.agent_dealer %}
+                        VP: {{doc.point_value}}
+                    {% endif %}
+                </div>
+                <div style="flex-basis: 38%; text-align: left;">Product Type: {{ zone_doc.product_type or '-' }}</div>
+                <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(zone.total.lm or 0) }} LM</div>
+                <div style="flex-basis: 12%; text-align: right;">{{ "%.2f"|format(zone.total.square_m or 0) }} M2</div>
+                <div style="flex-basis: 1%;"></div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-sm" style="width: 100%; margin-bottom: 3px 0 5px !important; border-collapse: collapse;">
+                    <thead style="border-top: 1px solid black; border-bottom: 1px solid black;">
+                        <tr>
+                            <th style="width: 20%; padding: 5px;">Item Code</th>
+                            <th style="width: 45%; padding: 5px;">Item Name</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Height</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Width</th>
+                            <th style="width: 7%; text-align: right; padding: 5px;">Qty</th>
+                            {% if not doc.agent_dealer %}
+                                <th style="width: 14%; text-align: right; padding: 5px;">Unit Price</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in zone.rows %}
+                            {% if row.indent_level == 0 and (loop.first or row.product_section != loop.previtem.product_section) %}
+                                <tr style="background-color: #f8f9fa;">
+                                    <td colspan="6" style="font-weight: bold; border-top: 1px solid #ddd; padding: 6px 5px;">
+                                        {{ row.product_section }} Group
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <td style="border: 0; padding: 5px;">{{ "&nbsp;&nbsp;&nbsp;&nbsp;" if row.indent_level > 0 else "" }}{{ row.item_code or "" }}</td>
+                                <td style="border: 0; padding: 5px; padding-left: {{ 5 + (15 * row.indent_level) }}px;">{{ row.item_name or '' }}</td>
+                                <td style="border: 0; text-align: right; padding: 5px;">
+                                    {% if row.indent_level == 0 or (row.indent_level == 1 and row.product_section == "Leaf") %}
+                                        {{ frappe.utils.fmt_money(row.height or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                <td style="border: 0; text-align: right; padding: 5px;">
+                                    {% if row.indent_level == 0 or (row.indent_level == 1 and row.product_section == "Leaf") %}
+                                        {{ frappe.utils.fmt_money(row.width or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                <td style="border: 0; text-align: right; font-weight: bold; padding: 5px;">
+                                    {% if row.indent_level == 0 %}
+                                        {{ frappe.utils.fmt_money(row.qty or 0, 0) }}
+                                    {% endif %}
+                                </td>
+                                {% if not doc.agent_dealer %}
+                                    <td style="border: 0; text-align: right; padding: 5px;">
+                                        {% set unit_price = 0 %}
+                                        {% if row.price and row.price > 0 %}
+                                            {% set unit_price = (row.price / row.qty) if row.qty else 0 %}
+                                        {% elif row.vp and row.vp > 0 %}
+                                            {% set unit_price = (row.vp / row.qty) if row.qty else 0 %}
+                                        {% endif %}
+                                        {% if unit_price > 0 %}
+                                            <b>{{ frappe.utils.fmt_money(unit_price, 0) }}</b> {{ row.uom or '' }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% if row.product_section == "Door" and row.indent_level == 0 %}
+                            {% if row.remark %}
+                            <tr>
+                                <td colspan="6" style="font-size: 8pt; padding: 4px 10px; border-top-color: transparent;">
+                                    <strong>Remark:</strong> {{ row.remark | replace('\n', '<br>') }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td colspan="6" style="background-color: #f9f9f9; font-size: 8pt; padding: 4px 10px; color: #555; border-top-color: transparent;">
+                                    <strong>Handle:</strong> {{ row.handle_direct or '-' }} |
+                                    <strong>HW Spec:</strong> {{ row.door_hw_spec or '-' }} | 
+                                    
+                                    <!-- Keeper 표시 로직 -->
+                                    <strong>Keeper:</strong> 
+                                    {%- set keeper_base = (row.keeper or '-') | replace('Keeper-', '') -%}
+                                    {%- if row.keeper_glass_a and row.keeper_glass_b -%}
+                                        {{ keeper_base }} ({{ row.keeper_glass_a }} + {{ row.keeper_glass_b }})
+                                    {%- elif row.keeper_glass_a -%}
+                                        {{ keeper_base }} ({{ row.keeper_glass_a }} - Outer)
+                                    {%- elif row.keeper_glass_b -%}
+                                        {{ keeper_base }} ({{ row.keeper_glass_b }} - Inner)
+                                    {%- else -%}
+                                        {{ keeper_base }}
+                                    {%- endif -%} |
+
+                                    <strong>Hinge:</strong>
+                                    {%- set hinge_base = (row.hinge or '-') | replace('Hinge-', '') -%}
+                                    {%- if row.hinge_glass_a and row.hinge_glass_b -%}
+                                        {{ hinge_base }} ({{ row.hinge_glass_a }} + {{ row.hinge_glass_b }})
+                                    {%- elif row.hinge_glass_a -%}
+                                        {{ hinge_base }} ({{ row.hinge_glass_a }} - Outer)
+                                    {%- elif row.hinge_glass_b -%}
+                                        {{ hinge_base }} ({{ row.hinge_glass_b }} - Inner)
+                                    {%- else -%}
+                                        {{ hinge_base }}
+                                    {%- endif -%} |
+                                    <strong>Undercut:</strong> {{ row.under_cut or '-' }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot style="border-top: 1px solid black;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="2" style="padding: 5px; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">
+                                {{ zone_doc.zone_name }} Total
+                            </td>
+                            <td colspan="4" style="text-align: right; padding: 5px; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; background-color: #f0f0f0;">
+                                L/M: {{ "%.2f"|format(zone.total.lm or 0) }}&nbsp;&nbsp;&nbsp;&nbsp;M2: {{ "%.2f"|format(zone.total.square_m or 0) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div style="page-break-after: always;"></div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- 마지막 Product Type이 아니면 페이지 나누기 (선택 사항, 위에서 이미 나눴으므로 생략 가능) -->
+    {# if not loop.last #}
+        {# <div style="page-break-after: always;"></div> #}
+    {# endif #}
+
+{% endfor %}

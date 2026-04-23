@@ -451,7 +451,7 @@ def calculate_and_get_row_values(item_code, height, width, qty):
 
 
 @frappe.whitelist()
-def search_item_by_name(txt, product_type=None, product_section=None):
+def search_item_by_name(txt, product_type=None, product_section=None, company=None):
     if not txt:
         return []
 
@@ -460,7 +460,11 @@ def search_item_by_name(txt, product_type=None, product_section=None):
         ['disabled', '=', 0],
         ['has_variants', '=', 0],
     ]
-    
+
+    # set_warehouse → company 필터 (Clestra Korea / Taicang Factory 분리)
+    if company:
+        filters.append(['company', '=', company])
+
     # [핵심 수정] 검색어를 공백으로 분리하여 각각 'AND' 조건으로 추가합니다.
     search_terms = txt.split()
     for term in search_terms:
@@ -469,25 +473,38 @@ def search_item_by_name(txt, product_type=None, product_section=None):
     # 1. product_section 값에 따라 분기합니다.
     if product_section:
         sub_item_group = ["Option", "Price Study", "Sub Contract"]
-        
+
         if product_section in sub_item_group:
             filters.append(['item_group', '=', product_section])
         else:
             filters.append(['product_section', '=', product_section])
             if product_type:
                 filters.append(['product_type', '=', product_type])
-    else:
-        if product_type:
-            filters.append(['product_type', '=', product_type])
+    # product_section이 없으면 product_type 필터도 적용하지 않음 → Option/Price Study/Sub Contract 등 모든 section 아이템이 검색됨
 
     items = frappe.get_list(
         'Item',
         filters=filters,
-        fields=['item_name', 'item_code'],
+        fields=['name', 'item_name', 'item_code', 'product_section', 'item_group'],
         limit=20
     )
 
-    return [{'label': item.item_name, 'value': item.item_code} for item in items]
+    sub_item_groups = {"Option", "Price Study", "Sub Contract"}
+
+    # Link(item_code) 필드가 Item.name을 기대하므로 value에 name을 반환.
+    # label은 item_name 우선, 비어있으면 item_code fallback.
+    # product_section: Item.product_section 우선, 비어있고 item_group이 Option/Price Study/Sub Contract이면 해당 값 반환.
+    result = []
+    for item in items:
+        effective_section = item.product_section
+        if not effective_section and item.item_group in sub_item_groups:
+            effective_section = item.item_group
+        result.append({
+            'label': (item.item_name or item.item_code),
+            'value': item.name,
+            'product_section': effective_section or '',
+        })
+    return result
 
 
 @frappe.whitelist()
@@ -598,7 +615,7 @@ def get_computation_data(doc):
     if not items:
         return None
 
-    vp_multiplier = cint(frappe.db.get_value("VP Rate", {"code": 'vp'}, "value"))
+    vp_multiplier = flt(doc.get("point_value"))
     item_codes = list(set(d.get("item_code") for d in items if d.get("item_code")))
     item_cost_code_map = {d.name: d.cost_code for d in frappe.get_all("Item", filters={"name": ("in", item_codes)}, fields=["name", "cost_code"])}
 

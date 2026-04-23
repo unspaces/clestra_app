@@ -161,6 +161,17 @@ frappe.ui.form.on("Clestra Sales Order", {
 			// 현재 수정 중인 행(row)의 데이터를 가져옵니다.
 			let row = locals[cdt][cdn];
 
+			// set_warehouse에 따라 Item.company 결정
+			// "... - GUMI"  → Clestra Korea
+			// "... - TC"    → Taicang Factory
+			const resolve_company_from_warehouse = (warehouse) => {
+				if (!warehouse) return null;
+				if (/-\s*GUMI\b/i.test(warehouse)) return "Clestra Korea";
+				if (/-\s*TC\b/i.test(warehouse)) return "Taicang Factory";
+				return null;
+			};
+			const item_company = resolve_company_from_warehouse(doc.set_warehouse);
+
 			// 필터링할 특별한 product_section 값들을 배열로 정의
 			const sub_item_section = ["Option", "Price Study", "Sub Contract"];
 
@@ -169,11 +180,9 @@ frappe.ui.form.on("Clestra Sales Order", {
 				row.indent_level = cint(row.parent_row_no) > 0 ? 2 : 0;
 
 				// product_type과 product_section 필터를 해제하고, item_group으로 필터링
-				return {
-					filters: {
-						'item_group': ['in', row.product_section]
-					}
-				};
+				const base_filters = { 'item_group': ['in', row.product_section] };
+				if (item_company) base_filters['company'] = item_company;
+				return { filters: base_filters };
 			}
 			// 2. [일반 조건] 그 외의 모든 경우
 			else {
@@ -188,6 +197,11 @@ frappe.ui.form.on("Clestra Sales Order", {
 				// 현재 행(row)의 product_section 값이 있을 경우에만 필터를 추가
 				if (row && row.product_section) {
 					filters['product_section'] = row.product_section;
+				}
+
+				// set_warehouse 기준 Item.company 필터 (GUMI→Clestra Korea, TC→Taicang Factory)
+				if (item_company) {
+					filters['company'] = item_company;
 				}
 
 				return {
@@ -257,6 +271,7 @@ frappe.ui.form.on("Clestra Sales Order", {
 		setup_group_selection_for_grid(frm);
 		apply_visibility_rules(frm);
 		update_all_planned_qty_visibility(frm);
+		apply_all_dimension_rule_readonly(frm);
 		clickable_unit_price_column(frm);
 
 		// ================== 5. HTML 렌더 ==================
@@ -554,6 +569,11 @@ function update_zone_summary_table(frm) {
 			async: false
 		});
 	}
+
+	// DB 업데이트 후 HTML 집계 화면도 다시 렌더링 (자동 업데이트)
+	if (typeof render_new_zone_summary === 'function') {
+		render_new_zone_summary(frm);
+	}
 }
 
 frappe.ui.form.on("Sales Order Zone", {
@@ -564,6 +584,10 @@ frappe.ui.form.on("Sales Order Zone", {
 
 
 frappe.ui.form.on("Sales Order Finished Items", {
+	// Edit 다이얼로그가 열릴 때도 dimension_rule readonly 적용
+	form_render: function (frm, cdt, cdn) {
+		setTimeout(() => apply_dimension_rule_to_edit_dialog(frm, cdt, cdn), 100);
+	},
 	item_code: function (frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
 		if (row.item_code && !row.product_section) {
@@ -573,6 +597,8 @@ frappe.ui.form.on("Sales Order Finished Items", {
 				}
 			});
 		}
+		// Item.dimension_rule에 따라 height/width readonly 토글
+		apply_dimension_rule_readonly(frm, cdt, cdn);
 		update_calculated_price(frm, cdt, cdn);
 		// trigger_auto_save_if_complete(frm, cdt, cdn);
 	},
@@ -584,39 +610,49 @@ frappe.ui.form.on("Sales Order Finished Items", {
 
 	height: function (frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
-		const h_value = row.height;
+		const h_value = flt(row.height);
 
-		if (row.product_section == 'Door') {
-			frappe.model.set_value(cdt, cdn, 'ch', h_value);
-			frappe.model.set_value(cdt, cdn, 'ph', 0);
+		// height → ch/ph 직접 할당(순환 핸들러 재트리거 방지).
+		// frappe.model.set_value는 비동기라 height가 0으로 초기화되는 버그 발생 (feedback_height_sync.md).
+		if (row.product_section == 'Door' && h_value) {
+			row.ch = h_value;
+			row.ph = 0;
+			frm.refresh_field('finished_items');
 		}
-		else if (row.product_section == 'Panel') {
-			frappe.model.set_value(cdt, cdn, 'ch', 0);
-			frappe.model.set_value(cdt, cdn, 'ph', h_value);
+		else if (row.product_section == 'Panel' && h_value) {
+			row.ch = 0;
+			row.ph = h_value;
+			frm.refresh_field('finished_items');
 		}
 
 		calculate_row_values(frm, cdt, cdn);
 		update_calculated_price(frm, cdt, cdn);
-		// trigger_auto_save_if_complete(frm, cdt, cdn);
+		update_zone_summary_table(frm);
 	},
 
 	ch: function (frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
-		const ch_value = row.ch;
+		const ch_value = flt(row.ch);
 
-		frappe.model.set_value(cdt, cdn, 'height', ch_value);
-		
-		// ch 값이 변경될 때마다 zone_summary 업데이트
+		// ch → height 직접 할당(순환 방지)
+		if (ch_value && flt(row.height) !== ch_value) {
+			row.height = ch_value;
+			frm.refresh_field('finished_items');
+		}
+
 		update_zone_summary_table(frm);
 	},
 
 	ph: function (frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
-		const ph_value = row.ph;
+		const ph_value = flt(row.ph);
 
-		frappe.model.set_value(cdt, cdn, 'height', ph_value);
-		
-		// ph 값이 변경될 때마다 zone_summary 업데이트
+		// ph → height 직접 할당(순환 방지)
+		if (ph_value && flt(row.height) !== ph_value) {
+			row.height = ph_value;
+			frm.refresh_field('finished_items');
+		}
+
 		update_zone_summary_table(frm);
 	},
 
@@ -850,7 +886,174 @@ frappe.ui.form.on("Sales Order Finished Items", {
 	},
 });
 
-// planned_qty 필드를 product_section 값에 따라 표시하거나 숨기는 함수
+// Item.dimension_rule + Item.include_lm에 따라 해당 행의 height/width 편집 가능 여부 설정
+// - include_lm=1 → dimension_rule 무시, 둘 다 편집 가능
+// - WIDTH  → height readonly + height=0 (width만 변경 가능)
+// - HEIGHT → width readonly + width=0 (height만 변경 가능)
+// - NONE   → 둘 다 readonly + 둘 다 0
+// - ALL/미설정 → 둘 다 편집 가능
+function apply_dimension_rule_readonly(frm, cdt, cdn) {
+	const row = locals[cdt] && locals[cdt][cdn];
+	if (!row) return;
+
+	const grid = frm.fields_dict['finished_items']?.grid;
+	const grid_row = grid && grid.grid_rows_by_docname[row.name];
+	if (!grid_row) return;
+
+	const apply_block = ($cell, editable) => {
+		$cell.toggleClass('force-readonly-cell', !editable);
+		// input 자체에 readonly + tabindex=-1 → 키보드 입력 및 Tab 이동 차단
+		$cell.find('input').each(function () {
+			if (editable) {
+				$(this).prop('readonly', false).removeAttr('tabindex');
+			} else {
+				$(this).prop('readonly', true).attr('tabindex', '-1');
+			}
+		});
+	};
+
+	const set_editable = (rule, include_lm) => {
+		// include_lm 체크 시 dimension_rule 무시
+		if (include_lm) rule = null;
+
+		const height_editable = rule !== 'WIDTH' && rule !== 'NONE';
+		const width_editable = rule !== 'HEIGHT' && rule !== 'NONE';
+
+		grid_row.toggle_editable('height', height_editable);
+		grid_row.toggle_editable('width', width_editable);
+
+		const $row = $(grid_row.row);
+		apply_block($row.find('.col[data-fieldname="height"]'), height_editable);
+		apply_block($row.find('.col[data-fieldname="width"]'), width_editable);
+
+		// readonly인 필드 값을 0으로 초기화 (직접 할당으로 순환 핸들러 재트리거 방지)
+		let changed = false;
+		if (!height_editable && flt(row.height) !== 0) {
+			row.height = 0;
+			changed = true;
+		}
+		if (!width_editable && flt(row.width) !== 0) {
+			row.width = 0;
+			changed = true;
+		}
+		if (changed) frm.refresh_field('finished_items');
+	};
+
+	if (!row.item_code) {
+		set_editable(null, false);
+		return;
+	}
+
+	// row.item_code는 Item.name 또는 raw item_code 가능성 → 두 가지 조회 fallback
+	frappe.db.get_value('Item', row.item_code, ['dimension_rule', 'include_lm'], (r) => {
+		if (r && Object.keys(r).length) {
+			set_editable(r.dimension_rule || null, !!cint(r.include_lm));
+			return;
+		}
+		frappe.db.get_list('Item', {
+			filters: { item_code: row.item_code },
+			fields: ['dimension_rule', 'include_lm'],
+			limit: 1
+		}).then(items => {
+			if (items && items.length) {
+				set_editable(items[0].dimension_rule || null, !!cint(items[0].include_lm));
+			} else {
+				set_editable(null, false);
+			}
+		});
+	});
+}
+
+// 그리드 전체 행에 dimension_rule readonly 규칙 적용 (refresh 시 호출)
+function apply_all_dimension_rule_readonly(frm) {
+	const grid = frm.fields_dict['finished_items']?.grid;
+	if (!grid) return;
+	grid.grid_rows.forEach(grid_row => {
+		if (grid_row.doc) {
+			apply_dimension_rule_readonly(frm, grid_row.doc.doctype, grid_row.doc.name);
+		}
+	});
+}
+
+// Edit 다이얼로그에서도 dimension_rule에 따라 width/height를 차단.
+function apply_dimension_rule_to_edit_dialog(frm, cdt, cdn) {
+	const row = locals[cdt] && locals[cdt][cdn];
+	if (!row || !row.item_code) return;
+
+	const grid = frm.fields_dict['finished_items']?.grid;
+	const grid_row = grid && grid.grid_rows_by_docname[cdn];
+	if (!grid_row) return;
+
+	// grid_row.grid_form이 현재 열린 Edit 다이얼로그.
+	// 없으면 DOM에서 직접 찾기.
+	const $form_wrapper = grid_row.grid_form && grid_row.grid_form.wrapper
+		? $(grid_row.grid_form.wrapper)
+		: $('.grid-row-open-form').last();
+	if (!$form_wrapper.length) return;
+
+	const resolve = (rule, include_lm) => {
+		if (include_lm) rule = null;
+		const height_editable = rule !== 'WIDTH' && rule !== 'NONE';
+		const width_editable = rule !== 'HEIGHT' && rule !== 'NONE';
+
+		const lock = (fieldname, editable) => {
+			// grid_form의 fields_dict를 통해 docfield를 직접 수정하면 가장 확실
+			if (grid_row.grid_form && grid_row.grid_form.fields_dict[fieldname]) {
+				const field = grid_row.grid_form.fields_dict[fieldname];
+				field.df.read_only = editable ? 0 : 1;
+				if (typeof field.refresh === 'function') field.refresh();
+			}
+			// DOM에도 직접 적용 (backup)
+			const $ctrl = $form_wrapper.find(`[data-fieldname="${fieldname}"]`);
+			$ctrl.toggleClass('force-readonly-cell', !editable);
+			$ctrl.find('input, textarea').each(function () {
+				if (editable) {
+					$(this).prop('readonly', false).prop('disabled', false).removeAttr('tabindex');
+				} else {
+					$(this).prop('readonly', true).attr('tabindex', '-1');
+				}
+			});
+		};
+		lock('height', height_editable);
+		lock('width', width_editable);
+	};
+
+	frappe.db.get_value('Item', row.item_code, ['dimension_rule', 'include_lm'], (r) => {
+		if (r && Object.keys(r).length) {
+			resolve(r.dimension_rule || null, !!cint(r.include_lm));
+		} else {
+			frappe.db.get_list('Item', {
+				filters: { item_code: row.item_code },
+				fields: ['dimension_rule', 'include_lm'],
+				limit: 1
+			}).then(items => {
+				if (items && items.length) {
+					resolve(items[0].dimension_rule || null, !!cint(items[0].include_lm));
+				}
+			});
+		}
+	});
+}
+
+// 다이얼로그 내부에서도 force-readonly-cell 입력 차단 (body level delegated)
+if (!$(document.body).data('dim_rule_dialog_bound')) {
+	$(document.body).data('dim_rule_dialog_bound', true);
+	$(document.body).on('keydown', '.grid-row-open-form .force-readonly-cell input, .grid-row-open-form .force-readonly-cell textarea', function (e) {
+		const allowed = [9, 27, 37, 38, 39, 40];
+		if (!allowed.includes(e.keyCode)) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	});
+	$(document.body).on('focusin', '.grid-row-open-form .force-readonly-cell input, .grid-row-open-form .force-readonly-cell textarea', function () {
+		$(this).blur();
+	});
+	$(document.body).on('mousedown click', '.grid-row-open-form .force-readonly-cell input, .grid-row-open-form .force-readonly-cell textarea', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+}
+
 function toggle_planned_qty_field(grid_row, product_section) {
 	if (!grid_row || !grid_row.row) return;
 
@@ -1624,12 +1827,6 @@ function open_add_zone_dialog(frm, source_zone) {
 				read_only: 1
 			},
 			{
-				label: __('Zone Name'), // 사용자가 입력하는 Zone 코드/이름
-				fieldname: 'zone_name',
-				fieldtype: 'Data',
-				reqd: 1
-			},
-			{
 				label: __('Product Type'),
 				fieldname: 'product_type',
 				fieldtype: 'Link',
@@ -1638,7 +1835,13 @@ function open_add_zone_dialog(frm, source_zone) {
 				reqd: 1,
 				read_only: source_zone ? 1 : 0,
 				default: default_product_type,
-			}
+			},
+			{
+				label: __('Zone Name'), // 사용자가 입력하는 Zone 코드/이름
+				fieldname: 'zone_name',
+				fieldtype: 'Data',
+				reqd: 1
+			}			
 		],
 		primary_action_label: source_zone ? __('Duplicate ') : __('Add'),
 		primary_action: (values) => {
@@ -1853,34 +2056,7 @@ function setup_grid_column_interaction(frm, grid_name, target_fields, is_editabl
 		});
 	}
 
-	// [3] 스타일 주입 (기존과 동일)
-	if (!$('style#grid-interaction-style').length) {
-		$(`
-			<style id="grid-interaction-style">
-				.grid-interaction-popover {
-                    max-width: 500px !important; 
-                    z-index: 1060;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                }
-				.grid-interaction-popover .popover-body {
-                    white-space: pre-wrap !important;
-                    word-break: break-word !important;
-                    font-family: var(--font-stack); /* 폰트 통일 */
-                    font-size: var(--text-md);
-                    line-height: 1.5;
-                    color: var(--text-color);
-                }
-			</style>
-		`).appendTo('head');
-	}
-
-	const css_selector = target_fields.map(f => `.form-grid[data-fieldname="${grid_name}"] .col[data-fieldname="${f}"]`).join(', ');
-	$(`<style>
-		${css_selector} {
-			cursor: pointer; !important;
-			background-color: #fafbfc; !important;
-		}
-	</style>`).appendTo('head');
+	// 스타일은 clestra_sales_order.css로 이동 (grid-interaction-popover, remark 셀 cursor 등)
 
 	grid[`is_${grid_name}_interaction_setup`] = true;
 }
@@ -1900,33 +2076,55 @@ function setup_finished_items_grid(frm) {
 		}
 	}
 	
-	// finished_items 그리드의 border-right 제거를 위한 CSS 주입
-	if (!$('style#finished-items-border-fix').length) {
-		$(`
-			<style id="finished-items-border-fix">
-				.form-grid[data-fieldname="finished_items"] .grid-row .row .col,
-				.form-grid[data-fieldname="finished_items"] .grid-row .row .row-check,
-				.form-grid[data-fieldname="finished_items"] .grid-row .row .row-index,
-				.form-grid[data-fieldname="finished_items"] .grid-body .col,
-				.form-grid[data-fieldname="finished_items"] .grid-body .row-check,
-				.form-grid[data-fieldname="finished_items"] .grid-body .row-index {
-					border-right: none !important;
-					border-right-width: 0 !important;
-					border-right-style: none !important;
-					border-right-color: transparent !important;
-				}
-				.form-grid[data-fieldname="finished_items"] .grid-heading-row .col,
-				.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-check,
-				.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-index {
-					border-right: none !important;
-					border-right-width: 0 !important;
-					border-right-style: none !important;
-					border-right-color: transparent !important;
-				}
-			</style>
-		`).appendTo('head');
+	// finished-items border 제거는 clestra_sales_order.css로 이동
+
+	// grid-heading-row sticky 위치를 scroll 방향에 따라 form-tabs-list와 동일하게 토글.
+	// 아래 스크롤 → header-sticky-up (top = navbar - 18px)
+	// 위로 스크롤 → header-sticky-down (top = navbar + page-head - 18px)
+	if (!frm._grid_header_sticky_bound) {
+		frm._grid_header_sticky_bound = true;
+		let last_scroll = 0;
+		$(window).on('scroll.finished_items_header', frappe.utils.throttle(() => {
+			const $heading = grid.wrapper.find('.grid-heading-row');
+			if (!$heading.length) return;
+			const current_scroll = document.documentElement.scrollTop;
+			if (current_scroll > 0 && last_scroll <= current_scroll) {
+				$heading.removeClass('header-sticky-down').addClass('header-sticky-up');
+			} else {
+				$heading.removeClass('header-sticky-up').addClass('header-sticky-down');
+			}
+			last_scroll = current_scroll;
+		}, 100));
 	}
-	
+
+	// force-readonly-cell 내부 input에 대한 delegated keyboard/focus 차단 핸들러.
+	// Frappe이 DOM을 재렌더해서 readonly 속성이 휘발되어도 이 핸들러는 계속 동작.
+	if (!grid._force_readonly_bound) {
+		grid._force_readonly_bound = true;
+		const $w = grid.wrapper;
+
+		// 키보드 입력 차단 (Tab/Shift+Tab/화살표/Esc만 통과)
+		$w.on('keydown', '.force-readonly-cell input', function (e) {
+			const allowed = [9, 27, 37, 38, 39, 40]; // Tab, Esc, Arrows
+			if (!allowed.includes(e.keyCode)) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
+
+		// 포커스 차단: force-readonly-cell 내 input에 focus가 오면 즉시 blur.
+		// tabindex="-1"로 이미 Tab 순서에서 제외되지만, 수동 focus/click 등 예외 경로 대비.
+		$w.on('focusin', '.force-readonly-cell input', function () {
+			$(this).blur();
+		});
+
+		// 클릭/마우스다운도 차단 (CSS pointer-events가 휘발된 경우 대비)
+		$w.on('mousedown click', '.force-readonly-cell input, .force-readonly-cell .static-area', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		});
+	}
+
 	if (grid.is_fully_enhanced) return;
 
 	grid.wrapper.on('focusin', '[data-fieldname="item_code"] input', function () {
@@ -1969,8 +2167,10 @@ function setup_finished_items_grid(frm) {
 	});
 
 	// ====================================================================
-	// 1. item_name의 커스텀 검색 기능 
+	// 1. item_name의 커스텀 검색 기능
 	// ====================================================================
+	// 스타일(Awesomplete z-index, indent, readonly 셀, VP 배지 등)은 clestra_sales_order.css로 이동
+
 	grid.wrapper.on('focusin', '[data-fieldname="item_name"] input', function () {
 		const $input = $(this);
 
@@ -1980,48 +2180,59 @@ function setup_finished_items_grid(frm) {
 		const input_element = $input.get(0);
 		let awesomplete = new Awesomplete(input_element, {
 			minChars: 0, maxItems: 15,
-			// list: [],
-			// filter: () => true,
 			filter: function (text, input) {
-			// 1. Suggestion 텍스트 (목록에 있는 아이템 이름)
-			// text는 보통 객체({label:..., value:...})일 수 있으므로 처리
-			var suggestionText = (text.label || text).toString();
-
-			// 2. 사용자가 입력한 값을 공백 기준으로 쪼갬 (빈칸 제거)
-			var searchTerms = input.trim().split(/\s+/);
-
-			// 3. 모든 검색어(term)가 suggestionText에 포함되어 있는지 검사 (Case-insensitive)
-			return searchTerms.every(function (term) {
-				return suggestionText.toLowerCase().indexOf(term.toLowerCase()) > -1;
-			});
-		},
+				var suggestionText = (text.label || text).toString();
+				var searchTerms = input.trim().split(/\s+/);
+				return searchTerms.every(function (term) {
+					return suggestionText.toLowerCase().indexOf(term.toLowerCase()) > -1;
+				});
+			},
 			replace: function (suggestion) {
-				// suggestion 객체는 { label: "...", value: "..." } 형태입니다.
-				// input의 값을 선택된 항목의 label로 설정합니다.
 				this.input.value = suggestion.label;
 			}
 		});
 		$input.data('awesomplete-instance', awesomplete);
+		// 서버에서 받은 전체 결과를 캐시 (Awesomplete의 e.text는 label/value만 노출하므로 추가 필드는 여기서 조회)
+		$input.data('search-results-cache', []);
 
 		input_element.addEventListener("awesomplete-select", function (e) {
-			// 기본 동작(input 값 변경 및 이벤트 종료)을 막습니다.
 			e.preventDefault();
 
 			const row_name = $input.closest('.grid-row').data('name');
 			const grid_row = grid.grid_rows_by_docname[row_name];
 			if (!grid_row) return;
 
-			const { label, value } = e.text;
+			const suggestion = e.text;
+			const label = suggestion.label;
+			const value = suggestion.value;
+
+			// Awesomplete의 e.text는 product_section 누락 → 캐시에서 조회
+			const cache = $input.data('search-results-cache') || [];
+			const full_item = cache.find(it => it.value === value);
+			const effective_section = (full_item && full_item.product_section) || '';
 
 			awesomplete.close();
+			$input.data('last-selected-label', label);
+			$input.val(label);
 
-			frappe.model.set_value(grid_row.doc.doctype, grid_row.doc.name, 'item_name', null).then(() => {
-				// 이제 item_name과 item_code를 순차적으로 설정합니다.
-				frappe.model.set_value(grid_row.doc.doctype, grid_row.doc.name, 'item_name', label).then(() => {
-					// item_code는 item_name이 설정된 후에 설정해야,
-					// item_code 변경 시 item_name이 자동으로 덮어쓰여지는 것을 방지함
-					frappe.model.set_value(grid_row.doc.doctype, grid_row.doc.name, 'item_code', value);
-				});
+			const cdt = grid_row.doc.doctype;
+			const cdn = grid_row.doc.name;
+
+			// product_section 먼저 설정
+			const set_section_promise = effective_section
+				? frappe.model.set_value(cdt, cdn, 'product_section', effective_section)
+				: Promise.resolve();
+
+			Promise.resolve(set_section_promise).then(() => {
+				// item_code 설정 (fetch_from이 item_name을 Item.item_name으로 덮어쓸 수 있음)
+				return frappe.model.set_value(cdt, cdn, 'item_code', value);
+			}).then(() => {
+				// Item.item_name이 비어있을 때 fetch_from이 item_name을 비워버리는 문제 방지:
+				// 선택한 label로 item_name을 명시적으로 설정
+				const current_name = locals[cdt][cdn] && locals[cdt][cdn].item_name;
+				if (current_name !== label) {
+					return frappe.model.set_value(cdt, cdn, 'item_name', label);
+				}
 			});
 		});
 
@@ -2071,11 +2282,28 @@ function setup_finished_items_grid(frm) {
 			return;
 		}
 
+		// set_warehouse에 따라 company 결정 (item_code set_query와 동일 규칙)
+		const resolve_company_from_warehouse = (warehouse) => {
+			if (!warehouse) return null;
+			if (/-\s*GUMI\b/i.test(warehouse)) return "Clestra Korea";
+			if (/-\s*TC\b/i.test(warehouse)) return "Taicang Factory";
+			return null;
+		};
+		const item_company = resolve_company_from_warehouse(frm.doc.set_warehouse);
+
 		frappe.call({
 			method: "clestra_app.clestra_selling.doctype.clestra_sales_order.clestra_sales_order.search_item_by_name",
-			args: { txt: term, product_section: grid_row.doc.product_section, product_type: frm.doc.zone_product_type },
+			args: {
+				txt: term,
+				product_section: grid_row.doc.product_section,
+				product_type: frm.doc.zone_product_type,
+				company: item_company
+			},
 			callback: (r) => {
-				awesomplete.list = r.message || [];
+				const results = r.message || [];
+				// 전체 결과를 캐시에 저장 (select 시 product_section 등 추가 속성 조회용)
+				$input.data('search-results-cache', results);
+				awesomplete.list = results;
 				awesomplete.evaluate();
 			}
 		});
@@ -2179,7 +2407,65 @@ function setup_finished_items_grid(frm) {
 			'planned_qty': parent_doc.planned_qty
 		});
 
+		// product_section은 exclude_fields에 있어 부모에서 복사되지 않으므로 product_section에 포커스.
+		// item_code의 focusin 자기-재포커스 경합을 차단하기 위해 capture phase focusin guard 사용.
+		const focus_guard_until = Date.now() + 800;
+		let newRowNameRef = null;
+
+		const get_ps_input = ($row) => {
+			const $cell = $row.find('.col[data-fieldname="product_section"]');
+			let $inp = $cell.find('.field-area input:visible, .field-area select:visible').first();
+			if (!$inp.length) $inp = $cell.find('input, select').first();
+			return $inp;
+		};
+
+		const focusin_guard = (ev) => {
+			if (Date.now() > focus_guard_until) {
+				document.removeEventListener('focusin', focusin_guard, true);
+				return;
+			}
+			const target = ev.target;
+			if (!target || !target.closest) return;
+
+			const $targetRow = $(target).closest('.grid-row');
+			if (!$targetRow.length) return;
+			if (newRowNameRef && $targetRow.attr('data-name') !== newRowNameRef) return;
+
+			if (!target.closest('.col[data-fieldname="item_code"]')) return;
+
+			// item_code로 가는 포커스를 product_section으로 리디렉트
+			const $ps = get_ps_input($targetRow);
+			if ($ps.length) {
+				ev.stopPropagation();
+				target.blur();
+				setTimeout(() => $ps[0].focus(), 0);
+			}
+		};
+		document.addEventListener('focusin', focusin_guard, true);
+
 		const new_row_doc = grid.add_new_row(insert_after_idx + 1, null, null, new_child_data);
+
+		setTimeout(() => {
+			const new_grid_row = new_row_doc && new_row_doc.name
+				? grid.grid_rows_by_docname[new_row_doc.name]
+				: grid.grid_rows[grid.grid_rows.length - 1];
+			if (!new_grid_row) return;
+			newRowNameRef = new_grid_row.doc ? new_grid_row.doc.name : null;
+
+			new_grid_row.toggle_editable_row(true);
+			const $newRow = $(new_grid_row.row);
+			$newRow.find('.col[data-fieldname="product_section"] .static-area').trigger('click');
+
+			const $ps = get_ps_input($newRow);
+			if ($ps.length) {
+				$ps[0].focus();
+				requestAnimationFrame(() => $ps[0].focus());
+			}
+		}, 100);
+
+		setTimeout(() => {
+			document.removeEventListener('focusin', focusin_guard, true);
+		}, 850);
 	}
 
 	// ============================================================
@@ -2234,11 +2520,21 @@ function setup_finished_items_grid(frm) {
 			// 체크박스 숨김 (필요시 주석 해제)
 			// grid_wrapper.find('.grid-heading-row .row-check, .grid-body .row-check').attr('style', 'display: none !important');
 
-			// 'Add Row' -> 'Add Item' 버튼 이름 변경
+			// 'Add Row' -> 'Add Item' 버튼 이름 변경 + 클릭 핸들러 최적화
 			const add_row_button = grid_wrapper.find('.grid-add-row');
 			if (add_row_button.length > 0 && !add_row_button.data('renamed')) {
 				add_row_button.html(`<i class="fa fa-plus"></i> ${__('Add Item')}`);
 				add_row_button.data('renamed', true);
+
+				// Frappe 기본 핸들러는 go_to_last_page_to_add_row()로 전체 행을 재렌더하여 지연 발생.
+				// 이를 건너뛰고 add_new_row만 호출하도록 교체.
+				add_row_button.off('click').on('click', function (e) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					// go_to_last_page 플래그 없이 add_new_row 호출 → 전체 재렌더 스킵
+					grid.add_new_row(null, null, true);
+					return false;
+				});
 			}
 
 			// 부모 - 자식 사이 bottom-border 스타일 변경
@@ -2333,6 +2629,43 @@ function setup_finished_items_grid(frm) {
 				// item_code, item_name 이 입력된 상태에서는 product_section 필드를 편집 불가능하게 설정
 				if (doc.item_code && doc.item_name)
 					grid_row.toggle_editable('product_section', false);
+
+				// indent_level 별 클래스 부여 → CSS로 그룹 구분선/들여쓰기 표시
+				// grid_row.row = .data-row 이므로 상위 .grid-row에도 클래스 부여
+				const $grid_row_el = $row.closest('.grid-row');
+				const lvl = cint(doc.indent_level);
+				if (lvl === 0) {
+					$row.addClass('is-parent-row').removeClass('is-child-row is-sub-2');
+					$grid_row_el.addClass('is-parent-row').removeClass('is-child-row is-sub-2');
+				} else {
+					$row.addClass('is-child-row').removeClass('is-parent-row');
+					$grid_row_el.addClass('is-child-row').removeClass('is-parent-row');
+					if (lvl >= 2) {
+						$row.addClass('is-sub-2');
+						$grid_row_el.addClass('is-sub-2');
+					} else {
+						$row.removeClass('is-sub-2');
+						$grid_row_el.removeClass('is-sub-2');
+					}
+				}
+
+				// VP Management로 vp가 업데이트된 행: item_code 셀에 VP 배지 표시
+				$row.find('.col[data-fieldname="item_code"] .vp-badge').remove();
+				if (cint(doc.use_vp) === 1) {
+					const $ic_static = $row.find('.col[data-fieldname="item_code"] .static-area');
+					if ($ic_static.length) {
+						$ic_static.append('<span class="vp-badge" title="VP Management">VP</span>');
+					}
+				}
+
+				// product_section == "Leaf" AND indent_level > 0 → 보라색 텍스트
+				if (doc.product_section === 'Leaf' && cint(doc.indent_level) > 0) {
+					$row.addClass('leaf-sub-row');
+					$grid_row_el.addClass('leaf-sub-row');
+				} else {
+					$row.removeClass('leaf-sub-row');
+					$grid_row_el.removeClass('leaf-sub-row');
+				}
 
 				// 각 행의 버튼 컨테이너를 찾습니다.
 				const $button_container = $row.find('.row-check');
@@ -2467,12 +2800,17 @@ function setup_finished_items_grid(frm) {
 					}
 				}
 
+				// dimension_rule readonly 재적용 (DOM 재렌더 후 force-readonly-cell 클래스 유지)
+				if (doc.item_code) {
+					apply_dimension_rule_readonly(frm, doc.doctype, doc.name);
+				}
+
 				// [완료 플래그 설정] Observer가 다시 호출되어도 이 행은 건너뜀
 				$row.data('customized', true);
 			});
-		
+
 			// apply_all_grid_rules(frm);
-			
+
 			setup_duplicate_button_for_grid(frm, parent_table);
 			setup_move_to_button_for_grid(frm);
 			setup_grid_column_interaction(frm, 'finished_items', ['remark'], true);
@@ -2580,24 +2918,70 @@ function setup_finished_items_grid(frm) {
 						// 현재 행이 sub item이면 Add Sub Item 실행, 아니면 Add Item
 						const curDoc = currentGridRow.doc;
 						if (cint(curDoc.indent_level) > 0) {
+							// execute_add_sub_item 내부에서 product_section 포커스 처리 (capture phase guard 포함)
 							execute_add_sub_item(curDoc.name);
-							setTimeout(() => {
-								// 새로 추가된 sub item 행 찾아서 포커스
-								const newRowIdx = grid.grid_rows.length - 1;
-								const newRow = grid.grid_rows[newRowIdx];
+						} else {
+							// [해결 방식]
+							// 1) document 캡처 단계에서 focusin을 감시 → item_code로 가는 포커스를 product_section으로 리디렉트
+							// 2) add_new_row로 신규 행 생성 (Frappe가 기본적으로 item_code를 포커스하려 해도 가로챔)
+							// 3) 일정 시간(800ms) 후 가드 해제
+							// 이 방식은 item_code의 focusin 자기-재포커스 경합을 capture phase에서 선제적으로 차단함.
+							const focus_guard_until = Date.now() + 800;
+							let newRowNameRef = null; // 생성된 새 행을 식별하는 data-name
+
+							const get_product_section_input = ($row) => {
+								const $cell = $row.find('.col[data-fieldname="product_section"]');
+								let $inp = $cell.find('.field-area input:visible, .field-area select:visible').first();
+								if (!$inp.length) $inp = $cell.find('input, select').first();
+								return $inp;
+							};
+
+							const focusin_guard = (ev) => {
+								if (Date.now() > focus_guard_until) {
+									document.removeEventListener('focusin', focusin_guard, true);
+									return;
+								}
+								const target = ev.target;
+								if (!target || !target.closest) return;
+
+								const $targetRow = $(target).closest('.grid-row');
+								if (!$targetRow.length) return;
+								if (newRowNameRef && $targetRow.attr('data-name') !== newRowNameRef) return;
+
+								const in_item_code_cell = target.closest('.col[data-fieldname="item_code"]');
+								if (!in_item_code_cell) return;
+
+								// item_code로 가는 포커스 차단 → product_section으로 리디렉트
+								const $ps = get_product_section_input($targetRow);
+								if ($ps.length) {
+									ev.stopPropagation();
+									target.blur();
+									setTimeout(() => $ps[0].focus(), 0);
+								}
+							};
+							document.addEventListener('focusin', focusin_guard, true);
+
+							// add_new_row는 동기적으로 doc을 반환. grid_rows_by_docname도 즉시 populate됨.
+							const new_doc = grid.add_new_row(null, null, true);
+							if (new_doc && new_doc.name) {
+								newRowNameRef = new_doc.name;
+								const newRow = grid.grid_rows_by_docname[new_doc.name]
+									|| grid.grid_rows[grid.grid_rows.length - 1];
 								if (newRow) {
 									newRow.toggle_editable_row(true);
-									setTimeout(() => {
-										let $inp = $(newRow.row).find('.col[data-fieldname="item_code"] .field-area input:visible');
-										if (!$inp.length) $inp = $(newRow.row).find('.field-area input:visible, .field-area textarea:visible, .field-area select:visible').first();
-										if ($inp.length) $inp.first().focus();
-									}, 200);
+									requestAnimationFrame(() => {
+										const $newRow = $(newRow.row);
+										$newRow.find('.col[data-fieldname="product_section"] .static-area').trigger('click');
+										const $ps = get_product_section_input($newRow);
+										if ($ps.length) $ps[0].focus();
+									});
 								}
-							}, 100);
-						} else {
-							grid.add_new_row(null, null, true);
-							grid.grid_rows[grid.grid_rows.length - 1].toggle_editable_row();
-							grid.set_focus_on_row();
+							}
+
+							// 안전장치: 800ms 후 guard 확실히 제거
+							setTimeout(() => {
+								document.removeEventListener('focusin', focusin_guard, true);
+							}, 850);
 						}
 					}
 					return;
@@ -2969,7 +3353,9 @@ function render_door_hardware_details(frm, grid_row) {
 	const $row = $(grid_row.row);
 	const $subRow = $row.next('.custom-subrow');
 
-	if (doc.product_section !== 'Door' && doc.product_section !== 'Panel') {
+	const show_subrow = ['Door', 'Panel', 'Leaf'].includes(doc.product_section);
+
+	if (!show_subrow) {
         if ($subRow.length) $subRow.hide();
         const $wrap = $subRow.find('.hk-wrapper');
         $wrap.empty();
@@ -3001,6 +3387,7 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
 
 	const is_panel = doc.product_section === 'Panel';
 	const is_door = doc.product_section === 'Door';
+	const is_leaf = doc.product_section === 'Leaf';
 
 	// ============================================================
 	// HTML 디스플레이 방식: focusable input 없이 span으로 표시, 클릭 시 Dialog
@@ -3008,7 +3395,7 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
 	const cached_doc_name = $wrap.data('docname');
 	if (cached_doc_name === cdn && $wrap.children().length) {
 		// 같은 문서 — 값만 갱신
-		_update_subrow_display($wrap, doc, is_door, is_panel);
+		_update_subrow_display($wrap, doc, is_door, is_panel, is_leaf);
 		return;
 	}
 
@@ -3050,6 +3437,8 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
 		make_cell('Undercut', 'under_cut', '5%', is_door),
 		make_cell('Handle', 'handle_direct', '5%', is_door, 'Selection Library'),
 		make_cell('Color', 'color', '13%', is_door || is_panel, 'Product Color'),
+		make_cell('Glass A', 'glass_a', '13%', is_panel || is_leaf, 'Product Thickness'),
+		make_cell('Glass B', 'glass_b', '13%', is_panel || is_leaf, 'Product Thickness'),
 		cl_base_cell
 	].join('');
 
@@ -3081,12 +3470,35 @@ function ensure_hw_controls(frm, grid_row, $wrap) {
 			_open_color_details_dialog(frm, cdt, cdn, row_doc);
 		} else if (field === 'cl_base') {
 			_open_clbasetype_detail_dialog(frm, cdt, cdn, row_doc);
+		} else if (field === 'glass_a') {
+			_open_glass_dialog(frm, cdt, cdn, row_doc, 'Glass A (Outer)', 'glass_a');
+		} else if (field === 'glass_b') {
+			_open_glass_dialog(frm, cdt, cdn, row_doc, 'Glass B (Inner)', 'glass_b');
 		}
 	});
 }
 
+// Glass A/B 선택 다이얼로그
+function _open_glass_dialog(frm, cdt, cdn, row_doc, title, fieldname) {
+	frappe.prompt([
+		{
+			label: title,
+			fieldname: fieldname,
+			fieldtype: 'Link',
+			options: 'Product Thickness',
+			default: row_doc[fieldname] || '',
+			get_query: () => ({
+				filters: [['type', 'in', ['Panel Glass', 'Panel & Leaf Glass']]]
+			})
+		}
+	], (values) => {
+		frappe.model.set_value(cdt, cdn, fieldname, values[fieldname] || null);
+	}, __(title), __('Save'));
+}
+
 // subrow 값 갱신 (리렌더링 없이)
-function _update_subrow_display($wrap, doc, is_door, is_panel) {
+function _update_subrow_display($wrap, doc, is_door, is_panel, is_leaf) {
+	is_leaf = is_leaf || doc.product_section === 'Leaf';
 	const val_style = 'font-size:var(--text-sm, 12px); color:var(--text-color, #36414C); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
 	const placeholder_style = 'font-size:var(--text-sm, 12px); color:var(--text-light, #b8c2cc);';
 
@@ -3105,6 +3517,8 @@ function _update_subrow_display($wrap, doc, is_door, is_panel) {
 	update_cell('under_cut', 'Undercut', doc.under_cut);
 	update_cell('handle_direct', 'Handle', doc.handle_direct);
 	update_cell('color', 'Color', doc.color);
+	update_cell('glass_a', 'Glass A', doc.glass_a);
+	update_cell('glass_b', 'Glass B', doc.glass_b);
 
 	const cl_base_val = [doc.clch_type, doc.base_type].filter(Boolean).join(' / ') || '';
 	update_cell('cl_base', 'CL &amp; Base', cl_base_val);
@@ -3116,6 +3530,8 @@ function _update_subrow_display($wrap, doc, is_door, is_panel) {
 	$wrap.find('[data-hw-field="under_cut"]').toggle(is_door);
 	$wrap.find('[data-hw-field="handle_direct"]').toggle(is_door);
 	$wrap.find('[data-hw-field="color"]').toggle(is_door || is_panel);
+	$wrap.find('[data-hw-field="glass_a"]').toggle(is_panel || is_leaf);
+	$wrap.find('[data-hw-field="glass_b"]').toggle(is_panel || is_leaf);
 	$wrap.find('[data-hw-field="cl_base"]').toggle(is_door || is_panel);
 
 	// Link 필드 title 비동기 resolve
@@ -4133,29 +4549,7 @@ function setup_group_selection_for_grid(frm) {
 		}, 50);
 	};
 
-	// 7. 하이라이트를 위한 CSS를 동적으로 추가 (한 번만 실행)
-	if (!$('style#grid-highlight-style').length) {
-		$(`
-			<style id="grid-highlight-style">
-				.highlight-row {
-					background-color: #d9f7be !important;	
-				}
-				
-				.highlight-row:last-child,
-				.highlight-row:not(:has(+ .highlight-row)) {
-					border-bottom-left-radius: var(--border-radius) !important;
-					border-bottom-right-radius: var(--border-radius) !important;
-					
-					/* [중요] 배경색이 둥근 모서리를 넘어가지 않게 자름 */
-					overflow: hidden !important;
-					
-					/* 테두리가 있다면 아래쪽 테두리가 겹치지 않게 처리 (선택 사항) */
-					border-bottom: 1px solid var(--border-color) !important;
-					
-				}
-			</style>
-		`).appendTo('head');
-	}
+	// 하이라이트 CSS(.highlight-row)는 clestra_sales_order.css로 이동
 
 	// 8. 중복 실행 방지 플래그 설정
 	grid.is_group_selection_setup = true;
@@ -4304,25 +4698,7 @@ function update_grand_total_vp(frm) {
 // ====================================================================
 
 function render_new_zone_summary(frm) {
-	if (!$('style#new-zone-list-style').length) {
-		$(`<style id="new-zone-list-style">
-			.new-zone-list .list-row {
-				display: flex; align-items: center;
-				padding: 6px 12px;
-				font-size: var(--text-md, 13px);
-				border-bottom: 1px solid var(--border-color, #d1d8dd);
-			}
-			.new-zone-list .list-row:last-child { border-bottom: none; }
-			.new-zone-list .list-row-head {
-				display: flex; align-items: center;
-				padding: 6px 12px;
-				background: var(--subtle-fg, #f5f7fa);
-				font-weight: 600; font-size: var(--text-md, 13px);
-				border-bottom: 1px solid var(--border-color, #d1d8dd);
-			}
-			.new-zone-list .list-row-col { padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-		</style>`).appendTo('head');
-	}
+	// new-zone-list CSS는 clestra_sales_order.css로 이동
 
 	const wrapper = frm.fields_dict.zone_summary_new_html?.$wrapper;
 	if (!wrapper || !frm.doc.project) return;

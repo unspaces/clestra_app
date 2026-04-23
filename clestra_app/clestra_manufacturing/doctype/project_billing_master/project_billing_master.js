@@ -155,6 +155,11 @@ frappe.ui.form.on('Project Billing Master', {
                 };
             }
 
+            // doc.company 기준으로 Item.company 필터링
+            // Clestra Korea/India → Clestra Korea, Taicang Factory → Taicang Factory
+            const item_company = (doc.company === "Taicang Factory") ? "Taicang Factory" : "Clestra Korea";
+            filters["company"] = item_company;
+
             // 최종 필터 객체를 반환합니다.
             return {
                 filters: filters

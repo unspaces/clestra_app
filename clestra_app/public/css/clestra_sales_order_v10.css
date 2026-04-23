@@ -1,0 +1,234 @@
+/* ============================================================
+ * Clestra Sales Order — 그리드/서브로우/Zone 관련 CSS
+ * 이전에는 clestra_sales_order.js 내부 `<style>` 블록으로 주입되던 규칙을
+ * 유지보수성과 캐싱을 위해 파일로 분리.
+ * ============================================================ */
+
+/* ------------------------------------------------------------
+ * grid-interaction-popover (setup_grid_column_interaction)
+ * ------------------------------------------------------------ */
+.grid-interaction-popover {
+    max-width: 500px !important;
+    z-index: 1060;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.grid-interaction-popover .popover-body {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    font-family: var(--font-stack);
+    font-size: var(--text-md);
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+/* setup_grid_column_interaction: remark 등 클릭형 셀 표시 */
+.form-grid[data-fieldname="finished_items"] .col[data-fieldname="remark"] {
+    cursor: pointer;
+    background-color: #fafbfc;
+}
+
+/* ------------------------------------------------------------
+ * finished_items 그리드 border 제거
+ * ------------------------------------------------------------ */
+.form-grid[data-fieldname="finished_items"] .grid-row .row .col,
+.form-grid[data-fieldname="finished_items"] .grid-row .row .row-check,
+.form-grid[data-fieldname="finished_items"] .grid-row .row .row-index,
+.form-grid[data-fieldname="finished_items"] .grid-body .col,
+.form-grid[data-fieldname="finished_items"] .grid-body .row-check,
+.form-grid[data-fieldname="finished_items"] .grid-body .row-index,
+.form-grid[data-fieldname="finished_items"] .grid-heading-row .col,
+.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-check,
+.form-grid[data-fieldname="finished_items"] .grid-heading-row .row-index {
+    border-right: none !important;
+    border-right-width: 0 !important;
+    border-right-style: none !important;
+    border-right-color: transparent !important;
+}
+
+/* ------------------------------------------------------------
+ * finished_items overflow / Awesomplete / 헤더 sticky / indent 등
+ * ------------------------------------------------------------ */
+
+/* item_name Awesomplete 드롭다운이 하단 행에 가려지지 않도록 */
+[data-fieldname="finished_items"] .grid-body,
+[data-fieldname="finished_items"] .rows,
+[data-fieldname="finished_items"] .grid-row,
+[data-fieldname="finished_items"] .data-row,
+[data-fieldname="finished_items"] .col[data-fieldname="item_name"] {
+    overflow: visible !important;
+}
+[data-fieldname="item_name"] .awesomplete > ul {
+    z-index: 1030 !important;
+    position: absolute !important;
+}
+[data-fieldname="item_name"] .awesomplete {
+    position: relative;
+}
+
+/* 편집 중인 그리드 행이 인접 행보다 위에 오도록 (Bootstrap 모달보다 낮음) */
+[data-fieldname="finished_items"] .grid-row.grid-row-focus {
+    z-index: 2;
+    position: relative;
+}
+
+/* 헤더 스크롤 시 상단 고정.
+ * JS(setup_finished_items_grid)가 scroll 방향에 따라 header-sticky-up / header-sticky-down
+ * 클래스를 동적으로 부여. form-tabs-list의 form-tabs-sticky-up/down과 대응. */
+[data-fieldname="finished_items"] .grid-heading-row {
+    position: sticky;
+    top: calc(var(--navbar-height) + var(--page-head-height) - 18px); /* 초기/fallback */
+    z-index: 20;
+    background: var(--fg-color, #fff);
+    box-shadow: 0 1px 0 var(--border-color, #d1d8dd);
+    transition: 0.5s top; /* form-tabs-list와 동일한 top 애니메이션 */
+}
+/* 아래로 스크롤 → page-head 숨김, form-tabs가 navbar 아래로 올라옴 */
+[data-fieldname="finished_items"] .grid-heading-row.header-sticky-up {
+    top: calc(var(--navbar-height) + var(--page-head-height) - 18px);
+}
+/* 위로 스크롤 → page-head 표시, form-tabs가 page-head 아래에 고정 */
+[data-fieldname="finished_items"] .grid-heading-row.header-sticky-down {
+    top: calc(var(--navbar-height) + var(--page-head-height) + 42px);
+}
+
+/* indent_level=0(부모) 행 사이 구분선. 첫 부모 행 제외 */
+[data-fieldname="finished_items"] .grid-row.is-parent-row ~ .grid-row.is-parent-row {
+    border-top: 1px solid var(--border-color, #d1d8dd) !important;
+}
+
+/* product_section=Leaf AND indent_level>0 → 보라색 텍스트 */
+[data-fieldname="finished_items"] .grid-row.leaf-sub-row,
+[data-fieldname="finished_items"] .grid-row.leaf-sub-row *,
+[data-fieldname="finished_items"] .data-row.leaf-sub-row,
+[data-fieldname="finished_items"] .data-row.leaf-sub-row * {
+    color: #722ed1 !important;
+}
+
+/* indent_level>0 자식 행: product_section 셀 들여쓰기 (세로 막대는 ::before로 통합) */
+[data-fieldname="finished_items"] .grid-row.is-child-row .col[data-fieldname="product_section"],
+[data-fieldname="finished_items"] .data-row.is-child-row .col[data-fieldname="product_section"] {
+    padding-left: 18px !important;
+}
+
+/* indent_level=2(부속품) 한 단계 더 들여쓰기 */
+[data-fieldname="finished_items"] .grid-row.is-sub-2 .col[data-fieldname="product_section"],
+[data-fieldname="finished_items"] .data-row.is-sub-2 .col[data-fieldname="product_section"] {
+    padding-left: 30px !important;
+}
+
+/* 세로 막대를 grid-row 자체에 ::before로 그려 data-row와 custom-subrow를 하나의 줄로 연결.
+   row-check 컬럼(8%) 끝 = product_section 시작 지점에 정렬. */
+[data-fieldname="finished_items"] .grid-row.is-child-row {
+    position: relative;
+}
+[data-fieldname="finished_items"] .grid-row.is-child-row::before {
+    content: '';
+    position: absolute;
+    left: 8%; /* CHECK_COL_WIDTH = 8%, product_section 시작 지점 */
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #adb5bd;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* dimension_rule 강제 readonly 셀: 배경색 없이, 값(0) 숨김 */
+[data-fieldname="finished_items"] .col.force-readonly-cell {
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+[data-fieldname="finished_items"] .col.force-readonly-cell .static-area,
+[data-fieldname="finished_items"] .col.force-readonly-cell input {
+    color: transparent !important; /* 값 "0" 숨김 */
+    background-color: transparent !important;
+}
+/* Edit 다이얼로그에서도 동일 적용 */
+.grid-row-open-form .force-readonly-cell input {
+    color: transparent !important;
+}
+
+/* custom-subrow의 hw-cell 내 상단 라벨(Color, Glass A 등) 숨김 */
+[data-fieldname="finished_items"] .custom-subrow .hw-cell > div:first-child {
+    display: none !important;
+}
+
+/* Height, Width, Qty 컬럼 그룹 시각화 — data-row와 custom-subrow 모두 포함하도록
+ * 절대 위치 outline을 그려 subrow에서도 끊김 없이 연속 표시.
+ * .form-grid-container를 기준으로 잡아야 실제 row 폭과 정확히 일치. */
+[data-fieldname="finished_items"] .form-grid-container {
+    position: relative;
+}
+[data-fieldname="finished_items"] .form-grid-container::before {
+    content: '';
+    position: absolute;
+    /* row-check(8%) + product_section(9.5%) + item_code(9.5%) + item_name(9.5%) = 36.5% */
+    left: 36.5%;
+    /* height-qty 범위 28.5% (3 컬럼 × 9.5%). right = 100% - 36.5% - 28.5% = 35% */
+    right: 35%;
+    top: 0;
+    bottom: 0;
+    border: 1px solid var(--primary, #1890ff);
+    opacity: 0.3;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* VP Management 사용 배지 */
+[data-fieldname="finished_items"] .vp-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #0958d9;
+    background-color: #e6f4ff;
+    border: 1px solid #91caff;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------------------------
+ * 그룹 선택 하이라이트 (setup_group_selection_for_grid)
+ * ------------------------------------------------------------ */
+.highlight-row {
+    background-color: #d9f7be !important;
+}
+.highlight-row:last-child,
+.highlight-row:not(:has(+ .highlight-row)) {
+    border-bottom-left-radius: var(--border-radius) !important;
+    border-bottom-right-radius: var(--border-radius) !important;
+    overflow: hidden !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* ------------------------------------------------------------
+ * new-zone-list (zone_summary_new_html)
+ * ------------------------------------------------------------ */
+.new-zone-list .list-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: var(--text-md, 13px);
+    border-bottom: 1px solid var(--border-color, #d1d8dd);
+}
+.new-zone-list .list-row:last-child {
+    border-bottom: none;
+}
+.new-zone-list .list-row-head {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--subtle-fg, #f5f7fa);
+    font-weight: 600;
+    font-size: var(--text-md, 13px);
+    border-bottom: 1px solid var(--border-color, #d1d8dd);
+}
+.new-zone-list .list-row-col {
+    padding: 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

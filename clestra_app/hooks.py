@@ -10,7 +10,10 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/clestra_app/css/clestra_app_v1.css"
+app_include_css = [
+    "/assets/clestra_app/css/clestra_app_v3.css",
+    "/assets/clestra_app/css/clestra_sales_order_v14.css",
+]
 # app_include_js = [
     # "/assets/clestra_app/js/global_onload.js"
 # ]
@@ -19,6 +22,8 @@ app_include_js = [
     "/assets/clestra_app/js/quick_entry_custom_v5.js",
     "/assets/clestra_app/js/list_filter_patch_v1.js",
     "/assets/clestra_app/js/bom_creator_indent.js",
+    "/assets/clestra_app/js/draggable_dialog_v1.js",
+    "/assets/clestra_app/js/link_field_autoopen_v2.js",
 ]
 
 # include js, css files in header of web template
@@ -233,6 +238,9 @@ doc_events = {}
 # }
 
 # DocType JS
+doctype_js = {
+    "Project": "public/js/project_merge.js",
+}
 # doctype_js = {
     # "CH Quotation": "clestra_app/clestra_app/doctype/ch_quotation/ch_quotation.js"
 # }

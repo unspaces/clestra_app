@@ -5,3 +5,4 @@
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
 clestra_app.patches.rename_items_append_company_abbr
+clestra_app.patches.add_item_dimension_rule_from_vp

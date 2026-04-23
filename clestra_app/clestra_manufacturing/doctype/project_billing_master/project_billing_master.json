@@ -60,6 +60,7 @@
   "get_sub_assembly_items",
   "detail_bom_item_section",
   "bom_items",
+  "search",
   "detail_bom_items",
   "section_break_bjai",
   "column_break_kmph",
@@ -329,6 +330,10 @@
    "fieldname": "detail_bom_item_section",
    "fieldtype": "Section Break",
    "hide_border": 1
+  },
+  {
+   "fieldname": "search",
+   "fieldtype": "HTML"
   },
   {
    "fieldname": "detail_bom_items",

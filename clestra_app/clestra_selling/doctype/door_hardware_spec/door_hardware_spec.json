@@ -289,16 +289,23 @@
   {
    "allow_in_quick_entry": 1,
    "fieldname": "mortise",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_filter": 1,
+   "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Mortise (Lockset)"
+   "label": "Mortise (Lockset)",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"in\",[\"HW Mortise\",\"door_hw_values\"]]]",
+   "options": "Selection Library"
   },
   {
    "allow_in_quick_entry": 1,
    "fieldname": "handle",
-   "fieldtype": "Data",
-   "label": "Handle"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Handle",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"in\",[\"HW Handle\",\"door_hw_values\"]]]",
+   "options": "Selection Library"
   },
   {
    "allow_in_quick_entry": 1,
@@ -379,12 +386,13 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "default": "N",
    "fieldname": "key_cylinder",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Key Cylinder"
+   "label": "Key Cylinder",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"in\",[\"HW Key Cylinder\",\"door_hw_values\",\"YesNo\"]]]",
+   "options": "Selection Library"
   },
   {
    "allow_in_quick_entry": 1,
@@ -408,11 +416,12 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "default": "N",
    "fieldname": "door_closer",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Door Closer",
-   "link_filters": "[[\"Selection Library\", \"opt_name\", \"in\", [\"Door Closer\", \"YesNo\"]]]",
+   "link_filters": "[[\"Selection Library\",\"opt_name\",\"in\",[\"Door Closer\",\"YesNo\"]]]",
    "options": "Selection Library"
   },
   {
@@ -669,7 +678,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-15 11:28:32.334481",
+ "modified": "2026-04-22 09:25:49.480620",
  "modified_by": "Administrator",
  "module": "Clestra Selling",
  "name": "Door Hardware Spec",

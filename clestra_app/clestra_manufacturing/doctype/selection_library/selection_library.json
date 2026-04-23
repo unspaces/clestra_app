@@ -37,7 +37,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Selection Name",
-   "options": "\nProduct Type\nGlass Type\nGlass Type (KR)\nDoor Closer\nHandle Direction\nHinge & Keeper\nHinge\nKeeper\nHinge Type\nNumber of Hinge Holes\nLeaf Material\nLeaf Active Status\nAuto Drop Seal\nAstragal\nFlush Bolt\nFGD\nTape & Seal Color\nFixing Screw Cap\nYesNo\nCL CH Type\nBase Type\nHW Mortise\nHW Handle\nHW Key Cylinder"
+   "options": "\nProduct Type\nGlass Type\nGlass Type (KR)\nDoor Closer\nHandle Direction\nHinge & Keeper\nHinge\nKeeper\nHinge Type\nNumber of Hinge Holes\nLeaf Material\nLeaf Active Status\nAuto Drop Seal\nAstragal\nFlush Bolt\nFGD\nTape & Seal Color\nFixing Screw Cap\nYesNo\nCL CH Type\nBase Type\nHW Mortise\nHW Handle\nHW Key Cylinder\ndoor_hw_values"
   },
   {
    "allow_in_quick_entry": 1,
@@ -71,8 +71,13 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-01-13 11:00:11.335640",
+ "links": [
+  {
+   "link_doctype": "Door Hardware Spec",
+   "link_fieldname": "mortise"
+  }
+ ],
+ "modified": "2026-04-22 11:40:07.044174",
  "modified_by": "Administrator",
  "module": "Clestra Manufacturing",
  "name": "Selection Library",
@@ -104,6 +109,7 @@
   },
   {
    "create": 1,
+   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
@@ -115,6 +121,7 @@
   },
   {
    "create": 1,
+   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,

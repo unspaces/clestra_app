@@ -78,31 +78,60 @@ stylesheet instead.
 
 ## ERPNext
 
-### `erpnext/manufacturing/doctype/bom_creator/bom_creator.{json,py,js}`
+### `erpnext/public/js/bom_configurator/bom_configurator.bundle.js`
 
-**Why drift:** Clestra has effectively forked BOM Creator into a
-domain-specific manufacturing tool for door/panel/leaf assemblies.
+**Why drift:** The BOM Creator tree widget UI (drag/drop, tree label
+rewriting, hardware/leaf/panel field handling). +1117 lines vs
+upstream v15.29.0. Mass-redefines `erpnext.bom.BomConfigurator`.
 
-**Diff summary (vs ERPNext v15.29.0):**
-- `.json`: +80 fields (HEAD: 117 vs upstream: 37). Adds door/leaf/panel
-  sizing (width, ch, pw, ph, leaf_width/height, etc.), hardware spec
-  (handle, hinge, keeper, key_cylinder, door_closer, flush_bolt, ...),
-  glass spec (glass_a/b, leaf_glass_a/b, ...), workflow (product_section,
-  door_open_type, door_set_type, ...), display (qty_prefix/suffix,
-  qty_bracket, indent_level, ...).
-- `.py`: 1245-line diff. New field-group constants
-  (PARENT_ITEM_FIELDS, BOM_FIELDS, BOM_ITEM_BASE_FIELDS, SIZE_FIELDS,
-  BOM_DETAIL_FIELDS, ...), custom `get_children`/`add_item` overrides,
-  domain helper functions for size propagation and BOM tree traversal.
-- `.js`: tree label + indent column rendering customizations.
+**Why not migrated to clestra_app:**
+- `apps.txt` order is **frappe → clestra_app → erpnext**, so any class
+  override in `app_include_js` from clestra_app is overwritten when
+  erpnext's bundle runs after.
+- Deferring via `$(document).ready` would work but adds a race-condition
+  surface and needs end-to-end test coverage we don't have yet.
+- The Clestra version is so divergent that a clean subclass approach
+  isn't practical — it's effectively a different widget.
 
-**Effort to migrate properly:** High — requires forking the BOM Creator
-class into `clestra_app/override_doctype_class`, generating ~80 Custom
-Fields via a patch, and porting the Python logic. Treat as its own Wave
-when capacity allows.
+**Workaround:** keep direct edits; re-apply manually on ERPNext upgrade.
 
-**Workaround:** keep the direct edits; re-apply manually on ERPNext
-upgrade until the dedicated migration Wave is executed.
+### Frappe `tree.js` / `treeview.js` / `treeview.py` / `tree.scss`
+
+**Why drift (committed only — no current local edits):** The Frappe tree
+widget was modified to integrate BOM Creator semantics (`idx`,
+`parent_row_no`) for node identity and child loading. The mods cross
+the Frappe ↔ ERPNext boundary and aren't easy to localize.
+
+- `frappe/public/js/frappe/ui/tree.js` — 120-line diff vs v15.33.0.
+  `get_nodes(value, idx, is_root)`, `get_all_nodes(...)`, `idx`-based
+  node lookup, `render_children_of_all_nodes` using `parent_row_no`.
+- `frappe/public/js/frappe/views/treeview.js` — 47-line diff.
+- `frappe/desk/treeview.py` — 77-line diff.
+- `frappe/public/scss/desk/tree.scss` — 9-line diff (visual).
+
+**Why not migrated:** would require either patching Frappe's tree widget
+at runtime (fragile) or shipping a clestra_app tree widget that BOM
+Creator references explicitly (large rewrite).
+
+**Workaround:** keep direct edits; re-apply manually on Frappe upgrade.
+
+### `erpnext/manufacturing/doctype/bom_creator/*` — migrated to clestra_app
+
+The server logic (`bom_creator.py`, `bom_creator_item.py`), form script
+(`bom_creator.js`), and Custom Fields (80 on BOM Creator + 78 on
+BOM Creator Item) **are now migrated** into clestra_app:
+
+- `clestra_app/overrides/bom_creator/bom_creator.py` — BOMCreator class
+  override via `override_doctype_class`; 11 whitelisted module-level
+  functions exposed via `override_whitelisted_methods`.
+- `clestra_app/overrides/bom_creator/bom_creator_item.py` — BOMCreatorItem
+  class override.
+- `clestra_app/public/js/bom_creator.js` — wired via `doctype_js`.
+- `clestra_app/patches/add_bom_creator_custom_fields.py` — 158 Custom
+  Fields.
+
+The ERPNext-side `.json` / `.py` / `.js` files are restored to upstream.
+The only remaining ERPNext drift is the bundle.js noted above.
 
 ---
 

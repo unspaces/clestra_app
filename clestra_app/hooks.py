@@ -270,24 +270,51 @@ doctype_js = {
     ],
     "Customer": "public/js/customer.js",
     "Item": "public/js/item.js",
+    "BOM Creator": "public/js/bom_creator.js",
 }
 
 # Customer form dashboard customization — replaces erpnext/.../customer_dashboard.py
 override_doctype_dashboards = {
     "Customer": "clestra_app.utils.customer_dashboard.get_dashboard_data",
 }
-# doctype_js = {
-    # "CH Quotation": "clestra_app/clestra_app/doctype/ch_quotation/ch_quotation.js"
-# }
 
-# Override whitelisted methods
-# override_whitelisted_methods = {
-#     "erpnext.selling.doctype.quotation.quotation.get_children": "clestra_app.clestra_app.doctype.ch_quotation.ch_quotation.get_children",
-#     "erpnext.selling.doctype.quotation.quotation.add_item": "clestra_app.clestra_app.doctype.ch_quotation.ch_quotation.add_item",
-#     "erpnext.selling.doctype.quotation.quotation.add_sub_assembly": "clestra_app.clestra_app.doctype.ch_quotation.ch_quotation.add_sub_assembly",
-#     "erpnext.selling.doctype.quotation.quotation.delete_node": "clestra_app.clestra_app.doctype.ch_quotation.ch_quotation.delete_node",
-#     "erpnext.selling.doctype.quotation.quotation.edit_qty": "clestra_app.clestra_app.doctype.ch_quotation.ch_quotation.edit_qty",
-# }
+# Replace upstream BOMCreator/BOMCreatorItem classes with Clestra forks that
+# add door/leaf/panel domain logic (size cascades, hash-based BOM dedup, etc.).
+# The full HEAD logic was lifted into clestra_app/overrides/bom_creator/ so the
+# ERPNext source can be restored to pristine upstream.
+override_doctype_class = {
+    "BOM Creator": "clestra_app.overrides.bom_creator.bom_creator.BOMCreator",
+    "BOM Creator Item": "clestra_app.overrides.bom_creator.bom_creator_item.BOMCreatorItem",
+}
+
+# Redirect upstream's whitelisted RPC endpoints (called from bom_creator.js /
+# bom_configurator.bundle.js) to the Clestra implementations. Without this the
+# JS calls would still hit the slim upstream functions that don't know about
+# Clestra's extra params (idx, qty_custom, qty_prefix/suffix, exclude_fields).
+override_whitelisted_methods = {
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.get_children":
+        "clestra_app.overrides.bom_creator.bom_creator.get_children",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.add_item":
+        "clestra_app.overrides.bom_creator.bom_creator.add_item",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.add_sub_assembly":
+        "clestra_app.overrides.bom_creator.bom_creator.add_sub_assembly",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.duplicate":
+        "clestra_app.overrides.bom_creator.bom_creator.duplicate",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.delete_node":
+        "clestra_app.overrides.bom_creator.bom_creator.delete_node",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.delete_node_origin":
+        "clestra_app.overrides.bom_creator.bom_creator.delete_node_origin",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.edit_qty":
+        "clestra_app.overrides.bom_creator.bom_creator.edit_qty",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.edit_conditions":
+        "clestra_app.overrides.bom_creator.bom_creator.edit_conditions",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.edit_values":
+        "clestra_app.overrides.bom_creator.bom_creator.edit_values",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.get_item_details":
+        "clestra_app.overrides.bom_creator.bom_creator.get_item_details",
+    "erpnext.manufacturing.doctype.bom_creator.bom_creator.get_bom_details":
+        "clestra_app.overrides.bom_creator.bom_creator.get_bom_details",
+}
 
 # app_include_js = [
     # "/assets/clestra_app/js/qbom_configurator.bundle.js",

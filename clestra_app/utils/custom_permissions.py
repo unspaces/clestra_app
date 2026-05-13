@@ -50,6 +50,57 @@ CUSTOM_PERMISSIONS = [
 		"permlevel": 0,
 		"rights": {"read": 1, "report": 1, "share": 1, "print": 1, "email": 1},
 	},
+	# Sales/Manufacturing/Design departments need read+write access to Projects
+	# (not in upstream). Sales Master Manager has full CRUD; others read+write only.
+	{
+		"parent": "Project",
+		"role": "Sales Master Manager",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1, "create": 1, "delete": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Sales Manager",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Sales User",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Manufacturing Manager",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Manufacturing User",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Design Manager",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
+	{
+		"parent": "Project",
+		"role": "Design User",
+		"permlevel": 0,
+		"rights": {"read": 1, "write": 1,
+		           "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
+	},
 	# ---- Supplier ----
 	# Clestra grants full CRUD to Design Manager/Design User (not in upstream).
 	{

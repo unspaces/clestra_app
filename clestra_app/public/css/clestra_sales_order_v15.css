@@ -77,7 +77,7 @@
 [data-fieldname="finished_items"] .grid-heading-row {
     position: sticky;
     top: calc(var(--navbar-height) + var(--page-head-height) - 18px); /* 초기/fallback */
-    z-index: 20;
+    z-index: 2;
     background: var(--fg-color, #fff);
     box-shadow: 0 1px 0 var(--border-color, #d1d8dd);
     transition: 0.5s top; /* form-tabs-list와 동일한 top 애니메이션 */

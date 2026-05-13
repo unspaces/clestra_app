@@ -1,0 +1,158 @@
+/* Clestra grid overrides.
+   Previously these lived as direct edits in
+   frappe/public/scss/common/grid.scss. Moved here on 2026-05-11. */
+
+/* ---------------------------------------------------------------- */
+/* 1) Grid heading row height: allow growth (up to 50px) instead of  */
+/*    the fixed 32 px so multi-line column headers fit.              */
+/* ---------------------------------------------------------------- */
+.grid-heading-row {
+    min-height: 32px;
+    height: auto;
+    max-height: 50px;
+}
+.grid-heading-row .grid-row .grid-static-col,
+.grid-heading-row .grid-row .row-check,
+.grid-heading-row .grid-row .row-index {
+    min-height: 32px;
+    height: auto;
+    max-height: 50px;
+}
+
+/* ---------------------------------------------------------------- */
+/* 2) Body row cells: remove the upstream fixed 38px height so cells */
+/*    can grow to fit 2-line content (paired with the .ellipsis      */
+/*    2-line override scoped to form grids in frappe_overrides_*).  */
+/* ---------------------------------------------------------------- */
+.form-grid .grid-row .grid-static-col,
+.form-grid .grid-row .row-index,
+.form-grid .grid-row .row-check {
+    height: auto;
+}
+
+/* ---------------------------------------------------------------- */
+/* 3) qty-bracket display: when JS toggles `.qty-bracket` on a qty   */
+/*    cell, render the value with parentheses via pseudo-elements.   */
+/* ---------------------------------------------------------------- */
+.qty-bracket .static-area.ellipsis {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+.qty-bracket .static-area.ellipsis > div {
+    display: inline;
+}
+.qty-bracket .static-area.ellipsis::before {
+    content: '(';
+    color: inherit;
+    font-size: inherit;
+    margin-right: 0.2em;
+}
+.qty-bracket .static-area.ellipsis::after {
+    content: ')';
+    color: inherit;
+    font-size: inherit;
+    margin-left: 0.2em;
+}
+
+/* ---------------------------------------------------------------- */
+/* 4) `.no-word-break` utility (desk-wide, NOT just for print). The  */
+/*    print-only version lives in frappe_overrides_*.css.            */
+/* ---------------------------------------------------------------- */
+.no-word-break {
+    word-break: keep-all;
+    white-space: normal;
+}
+
+/* ---------------------------------------------------------------- */
+/* 5) `.grid-overflow-no-ellipsis`: use keep-all word-break (CJK)    */
+/*    instead of upstream's `word-wrap: break-word` so Korean text   */
+/*    stays on word boundaries.                                      */
+/* ---------------------------------------------------------------- */
+.grid-overflow-no-ellipsis {
+    word-wrap: normal;
+    word-break: keep-all;
+}
+
+/* ---------------------------------------------------------------- */
+/* 6) Editable cell arrow: extend the clickable touch area via an    */
+/*    invisible ::before pseudo-element (10 px padding all sides).   */
+/* ---------------------------------------------------------------- */
+.grid-row .grid-static-col .static-area.edit-action {
+    position: relative;
+}
+.grid-row .grid-static-col .static-area.edit-action::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    left: -10px;
+    right: -10px;
+    z-index: -1;
+}
+
+/* ---------------------------------------------------------------- */
+/* 7) Hide grid filter row everywhere EXCEPT inside Project Billing   */
+/*    Master's detail_bom_items table field. Belt-and-braces with    */
+/*    JS DOM removal in remove_grid_filter_row_v*.js.                 */
+/* ---------------------------------------------------------------- */
+.filter-row {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+.grid-heading-row.with-filter {
+    height: auto !important;
+    max-height: 50px !important;
+}
+
+/* Exception: re-enable filter row inside detail_bom_items */
+[data-fieldname="detail_bom_items"] .filter-row {
+    display: flex !important;
+    visibility: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+[data-fieldname="detail_bom_items"] .grid-heading-row.with-filter {
+    height: 64px !important;
+    max-height: none !important;
+}
+
+/* Hide the leftmost row-index search input so the filter row aligns with
+   the header (which already hides row-index per PBM rules above). */
+[data-fieldname="detail_bom_items"] .filter-row .row-index {
+    display: none !important;
+}
+
+/* Column-width alignment fix for header + filter rows.
+   Both rows have a trailing un-sized `.grid-static-col` (gear icon in header,
+   empty slot in filter row). Data row has none. Two un-sized `.col` items
+   competing for the residual 1/12 means row-check becomes 0.5/12 — half of
+   the data row's 1/12, shifting every column 0.5/12 left of its data-row
+   counterpart.
+
+   Fix: (a) hide the filter row's empty trailing slot; (b) pull the header
+   gear icon out of flex flow via `position: absolute` so it doesn't
+   compete for the residual 1/12. After both changes row-check is a full
+   1/12 in every row and columns line up. */
+[data-fieldname="detail_bom_items"] .filter-row > .grid-static-col.search:not([class*="col-xs"]) {
+    display: none !important;
+}
+
+[data-fieldname="detail_bom_items"] .grid-heading-row .grid-row {
+    position: relative;
+}
+[data-fieldname="detail_bom_items"] .grid-heading-row .grid-row > .grid-static-col.d-flex.justify-content-center {
+    position: absolute !important;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: 1;
+}

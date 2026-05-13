@@ -12,7 +12,9 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 app_include_css = [
     "/assets/clestra_app/css/clestra_app_v3.css",
-    "/assets/clestra_app/css/clestra_sales_order_v14.css",
+    "/assets/clestra_app/css/clestra_sales_order_v15.css",
+    "/assets/clestra_app/css/frappe_overrides_v3.css",
+    "/assets/clestra_app/css/grid_overrides_v11.css",
 ]
 # app_include_js = [
     # "/assets/clestra_app/js/global_onload.js"
@@ -24,6 +26,9 @@ app_include_js = [
     "/assets/clestra_app/js/bom_creator_indent.js",
     "/assets/clestra_app/js/draggable_dialog_v1.js",
     "/assets/clestra_app/js/link_field_autoopen_v2.js",
+    "/assets/clestra_app/js/copy_doc_autoname_v1.js",
+    "/assets/clestra_app/js/formatters_qty_uom_v1.js",
+    "/assets/clestra_app/js/remove_grid_filter_row_v3.js",
 ]
 
 # include js, css files in header of web template
@@ -42,7 +47,11 @@ app_include_js = [
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {
+    "Currency Exchange": "public/js/currency_exchange_list.js",
+    "Project": "public/js/project_list.js",
+    "Item": "public/js/item_list.js",
+}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -82,6 +91,14 @@ app_include_js = [
 
 # before_install = "clestra_app.install.before_install"
 # after_install = "clestra_app.install.after_install"
+
+# Re-apply custom DocPerm rules after every migrate, because DocType reloads
+# wipe DocPerm rows and re-insert only those declared in the DocType's JSON.
+# See clestra_app/utils/custom_permissions.py for the rule list.
+after_migrate = [
+    "clestra_app.utils.custom_permissions.ensure_custom_permissions",
+    "clestra_app.utils.workspace_overrides.apply_workspace_overrides",
+]
 
 # Uninstallation
 # ------------
@@ -138,28 +155,36 @@ app_include_js = [
 # Product Color 자동 생성은 product_color.py 모듈의 monkey-patch를 통해
 # _validate_links 이전에 실행됩니다. (doc_events before_validate는 _validate_links 이후에
 # 실행되어 Link 유효성 검사 에러를 방지할 수 없었음)
-doc_events = {}
+doc_events = {
+    "Item": {
+        "before_rename": "clestra_app.utils.item_rename.before_rename_item",
+        "after_rename": "clestra_app.utils.item_rename.after_rename_item",
+    },
+    "Project": {
+        "autoname": "clestra_app.utils.project_naming.autoname",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
-
-# scheduler_events = {
-# 	"all": [
-# 		"clestra_app.tasks.all"
-# 	],
-# 	"daily": [
-# 		"clestra_app.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"clestra_app.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"clestra_app.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"clestra_app.tasks.monthly"
-# 	],
-# }
+# 아래 항목들은 원래 erpnext/hooks.py에 직접 추가되어 있던 내용을 이전한 것임.
+# upstream 병합 가능성을 높이기 위해 clestra_app 쪽으로 분리함.
+scheduler_events = {
+    "cron": {
+        # 매일 10:01 — 환율 자동 업데이트 (Clestra 커스텀: update_cny_based_rates 포함)
+        "1 10 * * *": [
+            "clestra_app.utils.currency_exchange.update_exchange_rates",
+            "clestra_app.utils.currency_exchange.update_cny_based_rates",
+        ],
+    },
+    "daily": [
+        # ERPNext upstream 버그 우회 (v15.29.0 기준):
+        # upstream: "erpnext.assets.doctype.asset.asset_maintenance_log..." → ImportError (잘못된 경로)
+        # correct: asset_maintenance_log/asset_maintenance_log.py 위치가 맞음
+        # upstream 수정될 때까지 여기서 오버라이드. 만약 Asset Maintenance 사용 안 하면 이 줄은 제거해도 됨.
+        "erpnext.assets.doctype.asset_maintenance_log.asset_maintenance_log.update_asset_maintenance_log_status",
+    ],
+}
 
 # Testing
 # -------
@@ -239,7 +264,17 @@ doc_events = {}
 
 # DocType JS
 doctype_js = {
-    "Project": "public/js/project_merge.js",
+    "Project": [
+        "public/js/project.js",
+        "public/js/project_merge.js",
+    ],
+    "Customer": "public/js/customer.js",
+    "Item": "public/js/item.js",
+}
+
+# Customer form dashboard customization — replaces erpnext/.../customer_dashboard.py
+override_doctype_dashboards = {
+    "Customer": "clestra_app.utils.customer_dashboard.get_dashboard_data",
 }
 # doctype_js = {
     # "CH Quotation": "clestra_app/clestra_app/doctype/ch_quotation/ch_quotation.js"

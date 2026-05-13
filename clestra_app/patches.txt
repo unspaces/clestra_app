@@ -6,3 +6,12 @@
 # Patches added in this section will be executed after doctypes are migrated
 clestra_app.patches.rename_items_append_company_abbr
 clestra_app.patches.add_item_dimension_rule_from_vp
+clestra_app.patches.add_currency_exchange_source_field
+clestra_app.patches.add_project_custom_fields
+clestra_app.patches.add_supplier_name_abbr
+clestra_app.patches.add_customer_custom_fields
+clestra_app.patches.add_item_custom_fields
+clestra_app.patches.add_uom_pp_qi_custom_fields
+clestra_app.patches.add_frappe_core_custom_fields
+clestra_app.patches.set_project_job_id_fetch_from
+clestra_app.patches.update_project_naming_series

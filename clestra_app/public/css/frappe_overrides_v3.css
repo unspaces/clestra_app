@@ -1,0 +1,48 @@
+/* Clestra overrides for Frappe framework SCSS/CSS.
+   Previously these lived as direct edits in:
+   - frappe/public/scss/desk/global.scss
+   - frappe/public/scss/website/index.scss
+   - frappe/public/css/bootstrap.css
+   Moved here on 2026-05-11 to keep the upstream files pristine.
+   Loaded via app_include_css after Frappe's bundles. */
+
+/* ------------------------------------------------------------------ */
+/* Form Grid only: render `.ellipsis` content up to 2 lines so that    */
+/* long item_code / item_name / bom_no values aren't truncated to a    */
+/* single line. Scoped to FORM GRID (table fields in form view) only — */
+/* DOES NOT affect listview/report/kanban rows. */
+/* ------------------------------------------------------------------ */
+.form-grid .grid-static-col .ellipsis,
+.form-grid .grid-row .ellipsis,
+.frappe-control .form-grid-container .ellipsis,
+.form-grid-container .grid-static-col .ellipsis {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    line-height: 1.3;
+    max-height: 2.6em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Print: .no-word-break utility class for prints (replaces the addition */
+/* that previously lived in frappe/public/css/bootstrap.css). */
+/* ------------------------------------------------------------------ */
+@media print {
+    .no-word-break {
+        word-break: keep-all;
+        white-space: normal;
+    }
+}
+
+/* Note: a broader desk-wide `.ellipsis` 2-line override and a website
+   `.ellipsis` keep-all override existed previously in:
+   - frappe/public/scss/desk/global.scss
+   - frappe/public/scss/website/index.scss
+   Both were dropped on 2026-05-11 because applying them globally to every
+   `.ellipsis` element broke listview row layout (text in columns
+   overlapped vertically). Only the form-grid-scoped version above
+   survives. See UPSTREAM_DRIFT.md. */

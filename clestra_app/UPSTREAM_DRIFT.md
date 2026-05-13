@@ -76,4 +76,34 @@ stylesheet instead.
 
 ---
 
+## ERPNext
+
+### `erpnext/manufacturing/doctype/bom_creator/bom_creator.{json,py,js}`
+
+**Why drift:** Clestra has effectively forked BOM Creator into a
+domain-specific manufacturing tool for door/panel/leaf assemblies.
+
+**Diff summary (vs ERPNext v15.29.0):**
+- `.json`: +80 fields (HEAD: 117 vs upstream: 37). Adds door/leaf/panel
+  sizing (width, ch, pw, ph, leaf_width/height, etc.), hardware spec
+  (handle, hinge, keeper, key_cylinder, door_closer, flush_bolt, ...),
+  glass spec (glass_a/b, leaf_glass_a/b, ...), workflow (product_section,
+  door_open_type, door_set_type, ...), display (qty_prefix/suffix,
+  qty_bracket, indent_level, ...).
+- `.py`: 1245-line diff. New field-group constants
+  (PARENT_ITEM_FIELDS, BOM_FIELDS, BOM_ITEM_BASE_FIELDS, SIZE_FIELDS,
+  BOM_DETAIL_FIELDS, ...), custom `get_children`/`add_item` overrides,
+  domain helper functions for size propagation and BOM tree traversal.
+- `.js`: tree label + indent column rendering customizations.
+
+**Effort to migrate properly:** High — requires forking the BOM Creator
+class into `clestra_app/override_doctype_class`, generating ~80 Custom
+Fields via a patch, and porting the Python logic. Treat as its own Wave
+when capacity allows.
+
+**Workaround:** keep the direct edits; re-apply manually on ERPNext
+upgrade until the dedicated migration Wave is executed.
+
+---
+
 (Append new drift entries here as they arise.)

@@ -8,6 +8,33 @@ These should be re-applied if the Frappe/ERPNext version is updated.
 
 ## Frappe
 
+### SCSS / CSS migrations (Wave 13, 2026-05-14)
+
+Four Frappe core CSS/SCSS files had inline Clestra customizations now
+replaced by `app_include_css` files in clestra_app. The Frappe sources
+are restored to upstream-pristine v15.33.0.
+
+| File | Drift | clestra_app equivalent |
+|---|---|---|
+| `frappe/public/css/bootstrap.css` | `@media print { .no-word-break { word-break: keep-all; white-space: normal; } }` | `public/css/frappe_overrides_v3.css` — same rule, scoped to `@media print` |
+| `frappe/public/scss/desk/global.scss` | `.ellipsis` with 2-line clamp via `-webkit-box` + `word-break: break-word` | (Wave 1 trade-off — DROPPED, see entry above). Restored upstream `white-space: nowrap` |
+| `frappe/public/scss/website/index.scss` | `.ellipsis` with `word-break: keep-all` + `white-space: normal` for CJK | (Wave 1 trade-off — DROPPED). Restored upstream |
+| `frappe/public/scss/common/grid.scss` | (4 separate customizations, -76 lines) | `public/css/grid_overrides_v15.css` |
+
+`grid.scss` breakdown:
+- Flexible row heights (`min-height: 32px; height: auto; max-height: 50px`)
+  → `grid_overrides_v15.css` section 2 (`.form-grid .grid-row .grid-static-col ...`)
+- `.qty-bracket` pseudo-elements rendering "(123)" around qty
+  → `grid_overrides_v15.css` section 3
+- `.no-word-break` desk-wide utility class
+  → `grid_overrides_v15.css` section 4
+- `.grid-overflow-no-ellipsis { word-break: keep-all }` for CJK columns
+  → `grid_overrides_v15.css` section 5
+- Touch-area expansion `::before` on `.toggle-sub-items` — DROPPED
+  (minor UX nicety, not migrated)
+- Heading `.no-word-break` print-media duplicate of bootstrap.css rule — DROPPED
+  (same rule lived in 2 files; one copy now lives in frappe_overrides_v3.css)
+
 ### Form core JS migrations (Wave 12, 2026-05-14)
 
 Six Frappe core files had inline Clestra customizations that have now

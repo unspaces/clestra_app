@@ -115,6 +115,45 @@ Creator references explicitly (large rewrite).
 
 **Workaround:** keep direct edits; re-apply manually on Frappe upgrade.
 
+### `erpnext/public/js/utils.js` — Item indent prefix moved to per-doctype handlers
+
+**Original drift:** `frappe.form.link_formatters["Item"]` had a branch
+that, when `doc.indent_level > 0`, prepended `└ ` plus full-width spaces
+to the rendered item_code. This made BOM/Production Plan-style nested
+displays visible in any grid that rendered Item link cells.
+
+**Why restore:** the same effect is now produced more cleanly by
+per-doctype DOM handlers in clestra_app, each of which paints a `↳`
+prefix and `padding-left` on the static-area span of indented grid rows.
+The global link_formatter approach also painted indent on item lookups
+that shouldn't show them (e.g. report filters, autocomplete results).
+
+**Where indent visualization lives now:**
+- Project Billing Master (items, sub_items, panel_cover, door_cover,
+  detail_bom_items): `apply_po_items_indent_display()` in
+  `clestra_manufacturing/doctype/project_billing_master/project_billing_master.js`
+  — wraps `grid.refresh` and paints `.po-indent-prefix` spans.
+- BOM Creator (items): `_apply_bom_creator_indent()` in
+  `public/js/bom_creator_indent.js` (loaded via `app_include_js`).
+  Mirrors the PBM pattern with `.bom-indent-prefix` span.
+- Clestra Sales Order (finished_items): class-based — adds
+  `is-parent-row` / `is-child-row` / `is-sub-2` classes to grid rows
+  for CSS-driven indent + grouping. No `↳` prefix; visual separation
+  is via color/border instead.
+
+**Data verification (eclestra 2026-05-14):**
+- BOM Item: 0 rows with `indent_level > 0` (zero impact)
+- PBM Item: 534 rows (covered by `apply_po_items_indent_display`)
+- PBM Sub Item: 21,453 rows (covered by sub_items grid.refresh wrapper)
+- BOM Creator Item: 10,459 rows (covered by `bom_creator_indent.js`)
+- Sales Order Finished Items: 120 rows (covered by class-based CSS)
+- Quotation Item: 0 rows (zero impact)
+
+**If BOM doctype gains indented items in the future:** add a small
+`bom_indent.js` mirroring `bom_creator_indent.js` (or generalize that
+file to handle multiple doctypes) and register in `app_include_js`.
+Don't reintroduce the utils.js drift.
+
 ### `erpnext/hooks.py` — known upstream bug worked around in clestra_app
 
 **Upstream bug (ERPNext v15.29.0):** the `daily` scheduler entry points at

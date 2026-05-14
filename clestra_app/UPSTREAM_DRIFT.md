@@ -115,6 +115,40 @@ Creator references explicitly (large rewrite).
 
 **Workaround:** keep direct edits; re-apply manually on Frappe upgrade.
 
+### `erpnext/hooks.py` — known upstream bug worked around in clestra_app
+
+**Upstream bug (ERPNext v15.29.0):** the `daily` scheduler entry points at
+`erpnext.assets.doctype.asset.asset_maintenance_log.update_asset_maintenance_log_status`
+but the actual module is at
+`erpnext.assets.doctype.asset_maintenance_log.asset_maintenance_log` (the
+DocType is its own folder, not under `asset/`).
+
+**Effect:** `bench migrate` logs `ImportError: No module named
+'erpnext.assets.doctype.asset.asset_maintenance_log'` once per day at the
+scheduled time. Daily scheduler keeps going — other jobs still run.
+
+**Workaround:** `clestra_app/hooks.py` registers the correct path in its own
+`scheduler_events.daily`. Both fire daily — upstream's raises, clestra's
+runs. Log noise but functionally correct.
+
+**Why not fix in apps/erpnext:** keeping a 1-line drift fix in ERPNext also
+works, but the workaround keeps ERPNext fully pristine for safer upgrades.
+Remove this entry from clestra_app/hooks.py once upstream fixes the typo.
+
+### `erpnext/templates/includes/footer/footer_extension.html` — dormant
+
+The file is in the upstream tree but no `{% include %}` references it
+anywhere in frappe/erpnext/hrms/payments. Restoring upstream's "uncommented"
+state vs Clestra's "commented out" state has no visible effect. Kept clean
+for cleanliness, no clestra_app override needed.
+
+### `erpnext/projects/dashboard_chart/project_summary/project_summary.json` — `is_public` reset
+
+Clestra previously set `is_public: 0` (chart hidden from non-System workspaces).
+Restoring upstream brings it back to `is_public: 1`. Effect: Project Summary
+chart appears on Projects workspace for all users. Acceptable for most
+Clestra users; if hiding is needed later, set via Customize Dashboard.
+
 ### `erpnext/manufacturing/doctype/bom_creator/*` — migrated to clestra_app
 
 The server logic (`bom_creator.py`, `bom_creator_item.py`), form script

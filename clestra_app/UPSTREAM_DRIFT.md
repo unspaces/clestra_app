@@ -142,6 +142,26 @@ anywhere in frappe/erpnext/hrms/payments. Restoring upstream's "uncommented"
 state vs Clestra's "commented out" state has no visible effect. Kept clean
 for cleanliness, no clestra_app override needed.
 
+### `frappe/website/website_theme/standard/standard.json` — kept as drift
+
+**Why drift:** Restoring upstream's older snapshot of the Standard Website
+Theme reverts:
+- `theme_url`: `/files/website_theme/standard_style.css` (current,
+  Frappe v15-generated) → `/assets/css/standard_style.css` (older path
+  that doesn't exist in this site).
+- `theme_scss`: drops the `@import "erpnext/public/scss/website"` line
+  the site relies on.
+- `ignored_apps`, `js`: fields added in newer Frappe versions.
+
+**Effect of restoring:** `bench migrate` would write the broken
+`theme_url` into the DB record, the website would then fail to load
+CSS, and the rendered pages would lose the ERPNext-augmented styles.
+
+**Workaround:** Keep this file at HEAD. The drift is a stale snapshot of
+modern Frappe behavior in a file that pre-Wave was just out of sync with
+upstream, not a Clestra customization per se. Revisit once Frappe v16 is
+adopted or if a clean Website Theme record can be sourced.
+
 ### `erpnext/projects/dashboard_chart/project_summary/project_summary.json` — `is_public` reset
 
 Clestra previously set `is_public: 0` (chart hidden from non-System workspaces).

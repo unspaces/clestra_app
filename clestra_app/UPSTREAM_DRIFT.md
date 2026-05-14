@@ -8,6 +8,25 @@ These should be re-applied if the Frappe/ERPNext version is updated.
 
 ## Frappe
 
+### Form core JS migrations (Wave 12, 2026-05-14)
+
+Six Frappe core files had inline Clestra customizations that have now
+been replaced by clestra_app monkey-patches loaded via `app_include_js`.
+The Frappe files are restored to upstream-pristine v15.33.0.
+
+| File | Drift summary | clestra_app equivalent |
+|---|---|---|
+| `frappe/hooks.py` | `check_for_update` was commented out of weekly scheduler | none — restored. Weekly update check now fires (cosmetic notice only) |
+| `form/dashboard.js` | `colspan = 22 / n_indicators` (Bootstrap has no col-22 — was effectively broken) | none — restored to upstream `colspan = 12 / n_indicators` |
+| `form/form.js` | `div_class = "col-md-30"` (Bootstrap has no col-md-30 — was effectively broken) | none — restored to upstream `col-md-12` |
+| `model/create_new.js` | `newdoc.__newname = doc.name + "-Copy"` to auto-name copied docs | `public/js/copy_doc_autoname_v1.js` — wraps `frappe.model.copy_doc` with the same suffix |
+| `form/grid.js` | `show_search: false` + defensive throw/log around docfield lookup | `public/js/remove_grid_filter_row_v3.js` — CSS hides `.filter-row` + MutationObserver removes it from DOM (with exception for PBM `detail_bom_items`) |
+| `form/formatters.js` | Float/Int formatter branches that append `stock_uom` when `docfield.options === "qty"` | `public/js/formatters_qty_uom_v1.js` — `withQtyUom` wraps `frappe.form.formatters.Float` and `.Int` |
+
+All three patch files are registered in `clestra_app/hooks.py`
+`app_include_js`. Idempotent — each guards re-application with a
+`__clestra_*_patched` flag.
+
 ### `frappe/public/js/form_builder/components/controls/FetchFromControl.vue`
 
 **Why drift:** Vue SFC compiled into `desk.bundle.js` at build time;

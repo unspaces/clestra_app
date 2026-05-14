@@ -122,25 +122,58 @@
     max-height: none !important;
 }
 
-/* Hide the leftmost row-index search input so the filter row aligns with
-   the header (which already hides row-index per PBM rules above). */
+/* Frappe core grid.scss line 73-78 forces .row-index { display: none } when
+   the table lives in a .form-column.col-sm-6 / .col-sm-4. PBM's
+   detail_bom_items sits in such a column, so .row-index is display:none in
+   header / data / filter rows alike. Alignment between rows therefore
+   does not depend on this cell; we just preserve the Frappe behavior. */
 [data-fieldname="detail_bom_items"] .filter-row .row-index {
     display: none !important;
 }
 
-/* Column-width alignment fix for header + filter rows.
-   Both rows have a trailing un-sized `.grid-static-col` (gear icon in header,
-   empty slot in filter row). Data row has none. Two un-sized `.col` items
-   competing for the residual 1/12 means row-check becomes 0.5/12 — half of
-   the data row's 1/12, shifting every column 0.5/12 left of its data-row
-   counterpart.
+/* Column-width alignment fix for filter row vs data row.
 
-   Fix: (a) hide the filter row's empty trailing slot; (b) pull the header
-   gear icon out of flex flow via `position: absolute` so it doesn't
-   compete for the residual 1/12. After both changes row-check is a full
-   1/12 in every row and columns line up. */
+   Data row has TWO unsized `.col` cells (no col-xs-N) competing for the
+   residual 1/12 of width after the fixed col-xs cells: the leading
+   `.row-check` and a trailing empty `.col`. Each gets ~half of the
+   residual (~56px on a 1001px row).
+
+   Filter row also has both, but previously the trailing
+   `.grid-static-col.search` was display:none — so only `.row-check`
+   competed for the residual and grew to the full 83px. Result: filter's
+   row-check was ~27px wider than data's, shifting every subsequent
+   filter column 27-55px to the right of its data counterpart.
+
+   Fix: hide the trailing slot's content but PRESERVE its flex slot so
+   it keeps competing for the residual. Width-wise the row-check now
+   matches the data row exactly, and every col-xs column lines up.
+
+   Header row: the gear icon at the end is sized differently. Pull it
+   out of flex flow via absolute positioning so it doesn't disturb the
+   header's column widths either. */
 [data-fieldname="detail_bom_items"] .filter-row > .grid-static-col.search:not([class*="col-xs"]) {
+    /* Keep the cell visible so its bottom border renders alongside the
+       header/data rows — only suppress the inner input + pointer events.
+       Using visibility:hidden here would also hide the border. */
+    pointer-events: none !important;
+}
+[data-fieldname="detail_bom_items"] .filter-row > .grid-static-col.search:not([class*="col-xs"]) input {
     display: none !important;
+}
+
+/* PBM's project_billing_master.css forces the old_idx column to 5.555%
+   via selector `.col[data-fieldname="old_idx"]`. That attribute lives on
+   the header/data row cells but NOT on the filter row cells (Frappe's
+   grid_row.js builds filter row wrappers without data-fieldname). So the
+   filter row's first col-xs-1 stays at its nominal 8.33% while header/
+   data are 5.555%, shifting alignment by ~28px. Match the filter row's
+   first col-xs cell (3rd child after row-check + row-index) to the same
+   5.555% width. */
+[data-fieldname="detail_bom_items"] .filter-row > .grid-static-col.col-xs-1:nth-child(3) {
+    flex: 0 0 5.555% !important;
+    min-width: 5.555% !important;
+    max-width: 5.555% !important;
+    width: 5.555% !important;
 }
 
 [data-fieldname="detail_bom_items"] .grid-heading-row .grid-row {

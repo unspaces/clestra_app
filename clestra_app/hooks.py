@@ -14,7 +14,7 @@ app_include_css = [
     "/assets/clestra_app/css/clestra_app_v3.css",
     "/assets/clestra_app/css/clestra_sales_order_v15.css",
     "/assets/clestra_app/css/frappe_overrides_v3.css",
-    "/assets/clestra_app/css/grid_overrides_v11.css",
+    "/assets/clestra_app/css/grid_overrides_v15.css",
 ]
 # app_include_js = [
     # "/assets/clestra_app/js/global_onload.js"

@@ -31,24 +31,27 @@
             }
 
             // 2. Column widths for Item list view
+            // Item.title_field = item_name → Subject column IS item_name.
+            // Subject body cells have <a href> but no data-filter, so target the
+            // Subject via .list-subject class (which is present in both header and body).
             const style = `
+                /* Subject column (item_name, title field) — wide */
+                [data-page-route="List/Item/List"] .list-row-head .list-subject,
+                [data-page-route="List/Item/List"] .list-row .list-subject {
+                    flex: 1 1 50% !important;
+                    width: 50% !important;
+                }
+                /* item_code column ~25% */
+                [data-page-route="List/Item/List"] .list-row-head .list-row-col:has([data-sort-by="item_code"]),
+                [data-page-route="List/Item/List"] .list-row .list-row-col:has([data-filter^="item_code,"]) {
+                    flex: 1 1 25% !important;
+                    width: 25% !important;
+                }
                 /* Company column ~15% */
                 [data-page-route="List/Item/List"] .list-row-head .list-row-col:has([data-sort-by="company"]),
                 [data-page-route="List/Item/List"] .list-row .list-row-col:has([data-filter^="company,"]) {
                     flex: 1 1 15% !important;
                     width: 15% !important;
-                }
-                /* item_code (title) ~25% */
-                [data-page-route="List/Item/List"] .list-row-head .list-subject,
-                [data-page-route="List/Item/List"] .list-row .list-subject {
-                    flex: 1 1 25% !important;
-                    width: 25% !important;
-                }
-                /* Item Name column ~50% */
-                [data-page-route="List/Item/List"] .list-row-head .list-row-col:has([data-sort-by="item_name"]),
-                [data-page-route="List/Item/List"] .list-row .list-row-col:has([data-filter^="item_name,"]) {
-                    flex: 1 1 50% !important;
-                    width: 50% !important;
                 }
             `;
             frappe.dom.set_style(style, "custom-item-list-style");

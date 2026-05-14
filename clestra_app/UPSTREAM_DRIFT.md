@@ -135,4 +135,170 @@ The only remaining ERPNext drift is the bundle.js noted above.
 
 ---
 
+# Migration Lessons — BOM Creator Wave (2026-05-13)
+
+This wave required far more reactive fixing than expected. Capturing the
+root causes here so the same shape of pain doesn't recur on the next
+override-with-drift wave (Production Plan, BOM, etc.).
+
+## What actually went wrong
+
+The lift-and-shift of `bom_creator.py` / `bom_creator.js` was textually
+correct, and on clean operational data the migrated code worked. The
+cascade of fixes that followed came from four distinct sources, in
+this rough proportion:
+
+1. **Drift-boundary state coupling (≈45%)**
+   We kept `bom_configurator.bundle.js` and the Frappe tree widget
+   (`tree.js`, `treeview.js`, `treeview.py`, `tree.scss`) as drift. The
+   bundle calls `_bom_reload_tree()` after every server-mutating RPC,
+   which under the hood calls `tree.load_children(root, true)`. The
+   Clestra-modified `render_children_of_all_nodes` in `tree.js` does
+   `root.$ul.empty()` and re-creates top-level `<li>`s — the bundle's
+   `onrender` hook is supposed to re-add the condition pills, but
+   doesn't fire reliably enough in the deep-load path. We can't change
+   the bundle (drift) or the tree widget (drift), so we had to
+   monkey-patch `tree.load_children` from clestra_app to (a) intercept
+   the deep-from-root pattern, (b) rebuild the whole BOMConfigurator
+   instead of going through render_children_of_all_nodes, and
+   (c) re-expand the captured node set after the rebuild.
+
+2. **Data corruption created during my own testing (≈25%)**
+   While testing duplicate → delete-with-children flows, the original
+   delete recursion (which had a `get_children` `parent_row_no = "None"`
+   string-filter bug) succeeded at deleting parents but missed grandchildren.
+   The leftover grandchildren had `fg_reference_id=NULL` pointing at
+   nothing — orphans. Every subsequent operation then hit
+   `validate_items` throwing "At row N: set Parent Row No for item …".
+   The fix was a self-heal pass in `reorder_items_hierarchically` that
+   promotes orphans back to top-level and normalises their `fg_item`.
+   On the operational data the user runs day-to-day, this code path
+   was not hit because no orphans existed.
+
+3. **Second-order bugs I introduced trying to fix (1) and (2) (≈20%)**
+   The most consequential one: I swapped `add_item` / `add_sub_assembly`
+   from `save → reorder → save` to `reorder → save`, thinking it
+   would let reorder repair stale data before validate ran. But Frappe's
+   `Document.set_new_name` only assigns names to freshly-appended child
+   rows DURING the first `save()`. Before save, those new rows have
+   `name = None`. `renumber_and_update_parent_links` keyed its parent-ref
+   lookup by `item.name`, so the new rows fell out of the dict and got
+   their `parent_row_no` blanked to None — which then tripped
+   `validate_items`. Original order didn't have this problem because the
+   first `save()` named the rows before reorder ran. Required a
+   second fix (renumber falls back to `item.fg_reference_id` when
+   `item.name` is missing) to undo the damage.
+
+4. **UX expectations that came up during integration (≈10%)**
+   Single-node refresh on `edit_conditions`, layout reflow suppression
+   on rebuild (lock `$parent` min-height), Expand All without
+   collapse-then-expand flicker, tree-state preservation across saves —
+   none of these were strict migration bugs; the original code didn't
+   handle them either, but the user noticed them now that we were
+   actively touching the widget.
+
+## What the upfront analysis missed
+
+- **The drift boundary is a state-management contract, not just code
+  that lives elsewhere.** Listing "bundle.js stays as drift" wasn't
+  enough; we should have traced every server RPC call site to its
+  client-side callback and mapped what tree-state changes it triggers.
+  That would have shown `_bom_reload_tree`'s deep load was a problem
+  before user testing surfaced it.
+- **Frappe's Document save lifecycle.** `set_new_name` assigning child
+  names mid-save is the kind of framework invariant that the migrated
+  code relied on implicitly. Lift-and-shift "preserves behavior" only
+  if you also preserve the call order around `save()`. We should have
+  flagged the `save → reorder → save` sequence as load-bearing and not
+  reordered it.
+- **The previous deployment's data state was the baseline, not the
+  source code.** Operational data was clean. The migration testing
+  itself (failed deletes leaving orphans) was what produced the
+  stale state that exercised the long-quiet branches in the helpers.
+  Subsequent failures looked like "original code bugs" but were really
+  "data we corrupted ourselves" + "branches that were latent because
+  nobody had bad data before."
+
+## Checklist for the next override-with-drift wave
+
+Apply this before kicking off Production Plan / BOM / similar migrations:
+
+1. **Map the RPC ↔ tree-state callback graph for the drift bundle.**
+   For each whitelisted server method we redirect, list:
+   - Which JS function calls it
+   - What its `callback:` does to tree/form state (`_bom_reload_tree`,
+     `frm.refresh`, manual DOM ops, …)
+   - Which tree-widget method that callback invokes and what side-effects
+     that has on existing nodes (pills, $ul visibility, idx-based lookup
+     in `tree.nodes`, etc.)
+
+2. **Identify load-bearing call orderings in the original code.**
+   For each function that does
+   `mutate → save → repair → save` (or any other multi-step
+   integrity dance), note WHY. Document each `save()` site as either
+   "validation gate" (don't move) or "persistence" (movable). Don't
+   refactor these orderings unless you've proven the validation
+   contract still holds.
+
+3. **Treat `frappe.call`-style monkey patches as global state.**
+   Always pass `(...args)` through verbatim. Both object form
+   `frappe.call({method, args, callback})` and shorthand
+   `frappe.call("method", args, callback)` are in active use across
+   Frappe/ERPNext; dropping the second arg silently breaks listviews.
+
+4. **Snapshot a known-clean state of the operational data before
+   any migration testing.** If we have to repair stale data later,
+   start from the snapshot so we know which corruption was already
+   there vs. created by our test runs.
+
+5. **Run an explicit UI smoke matrix on a non-trivial document before
+   declaring the wave done.** For BOM Creator that matrix would have
+   been: open → expand all → collapse → edit qty/conditions/values →
+   add item to root / non-root → add sub-assembly to leaf / internal →
+   delete leaf / non-leaf / with children / without children → duplicate
+   leaf / internal → save. Half of the fixes in this wave would have
+   surfaced before commit.
+
+6. **Don't accept "lift-and-shift preserves behavior" without testing
+   the previously-quiet code paths.** Defensive branches (orphan
+   handling, recursion termination, empty-data renders) are exactly
+   the ones that go untested in production and break first under
+   migration.
+
+7. **Inventory list-view & form-layout Property Setters before
+   declaring the wave done.** Property Setters created via Customize
+   Form UI live only as DB rows and are invisible to the Wave's
+   "restore upstream JSON + write Custom Field patch" loop. If they
+   aren't codified into a `add_<doctype>_property_setters.py` patch,
+   they vanish on fresh installs and silently degrade the UX (missing
+   search-filter chips, wrong list columns, narrow grid widths,
+   `allow_rename` lost, etc.). For each doctype in the wave:
+
+   ```sql
+   SELECT doc_type, field_name, property, property_type, value
+   FROM `tabProperty Setter`
+   WHERE doc_type IN ('<DocType>', '<Child DocType>')
+   ORDER BY doc_type, field_name, property;
+   ```
+
+   Categorize each row:
+   - **Field-level** (`doctype_or_field='DocField'`,
+     `field_name` set): `in_standard_filter`, `in_list_view`,
+     `length` (column width), `options`, `default`, `read_only`, etc.
+   - **DocType-level** (`doctype_or_field='DocType'`,
+     `field_name=NULL`): `allow_rename`, `naming_rule`, `autoname`,
+     `states`, etc. These are the easiest to miss because they
+     don't appear in field-by-field comparisons.
+
+   Pattern for the patch: see
+   [add_bom_creator_property_setters.py](clestra_app/patches/add_bom_creator_property_setters.py)
+   — separate `_ensure_field_property_setter()` /
+   `_ensure_doctype_property_setter()` helpers, idempotent
+   (update-if-different-value, skip-if-equal), commit + clear_cache
+   at the end. Wave 7 found 9 DB-only field-level + 1 doctype-level
+   PSes for BOM Creator that were silent and only surfaced during
+   post-Wave verification.
+
+---
+
 (Append new drift entries here as they arise.)

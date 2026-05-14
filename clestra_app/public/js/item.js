@@ -12,16 +12,4 @@ frappe.ui.form.on("Item", {
             });
         }
     },
-
-    product_type(frm) {
-        if (frm.doc.product_type) {
-            frm.set_query("print_category", function () {
-                return {
-                    filters: {
-                        product_type: frm.doc.product_type,
-                    },
-                };
-            });
-        }
-    },
 });

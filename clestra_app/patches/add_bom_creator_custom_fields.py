@@ -50,8 +50,8 @@ FIELDS = {
 		{"fieldname": 'glass_a', "fieldtype": 'Data', "label": 'Glass A (Outer)', "insert_after": 'panel'},
 		{"fieldname": 'glass_b', "fieldtype": 'Data', "label": 'Glass B (Inner)', "insert_after": 'glass_a'},
 		{"fieldname": 'hinge', "fieldtype": 'Data', "label": 'Hinge', "insert_after": 'hinge_heading'},
-		{"fieldname": 'print_hide', "fieldtype": 'Check', "label": 'Print Hide', "insert_after": 'disassembled'},
-		{"fieldname": 'show_qty_bracket', "fieldtype": 'Check', "label": 'Show Qty in Brackets', "insert_after": 'use_unit'},
+		{"fieldname": 'print_hide', "fieldtype": 'Check', "label": 'Print Hide', "insert_after": 'disassembled', "default": '0'},
+		{"fieldname": 'show_qty_bracket', "fieldtype": 'Check', "label": 'Show Qty in Brackets', "insert_after": 'use_unit', "default": '0'},
 		{"fieldname": 'app_country', "fieldtype": 'Data', "label": 'Applicable Country', "insert_after": 'general_condition_section'},
 		{"fieldname": 'hw_options', "fieldtype": 'Link', "label": 'Door Option', "insert_after": 'handle_direct', "options": 'Item'},
 		{"fieldname": 'hinge_type', "fieldtype": 'Link', "label": 'Hinge Type', "insert_after": 'hinge_glass_b', "options": 'Selection Library'},
@@ -64,16 +64,16 @@ FIELDS = {
 		{"fieldname": 'flush_bolt', "fieldtype": 'Data', "label": 'Flush Bolt', "insert_after": 'astragal'},
 		{"fieldname": 'auto_drop_seal', "fieldtype": 'Link', "label": 'Auto Drop Seal', "insert_after": 'hardwares', "options": 'Selection Library'},
 		{"fieldname": 'leaf_material', "fieldtype": 'Data', "label": 'Leaf Material', "insert_after": 'leaf_glass_b'},
-		{"fieldname": 'for_pair_door', "fieldtype": 'Check', "label": 'For Pair Door', "insert_after": 'exclude_fields'},
-		{"fieldname": 'equal_leaf_w', "fieldtype": 'Check', "label": 'Equal Leaf Width', "insert_after": 'leaf_material'},
+		{"fieldname": 'for_pair_door', "fieldtype": 'Check', "label": 'For Pair Door', "insert_after": 'exclude_fields', "default": '0'},
+		{"fieldname": 'equal_leaf_w', "fieldtype": 'Check', "label": 'Equal Leaf Width', "insert_after": 'leaf_material', "default": '0'},
 		{"fieldname": 'column_break_mxyg', "fieldtype": 'Column Break', "insert_after": 'equal_leaf_w'},
 		{"fieldname": 'tape_seal_color', "fieldtype": 'Link', "label": 'Tape & Seal Color', "insert_after": 'fgd_info', "options": 'Selection Library'},
 		{"fieldname": 'fix_screw_cap', "fieldtype": 'Link', "label": 'Fixing Screw Cap', "insert_after": 'tape_seal_color', "options": 'Selection Library'},
 		{"fieldname": 'fgd_info', "fieldtype": 'Link', "label": 'FGD Info', "insert_after": 'flush_bolt', "options": 'Selection Library'},
 		{"fieldname": 'qty_prefix', "fieldtype": 'Data', "label": 'Qty Prefix', "insert_after": 'qty_custom'},
 		{"fieldname": 'qty_suffix', "fieldtype": 'Data', "label": 'Qty Suffix', "insert_after": 'qty_prefix'},
-		{"fieldname": 'use_unit', "fieldtype": 'Check', "label": 'Use Unit', "insert_after": 'qty_suffix'},
-		{"fieldname": 'disassembled', "fieldtype": 'Check', "label": 'Disassembled', "insert_after": 'app_country'},
+		{"fieldname": 'use_unit', "fieldtype": 'Check', "label": 'Use Unit', "insert_after": 'qty_suffix', "default": '0'},
+		{"fieldname": 'disassembled', "fieldtype": 'Check', "label": 'Disassembled', "insert_after": 'app_country', "default": '0'},
 		{"fieldname": 'exclude_fields', "fieldtype": 'Data', "label": 'Exclude Fields', "insert_after": 'sub_contract', "hidden": 1},
 		{"fieldname": 'panel', "fieldtype": 'Heading', "label": 'Panel', "insert_after": 'bom_options_section'},
 		{"fieldname": 'door_unit', "fieldtype": 'Heading', "label": 'Door Unit', "insert_after": 'glass_b'},
@@ -94,19 +94,19 @@ FIELDS = {
 		{"fieldname": 'door_frame', "fieldtype": 'Data', "label": 'Door Frame', "insert_after": 'door_unit'},
 		{"fieldname": 'indent_level', "fieldtype": 'Int', "label": 'Indent Level', "insert_after": 'project'},
 		{"fieldname": 'pw', "fieldtype": 'Link', "label": 'Panel Width (PW)', "insert_after": 'width', "options": 'Formula Library'},
-		{"fieldname": 'exclude_from_cover', "fieldtype": 'Check', "label": 'Exclude From Cover', "insert_after": 'indent_level'},
+		{"fieldname": 'exclude_from_cover', "fieldtype": 'Check', "label": 'Exclude From Cover', "insert_after": 'indent_level', "default": '0'},
 		{"fieldname": 'depth', "fieldtype": 'Link', "label": 'Depth', "insert_after": 'abl_b', "options": 'Formula Library'},
 		{"fieldname": 'price_study', "fieldtype": 'Link', "label": 'Price Study', "insert_after": 'hw_options', "options": 'Item'},
 		{"fieldname": 'sub_contract', "fieldtype": 'Link', "label": 'Sub Contract', "insert_after": 'price_study', "options": 'Item'},
-		{"fieldname": 'is_panel_cover', "fieldtype": 'Check', "label": 'Panel Cover Item', "insert_after": 'print_hide'},
+		{"fieldname": 'is_panel_cover', "fieldtype": 'Check', "label": 'Panel Cover Item', "insert_after": 'print_hide', "default": '0'},
 		{"fieldname": 'open_width', "fieldtype": 'Link', "label": 'Open Width', "insert_after": 'under_cut', "options": 'Formula Library'},
 		{"fieldname": 'open_height', "fieldtype": 'Link', "label": 'Open Height', "insert_after": 'open_width', "options": 'Formula Library'},
 		{"fieldname": 'key_cylinder', "fieldtype": 'Link', "label": 'Key Cylinder', "insert_after": 'fix_screw_cap', "options": 'Selection Library'},
-		{"fieldname": 'use_billing_color', "fieldtype": 'Check', "label": 'Use Billing Color', "insert_after": 'color', "description": "If checked, the color code will be displayed as billing color (e.g., '7099' becomes 'Black')."},
+		{"fieldname": 'use_billing_color', "fieldtype": 'Check', "label": 'Use Billing Color', "insert_after": 'color', "default": '0', "description": "If checked, the color code will be displayed as billing color (e.g., '7099' becomes 'Black')."},
 	],
 	"BOM Creator Item": [
 		{"fieldname": 'bom_no', "fieldtype": 'Link', "label": 'BOM No', "insert_after": 'item_code', "options": 'BOM'},
-		{"fieldname": 'print_hide', "fieldtype": 'Check', "label": 'Print Hide', "insert_after": 'disassembled'},
+		{"fieldname": 'print_hide', "fieldtype": 'Check', "label": 'Print Hide', "insert_after": 'disassembled', "default": '0'},
 		{"fieldname": 'size_section', "fieldtype": 'Section Break', "label": 'Size', "insert_after": 'description'},
 		{"fieldname": 'width', "fieldtype": 'Link', "label": 'Width', "insert_after": 'size_section', "options": 'Formula Library', "in_list_view": 1, "columns": 1},
 		{"fieldname": 'column_break_mzjl', "fieldtype": 'Column Break', "insert_after": 'leaf_height'},
@@ -130,7 +130,7 @@ FIELDS = {
 		{"fieldname": 'column_break_dlfw', "fieldtype": 'Column Break', "insert_after": 'hinge_num'},
 		{"fieldname": 'keeper', "fieldtype": 'Data', "label": 'Keeper', "insert_after": 'keeper_heading'},
 		{"fieldname": 'hinge', "fieldtype": 'Data', "label": 'Hinge', "insert_after": 'hinge_heading'},
-		{"fieldname": 'show_qty_bracket', "fieldtype": 'Check', "label": 'Show Qty in Brackets', "insert_after": 'use_unit'},
+		{"fieldname": 'show_qty_bracket', "fieldtype": 'Check', "label": 'Show Qty in Brackets', "insert_after": 'use_unit', "default": '0'},
 		{"fieldname": 'app_country', "fieldtype": 'Data', "label": 'Applicable Country', "insert_after": 'general_condition_section'},
 		{"fieldname": 'hw_options', "fieldtype": 'Link', "label": 'Door Options', "insert_after": 'handle_direct', "options": 'Item'},
 		{"fieldname": 'indent_level', "fieldtype": 'Int', "label": 'Indent Level', "insert_after": 'item_code'},
@@ -144,16 +144,16 @@ FIELDS = {
 		{"fieldname": 'astragal', "fieldtype": 'Link', "label": 'Astragal', "insert_after": 'auto_drop_seal', "options": 'Selection Library'},
 		{"fieldname": 'flush_bolt', "fieldtype": 'Data', "label": 'Flush Bolt', "insert_after": 'astragal'},
 		{"fieldname": 'leaf_material', "fieldtype": 'Data', "label": 'Leaf Material', "insert_after": 'leaf_glass_b'},
-		{"fieldname": 'for_pair_door', "fieldtype": 'Check', "label": 'For Pair Door', "insert_after": 'exclude_fields'},
-		{"fieldname": 'equal_leaf_w', "fieldtype": 'Check', "label": 'Equal Leaf Width', "insert_after": 'leaf_material'},
+		{"fieldname": 'for_pair_door', "fieldtype": 'Check', "label": 'For Pair Door', "insert_after": 'exclude_fields', "default": '0'},
+		{"fieldname": 'equal_leaf_w', "fieldtype": 'Check', "label": 'Equal Leaf Width', "insert_after": 'leaf_material', "default": '0'},
 		{"fieldname": 'column_break_kapx', "fieldtype": 'Column Break', "insert_after": 'equal_leaf_w'},
 		{"fieldname": 'tape_seal_color', "fieldtype": 'Link', "label": 'Tape & Seal Color', "insert_after": 'fgd_info', "options": 'Selection Library'},
 		{"fieldname": 'fix_screw_cap', "fieldtype": 'Link', "label": 'Fixing Screw Cap', "insert_after": 'tape_seal_color', "options": 'Selection Library'},
 		{"fieldname": 'fgd_info', "fieldtype": 'Link', "label": 'FGD Info', "insert_after": 'flush_bolt', "options": 'Selection Library'},
 		{"fieldname": 'qty_prefix', "fieldtype": 'Data', "label": 'Qty Prefix', "insert_after": 'qty_custom'},
 		{"fieldname": 'qty_suffix', "fieldtype": 'Data', "label": 'Qty Suffix', "insert_after": 'qty_prefix'},
-		{"fieldname": 'use_unit', "fieldtype": 'Check', "label": 'Use Unit', "insert_after": 'qty_suffix'},
-		{"fieldname": 'disassembled', "fieldtype": 'Check', "label": 'Disassembled', "insert_after": 'app_country'},
+		{"fieldname": 'use_unit', "fieldtype": 'Check', "label": 'Use Unit', "insert_after": 'qty_suffix', "default": '0'},
+		{"fieldname": 'disassembled', "fieldtype": 'Check', "label": 'Disassembled', "insert_after": 'app_country', "default": '0'},
 		{"fieldname": 'exclude_fields', "fieldtype": 'Data', "label": 'Exclude Fields', "insert_after": 'sub_contract'},
 		{"fieldname": 'keeper_glass_a', "fieldtype": 'Data', "label": 'Keeper Glass A', "insert_after": 'keeper'},
 		{"fieldname": 'keeper_glass_b', "fieldtype": 'Data', "label": 'Keeper Glass B', "insert_after": 'keeper_glass_a'},
@@ -178,22 +178,38 @@ FIELDS = {
 		{"fieldname": 'door_set_type', "fieldtype": 'Select', "label": 'Door Set Type', "insert_after": 'door_open_type', "options": '\nSingle\nPair'},
 		{"fieldname": 'price_study', "fieldtype": 'Link', "label": 'Price Study', "insert_after": 'hw_options', "options": 'Item'},
 		{"fieldname": 'sub_contract', "fieldtype": 'Link', "label": 'Sub Contract', "insert_after": 'price_study', "options": 'Item'},
-		{"fieldname": 'is_panel_cover', "fieldtype": 'Check', "label": 'Panel Cover Item', "insert_after": 'print_hide'},
+		{"fieldname": 'is_panel_cover', "fieldtype": 'Check', "label": 'Panel Cover Item', "insert_after": 'print_hide', "default": '0'},
 		{"fieldname": 'open_width', "fieldtype": 'Link', "label": 'Open Width', "insert_after": 'under_cut', "options": 'Formula Library'},
 		{"fieldname": 'open_height', "fieldtype": 'Link', "label": 'Open Height', "insert_after": 'open_width', "options": 'Formula Library'},
 		{"fieldname": 'key_cylinder', "fieldtype": 'Link', "label": 'Key Cylinder', "insert_after": 'fix_screw_cap', "options": 'Selection Library'},
-		{"fieldname": 'use_billing_color', "fieldtype": 'Check', "label": 'Use Billing Color', "insert_after": 'color', "description": "If checked, the color code will be displayed as billing color (e.g., '7099' becomes 'Black')."},
+		{"fieldname": 'use_billing_color', "fieldtype": 'Check', "label": 'Use Billing Color', "insert_after": 'color', "default": '0', "description": "If checked, the color code will be displayed as billing color (e.g., '7099' becomes 'Black')."},
 	],
 }
 
+RECONCILE_KEYS = ("default",)
+
+
 def execute():
 	total_created = 0
-	total_skipped = 0
+	total_updated = 0
+	total_unchanged = 0
 	for dt, specs in FIELDS.items():
 		dt_created = 0
+		dt_updated = 0
 		for spec in specs:
-			if frappe.db.exists("Custom Field", {"dt": dt, "fieldname": spec["fieldname"]}):
-				total_skipped += 1
+			existing = frappe.db.get_value(
+				"Custom Field",
+				{"dt": dt, "fieldname": spec["fieldname"]},
+				["name", *RECONCILE_KEYS],
+				as_dict=True,
+			)
+			if existing:
+				updates = {k: spec[k] for k in RECONCILE_KEYS if k in spec and existing.get(k) != spec[k]}
+				if updates:
+					frappe.db.set_value("Custom Field", existing.name, updates)
+					dt_updated += 1
+				else:
+					total_unchanged += 1
 				continue
 			try:
 				frappe.get_doc({"doctype": "Custom Field", "dt": dt, **spec}).insert(
@@ -203,9 +219,13 @@ def execute():
 			except Exception as e:
 				print(f"[add_bom_creator_custom_fields] FAILED {dt}/{spec['fieldname']}: {e}")
 		total_created += dt_created
-		print(f"[add_bom_creator_custom_fields] {dt}: created={dt_created} / {len(specs)}")
-	if total_created:
+		total_updated += dt_updated
+		print(f"[add_bom_creator_custom_fields] {dt}: created={dt_created} updated={dt_updated} / {len(specs)}")
+	if total_created or total_updated:
 		frappe.db.commit()
 		frappe.clear_cache(doctype="BOM Creator")
 		frappe.clear_cache(doctype="BOM Creator Item")
-	print(f"[add_bom_creator_custom_fields] total: created={total_created}, skipped={total_skipped}")
+	print(
+		f"[add_bom_creator_custom_fields] total: created={total_created}, "
+		f"updated={total_updated}, unchanged={total_unchanged}"
+	)

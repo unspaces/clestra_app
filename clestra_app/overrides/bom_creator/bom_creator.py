@@ -817,7 +817,11 @@ def add_item(**kwargs):
 		kwargs.update({"parent_row_no": parent_row_no})
 
 	doc.append("items", kwargs)
-	doc.save()
+	# Reorder + recompute parent_row_no from fg_reference_id BEFORE the save
+	# so validate_items sees a self-consistent items list. The previous
+	# save-then-reorder ordering tripped "At row N: set Parent Row No for
+	# item ..." whenever any existing row had a stale parent_row_no that the
+	# reorder pass would have fixed.
 	doc = reorder_items_hierarchically(doc)
 	doc.save()
 
@@ -911,7 +915,11 @@ def add_sub_assembly(**kwargs):
 		# logger.info(f"Added Sub-Item Row: {new_row.as_dict()}")
 	
 	# logger.info(f"Name After Adding Sub-Items: {name}")
-	doc = doc.save()
+	# Reorder + recompute parent_row_no from fg_reference_id BEFORE saving so
+	# validate_items has a self-consistent items list. The previous save-then-
+	# reorder ordering tripped "At row N: set Parent Row No for item ..."
+	# whenever any existing row had a stale parent_row_no that this reorder
+	# pass would have repaired.
 	doc = reorder_items_hierarchically(doc)
 	doc.save()
 
@@ -1076,14 +1084,41 @@ def reorder_items_hierarchically(doc):
     for item in items:
         parent_ref_id = item.fg_reference_id
         if not parent_ref_id or parent_ref_id == doc.name:
+            # Top-level row. Force fg_item to the BOM's final product so
+            # validate_items doesn't trip — without this, rows with
+            # fg_reference_id=NULL but fg_item pointing to a non-root item
+            # (a stale state seen after partially-completed delete +
+            # duplicate operations) get parent_row_no=None from step 2 below,
+            # then validate_items throws "set Parent Row No for item ...".
+            if item.fg_item != doc.item_code:
+                logger.warning(
+                    f"Top-level row '{item.name}' (item_code={item.item_code}) "
+                    f"had fg_item='{item.fg_item}' but no fg_reference_id. "
+                    f"Resetting fg_item to doc.item_code={doc.item_code}."
+                )
+                item.fg_item = doc.item_code
             top_level_items.append(item)
         elif parent_ref_id in item_map: # 부모가 실제 존재하는지 확인
              children_map[parent_ref_id].append(item)
         else:
-             logger.warning(f"Item '{item.name}' references non-existent parent '{parent_ref_id}'. Treating as top-level or skipping.")
-             #孤児 아이템 처리 방식 결정 필요 (예: 최상위로 간주하거나 무시)
-             # 여기서는 일단 무시하지 않고 최상위처럼 처리되도록 top_level_items에 추가는 안 함
-             pass
+             # Orphan row — fg_reference_id points to a sibling row that no
+             # longer exists (typically a side-effect of a partially-completed
+             # delete or an in-place item_code change). Self-heal by promoting
+             # to top-level: clear the stale reference and bind fg_item to
+             # the BOM's final product so validate_items doesn't trip on a
+             # row with fg_item set but no parent_row_no. Without this,
+             # downstream Add Item / Add Sub Assembly / save throws
+             # "At row N: set Parent Row No for item ..." because the reorder
+             # silently bails on len-mismatch and leaves the bad row in place.
+             logger.warning(
+                 f"Orphan row '{item.name}' (item_code={item.item_code}) "
+                 f"references missing parent '{parent_ref_id}'. Promoting to "
+                 f"top-level under doc.item_code={doc.item_code}."
+             )
+             item.fg_reference_id = doc.name
+             item.fg_item = doc.item_code
+             item.parent_row_no = None
+             top_level_items.append(item)
 
     # --- 단계 2: 깊이 우선 탐색(DFS)으로 재정렬 ---
     ordered_items = []
@@ -1130,23 +1165,20 @@ def renumber_and_update_parent_links(doc):
     original_parent_refs = {} # 아이템 name을 원래 부모의 name (fg_reference_id)에 매핑
 
     # --- 단계 1: idx 재정렬 및 매핑 정보 수집 ---
+    # Walk doc.items in their (DFS-ordered) position and assign sequential idx
+    # to EVERY row, including freshly-appended ones that don't yet have a
+    # name. Without this, validate_items would see new rows keeping their
+    # append-time idx (= original len+1) which doesn't match their DFS
+    # position, and renumber_and_update_parent_links Step 2 would reset
+    # their parent_row_no to None because original_parent_refs is keyed by
+    # name and skipping name=None drops them from the lookup.
     logger.debug("Starting Step 1: Renumbering idx and collecting parent references.")
     new_idx_counter = 1
     for item in items:
-        original_name = item.name
-        if not original_name:
-            # 이름이 없는 행은 건너뛰거나 오류 처리 (이런 경우는 없어야 함)
-            logger.warning(f"Skipping item with missing name at original index {item.idx}")
-            continue
-
-        original_parent_ref_id = item.fg_reference_id # 원래 부모의 name 저장
-
-        # 새로운 idx 할당
         item.idx = new_idx_counter
-        name_to_new_idx[original_name] = new_idx_counter
-        original_parent_refs[original_name] = original_parent_ref_id
-
-        logger.debug(f"Renumbered item '{original_name}': old_idx={getattr(item, '_original_idx', 'N/A')}, new_idx={item.idx}, parent_ref='{original_parent_ref_id}'")
+        if item.name:
+            name_to_new_idx[item.name] = new_idx_counter
+            original_parent_refs[item.name] = item.fg_reference_id
         new_idx_counter += 1
 
 
@@ -1154,7 +1186,14 @@ def renumber_and_update_parent_links(doc):
     logger.debug("Starting Step 2: Updating parent_row_no links.")
     for item in items:
         item_name = item.name
-        parent_ref_id = original_parent_refs.get(item_name) # 저장된 원래 부모의 name 가져오기
+        # For freshly-appended (unsaved) items, item.name is None so the
+        # original_parent_refs lookup misses. Fall back to the item's live
+        # fg_reference_id — that's the value the caller (add_item /
+        # add_sub_assembly) just set and we want to honour.
+        if item_name and item_name in original_parent_refs:
+            parent_ref_id = original_parent_refs[item_name]
+        else:
+            parent_ref_id = item.fg_reference_id
 
         new_parent_idx = None # 기본값: 부모 없음 (최상위)
 
@@ -1185,6 +1224,13 @@ def delete_node_origin(**kwargs):
 	if isinstance(kwargs, dict):
 		kwargs = frappe._dict(kwargs)
 
+	# `skip_save` is set internally by delete_node so we don't trigger
+	# validate_items on a half-deleted tree (a still-present grandchild row
+	# whose fg_reference_id points to an already-removed parent throws
+	# "set Parent Row No for item ..."). The top-level delete_node does
+	# one reorder + save at the very end instead.
+	skip_save = kwargs.pop("skip_save", False)
+
 	items = get_children(parent=kwargs.fg_item, parent_id=kwargs.parent, idx=kwargs.idx)
 	if kwargs.docname:
 		frappe.delete_doc("BOM Creator Item", kwargs.docname)
@@ -1192,7 +1238,12 @@ def delete_node_origin(**kwargs):
 	for item in items:
 		frappe.delete_doc("BOM Creator Item", item.name)
 		if item.expandable:
-			delete_node_origin(fg_item=item.value, parent=item.parent_id)
+			delete_node_origin(
+				fg_item=item.value, parent=item.parent_id, skip_save=skip_save
+			)
+
+	if skip_save:
+		return None
 
 	doc = frappe.get_doc("BOM Creator", kwargs.parent)
 	doc.set_rate_for_items()
@@ -1209,41 +1260,51 @@ def delete_node(delete_children=None, **kwargs):
 		kwargs = frappe._dict(kwargs)
 
 	doc = frappe.get_doc("BOM Creator", kwargs.parent)
+	target_docname = kwargs.docname
+	if not target_docname:
+		return doc
 
-	node_parent_row_no = cint(kwargs.parent_row_no)
-	parent_docname = get_parent_name(doc, node_parent_row_no)
-	parent_item_code = get_parent_item_code(doc, parent_docname)
-	
-	if node_parent_row_no == 0:
-		parent_item_code = doc.item_code
-		node_parent_row_no = None
+	delete_descendants = delete_children in (True, "true")
 
-	items = get_children(parent=kwargs.fg_item, parent_id=kwargs.parent, idx=kwargs.idx)
-	if kwargs.docname:
-		frappe.delete_doc("BOM Creator Item", kwargs.docname)
-
-	logger.info(f"delete_children: {delete_children}")
-
-	if delete_children == True or delete_children == "true":
-		for item in items:
-			frappe.delete_doc("BOM Creator Item", item.name)
-			logger.info(f"Deleting item: {item.name}")
-			if item.expandable:
-				delete_node_origin(fg_item=item.value, parent=item.parent_id, parent_row_no=item.idx)
+	if delete_descendants:
+		# Walk descendants via fg_reference_id rather than fg_item — fg_item
+		# (the parent's item_code) can have duplicates after Duplicate
+		# operations and would over-match the wrong subtree. fg_reference_id
+		# stores the parent's docname which is unique. This BFS deletes the
+		# target plus every transitive descendant in one pass, sidestepping
+		# the get_children "parent_row_no = 'None'" filter bug that left
+		# grandchildren un-deleted in the prior recursive implementation.
+		descendants = set()
+		queue = [target_docname]
+		while queue:
+			current = queue.pop(0)
+			for row in doc.items:
+				if row.fg_reference_id == current and row.name not in descendants:
+					descendants.add(row.name)
+					queue.append(row.name)
+		for docname in {target_docname} | descendants:
+			frappe.delete_doc("BOM Creator Item", docname)
 	else:
-		for item in items:
-			frappe.db.set_value("BOM Creator Item", item.name, "parent_row_no", node_parent_row_no)
-			# logger.info(f"kwargs.parent_row_no: {kwargs.parent_row_no}, node_parent_row_no: {node_parent_row_no}, for item: {item.item_code} item idx: {item.idx}")
+		# Re-parent the immediate children to the target's parent (grandparent
+		# from the children's perspective) so they don't become orphans.
+		node_parent_row_no = cint(kwargs.parent_row_no)
+		grandparent_docname = get_parent_name(doc, node_parent_row_no)
+		grandparent_item_code = get_parent_item_code(doc, grandparent_docname)
+		if node_parent_row_no == 0:
+			grandparent_item_code = doc.item_code
+			node_parent_row_no = None
+			grandparent_docname = doc.name
 
-			frappe.db.set_value("BOM Creator Item", item.name, "fg_item", parent_item_code)
-			# logger.info(f"kwargs.fg_item: {kwargs.fg_item}, fg_item_for_child: {parent_item_code}, for item: {item.item_code}")
+		direct_children = [row for row in doc.items if row.fg_reference_id == target_docname]
+		for child in direct_children:
+			frappe.db.set_value("BOM Creator Item", child.name, "parent_row_no", node_parent_row_no)
+			frappe.db.set_value("BOM Creator Item", child.name, "fg_item", grandparent_item_code)
+			frappe.db.set_value("BOM Creator Item", child.name, "fg_reference_id", grandparent_docname)
 
-			frappe.db.set_value("BOM Creator Item", item.name, "fg_reference_id", parent_docname)
-			# logger.info(f"kwargs.fg_reference_id: {kwargs.fg_reference_id}, node_fg_reference_id: {parent_docname}, for item: {item.item_code}")
-				
+		frappe.delete_doc("BOM Creator Item", target_docname)
+
 	doc = frappe.get_doc("BOM Creator", kwargs.parent)
 	doc = reorder_items_hierarchically(doc)
-
 	doc.set_rate_for_items()
 	doc.save()
 

@@ -21,7 +21,7 @@ app_include_css = [
 # ]
 # app_include_js = "/assets/clestra_app/js/clestra_app.js"
 app_include_js = [
-    "/assets/clestra_app/js/quick_entry_custom_v5.js",
+    "/assets/clestra_app/js/quick_entry_custom_v6.js",
     "/assets/clestra_app/js/list_filter_patch_v1.js",
     "/assets/clestra_app/js/bom_creator_indent.js",
     "/assets/clestra_app/js/draggable_dialog_v1.js",

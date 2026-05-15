@@ -247,6 +247,14 @@ modern Frappe behavior in a file that pre-Wave was just out of sync with
 upstream, not a Clestra customization per se. Revisit once Frappe v16 is
 adopted or if a clean Website Theme record can be sourced.
 
+### `erpnext/.gitignore` — site-specific entries moved to bench root (Wave 14, 2026-05-15)
+
+Previously had Clestra-specific entries that didn't belong in a per-app
+gitignore: `sites/eclestra/public/files/`, `sites/*/private/backups/`,
+`chromium/`, `env/`, etc. Restored to upstream-pristine. Equivalent
+patterns already live in `/home/frappe/frappe-bench/.gitignore` (bench
+root) which covers the entire workspace.
+
 ### `erpnext/projects/dashboard_chart/project_summary/project_summary.json` — `is_public` reset
 
 Clestra previously set `is_public: 0` (chart hidden from non-System workspaces).

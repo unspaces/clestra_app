@@ -1,0 +1,316 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:detail_code",
+ "creation": "2026-11-11 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_main",
+  "detail_code",
+  "product_series",
+  "door_configuration",
+  "column_break_main",
+  "check_status",
+  "description",
+  "section_door",
+  "door_type",
+  "door_frame",
+  "door_leaf",
+  "handing",
+  "column_break_door",
+  "installation",
+  "ceiling",
+  "klpkls",
+  "section_hardware",
+  "hinge_type",
+  "lock_set_type",
+  "door_closer",
+  "column_break_hardware",
+  "cylinder_thumbturn",
+  "hardware",
+  "section_pdf",
+  "drawing_pdf",
+  "column_break_pdf",
+  "pdf_version",
+  "pdf_updated_on",
+  "section_notes",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_main",
+   "fieldtype": "Section Break",
+   "label": "Drawing"
+  },
+  {
+   "fieldname": "detail_code",
+   "fieldtype": "Data",
+   "label": "Detail Code",
+   "reqd": 1,
+   "unique": 1,
+   "in_global_search": 1,
+   "bold": 1,
+   "description": "Unique drawing code, e.g. +D-FPDU-C26-FGD54N-001. PDFs are matched to this code by file name."
+  },
+  {
+   "fieldname": "product_series",
+   "fieldtype": "Data",
+   "label": "Product Series",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "description": "e.g. Mplus, Alto"
+  },
+  {
+   "fieldname": "door_configuration",
+   "fieldtype": "Select",
+   "label": "Door Configuration",
+   "options": "\nSingle Door\nPair Door\nSliding Door\nOthers",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "check_status",
+   "fieldtype": "Select",
+   "label": "Check",
+   "options": "Pending\nReview\nDone",
+   "default": "Pending",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "in_global_search": 1
+  },
+  {
+   "fieldname": "section_door",
+   "fieldtype": "Section Break",
+   "label": "Door Specification"
+  },
+  {
+   "fieldname": "door_type",
+   "fieldtype": "Data",
+   "label": "Door Type",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "door_frame",
+   "fieldtype": "Data",
+   "label": "Door Frame",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "door_leaf",
+   "fieldtype": "Data",
+   "label": "Door Leaf",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "handing",
+   "fieldtype": "Data",
+   "label": "Handing",
+   "in_standard_filter": 1,
+   "description": "e.g. RH/LH"
+  },
+  {
+   "fieldname": "column_break_door",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installation",
+   "fieldtype": "Data",
+   "label": "Installation",
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "description": "e.g. BEFORE CARPET, FROM CARPET"
+  },
+  {
+   "fieldname": "ceiling",
+   "fieldtype": "Data",
+   "label": "Ceiling",
+   "in_standard_filter": 1,
+   "description": "e.g. SYSTEM"
+  },
+  {
+   "fieldname": "klpkls",
+   "fieldtype": "Data",
+   "label": "KLPKLS",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "section_hardware",
+   "fieldtype": "Section Break",
+   "label": "Hardware"
+  },
+  {
+   "fieldname": "hinge_type",
+   "fieldtype": "Data",
+   "label": "Hinge Type",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "lock_set_type",
+   "fieldtype": "Data",
+   "label": "Lock Set Type",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "door_closer",
+   "fieldtype": "Data",
+   "label": "Door Closer",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_hardware",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cylinder_thumbturn",
+   "fieldtype": "Data",
+   "label": "Cylinder / Thumbturn",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "hardware",
+   "fieldtype": "Data",
+   "label": "Hardware",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "section_pdf",
+   "fieldtype": "Section Break",
+   "label": "Drawing PDF"
+  },
+  {
+   "fieldname": "drawing_pdf",
+   "fieldtype": "Attach",
+   "label": "Drawing PDF"
+  },
+  {
+   "fieldname": "column_break_pdf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pdf_version",
+   "fieldtype": "Int",
+   "label": "PDF Version",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0",
+   "description": "Goes up by one each time a new PDF is attached. Earlier PDFs stay in the attachments sidebar."
+  },
+  {
+   "fieldname": "pdf_updated_on",
+   "fieldtype": "Datetime",
+   "label": "PDF Updated On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-11 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Clestra Selling",
+ "name": "Detail Drawing",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "Design Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "Design User"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Master Manager"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User"
+  }
+ ],
+ "search_fields": "door_type,door_frame,door_leaf,lock_set_type",
+ "show_preview_popup": 1,
+ "sort_field": "detail_code",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1
+}
